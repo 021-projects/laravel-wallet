@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use O21\LaravelWallet\Casts\TrimZero;
+use O21\LaravelWallet\Contracts\BalanceContract;
 use O21\LaravelWallet\Contracts\TransactionContract;
 
 /**
@@ -25,7 +26,7 @@ use O21\LaravelWallet\Contracts\TransactionContract;
  * @method static \Illuminate\Database\Eloquent\Builder|Balance whereValue($value)
  * @mixin \Eloquent
  */
-class Balance extends Model
+class Balance extends Model implements BalanceContract
 {
     use HasFactory;
 
