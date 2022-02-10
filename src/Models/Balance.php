@@ -48,7 +48,6 @@ class Balance extends Model implements BalanceContract
     //-----------------------------------------------------
 
     public $timestamps = false;
-    public $incrementing = false;
 
     protected $fillable = [
         'user_id', 'value', 'currency'
