@@ -2,6 +2,7 @@
 
 namespace O21\LaravelWallet\Models;
 
+use Database\Factories\TransactionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -319,5 +320,15 @@ class Transaction extends Model implements TransactionContract
     public function scopeDefaultOrder($query)
     {
         return $query->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    protected static function newFactory()
+    {
+        return TransactionFactory::new();
     }
 }

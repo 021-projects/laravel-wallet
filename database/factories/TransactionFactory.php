@@ -3,9 +3,12 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use O21\LaravelWallet\Models\Transaction;
 
 class TransactionFactory extends Factory
 {
+    protected $model = Transaction::class;
+
     /**
      * Define the model's default state.
      *

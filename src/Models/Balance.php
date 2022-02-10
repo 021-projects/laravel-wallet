@@ -2,6 +2,7 @@
 
 namespace O21\LaravelWallet\Models;
 
+use Database\Factories\BalanceFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -68,5 +69,16 @@ class Balance extends Model implements BalanceContract
     public function User(): BelongsTo
     {
         return $this->belongsTo(config('wallet.models.user'));
+    }
+
+
+    /**
+     * Create a new factory instance for the model.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    protected static function newFactory()
+    {
+        return BalanceFactory::new();
     }
 }
