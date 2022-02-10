@@ -8,5 +8,5 @@ namespace O21\LaravelWallet\Contracts;
  */
 interface UserContract
 {
-    public function getBalance(string $currency): BalanceContract;
+    public function getBalance(?string $currency = null): BalanceContract;
 }

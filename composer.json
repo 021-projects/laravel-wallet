@@ -6,11 +6,8 @@
     "license": "MIT",
     "require": {
         "php": "^7.4|^8.0",
-        "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
-        "laravel/framework": "^8.75",
-        "laravel/sanctum": "^2.11",
-        "laravel/tinker": "^2.5"
+        "laravel/framework": "^8.75"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.12",
@@ -19,7 +16,8 @@
         "laravel/sail": "^1.0.1",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^5.10",
-        "phpunit/phpunit": "^9.5.10"
+        "phpunit/phpunit": "^9.5.10",
+        "laravel/tinker": "^2.5"
     },
     "autoload": {
         "psr-4": {
