@@ -4,7 +4,9 @@ namespace O21\LaravelWallet;
 
 use Illuminate\Support\ServiceProvider as Provider;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Collection;
+use O21\LaravelWallet\Contracts\BalanceContract;
+use O21\LaravelWallet\Contracts\CurrencyConverterContract;
+use O21\LaravelWallet\Contracts\TransactionContract;
 
 class ServiceProvider extends Provider
 {
@@ -13,14 +15,18 @@ class ServiceProvider extends Provider
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         $this->offerPublishing();
 
         $this->registerModelBindings();
+
+        $this->registerConverter();
+
+        $this->registerObservers();
     }
 
-    public function register()
+    public function register(): void
     {
         $this->mergeConfigFrom(
             __DIR__.'/../config/wallet.php',
@@ -28,13 +34,8 @@ class ServiceProvider extends Provider
         );
     }
 
-    protected function offerPublishing()
+    protected function offerPublishing(): void
     {
-        if (! function_exists('config_path')) {
-            // function not available and 'publish' not relevant in Lumen
-            return;
-        }
-
         $this->publishes([
             __DIR__.'/../config/wallet.php' => config_path('wallet.php'),
         ], 'wallet-config');
@@ -45,15 +46,28 @@ class ServiceProvider extends Provider
         ], 'wallet-migrations');
     }
 
-    protected function registerModelBindings()
+    protected function registerModelBindings(): void
     {
         $config = $this->app->config['wallet.models'];
         if (! $config) {
             return;
         }
 
-        $this->app->bind(WalletBalanceContract::class, $config['balance']);
-        $this->app->bind(WalletTransactionContract::class, $config['transaction']);
+        $this->app->bind(BalanceContract::class, $config['balance']);
+        $this->app->bind(TransactionContract::class, $config['transaction']);
+    }
+
+    protected function registerConverter(): void
+    {
+        $this->app->bind(CurrencyConverterContract::class, function ($app) {
+            $config = $app->config['wallet.currencies'];
+
+            if ($config['convert'] && class_exists($config['converter'])) {
+                return new $config['converter']();
+            }
+
+            return null;
+        });
     }
 
     /**
@@ -67,11 +81,20 @@ class ServiceProvider extends Provider
 
         $filesystem = $this->app->make(Filesystem::class);
 
-        return Collection::make($this->app->databasePath().DIRECTORY_SEPARATOR.'migrations'.DIRECTORY_SEPARATOR)
+        return collect($this->app->databasePath().DIRECTORY_SEPARATOR.'migrations'.DIRECTORY_SEPARATOR)
             ->flatMap(function ($path) use ($filesystem, $migrationFileName) {
                 return $filesystem->glob($path.'*_'.$migrationFileName);
             })
             ->push($this->app->databasePath()."/migrations/{$timestamp}_{$migrationFileName}")
             ->first();
+    }
+
+    protected function registerObservers(): void
+    {
+        $config = $this->app->config['wallet.observers'];
+
+        $transactionClass = $this->app->make(TransactionContract::class);
+
+        $transactionClass::observe($config['transaction']);
     }
 }
