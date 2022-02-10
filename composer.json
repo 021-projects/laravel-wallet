@@ -50,6 +50,9 @@
     },
     "extra": {
         "laravel": {
+            "providers": [
+                "O21\\LaravelWallet\\ServiceProvider"
+            ],
             "dont-discover": []
         }
     },
