@@ -1,0 +1,43 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateWalletTransactionsTable extends Migration
+{
+    use \O21\LaravelWallet\Concerns\MigrationHelper;
+
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create($this->assertTableNames('transactions'), function (Blueprint $table) {
+            $table->id();
+            $table->bigInteger('user_id')->index();
+            $table->string('currency', 10)->index();
+            $table->enum('status', ['rejected', 'processing', 'completed', 'frozen'])
+                ->default('completed')
+                ->index();
+            $table->string('handler')->index();
+            $table->decimal('total', 16, 8)->default(0);
+            $table->decimal('amount', 16, 8)->default(0);
+            $table->decimal('commission', 16, 8)->default(0);
+            $table->json('data')->nullable();
+            $table->timestamp('created_at')->nullable()->index();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists($this->assertTableNames('transactions'));
+    }
+}
