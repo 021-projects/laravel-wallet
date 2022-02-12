@@ -15,7 +15,7 @@ use O21\LaravelWallet\Contracts\TransactionContract;
  *
  * @property int $id
  * @property int $user_id
- * @property float $value
+ * @property string $value
  * @property string $currency
  * @property-read \App\Models\User|null $User
  * @method static \Illuminate\Database\Eloquent\Builder|Balance newModelQuery()

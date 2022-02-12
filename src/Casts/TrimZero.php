@@ -13,11 +13,11 @@ class TrimZero implements CastsAttributes
      * @param  string  $key
      * @param  mixed  $value
      * @param  array  $attributes
-     * @return mixed
+     * @return string
      */
     public function get($model, $key, $value, $attributes)
     {
-        return (float)rtrim($value, '0');
+        return rtrim($value, '0');
     }
 
     /**

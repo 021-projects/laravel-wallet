@@ -6,6 +6,7 @@ use Database\Factories\TransactionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use O21\LaravelWallet\Casts\TrimZero;
 use O21\LaravelWallet\Contracts\CurrencyConverterContract;
 use O21\LaravelWallet\Models\Concerns\HasDataColumn;
 use O21\LaravelWallet\Contracts\BalanceContract;
@@ -23,9 +24,9 @@ use O21\LaravelWallet\TransactionHandlers\WriteOffHandler;
  * @property string $currency
  * @property string $status
  * @property string $handler
- * @property float $total
- * @property float $amount
- * @property float $commission
+ * @property string $total
+ * @property string $amount
+ * @property string $commission
  * @property mixed|null $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction newModelQuery()
@@ -224,9 +225,9 @@ class Transaction extends Model implements TransactionContract
     public const UPDATED_AT = null;
 
     protected $casts = [
-        'total' => 'float',
-        'amount' => 'float',
-        'commission' => 'float',
+        'total' => TrimZero::class,
+        'amount' => TrimZero::class,
+        'commission' => TrimZero::class,
         'data' => 'array'
     ];
 
