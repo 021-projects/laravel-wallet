@@ -13,7 +13,7 @@ class TransactionObserver implements TransactionObserverContract
      */
     public function creating(TransactionContract $transaction): void
     {
-        $transaction->total = $transaction->amount - $transaction->commission;
+        $transaction->total = bcsub($transaction->amount, $transaction->commission, 8);
     }
 
     /**

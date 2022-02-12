@@ -7,7 +7,8 @@
     "require": {
         "php": "^7.4|^8.0",
         "guzzlehttp/guzzle": "^7.0.1",
-        "laravel/framework": "^8.75"
+        "laravel/framework": "^8.75",
+        "ext-bcmath": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.12",
