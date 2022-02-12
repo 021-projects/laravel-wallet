@@ -66,7 +66,7 @@ class BalanceCase extends TestCase
 
         $transaction = Transaction::factory()->create([
             'user_id' => $user->id,
-            'handler' => wallet_handler_id(WriteOffHandler::class),
+            'handler' => $handler,
             'currency' => $currency
         ]);
 
