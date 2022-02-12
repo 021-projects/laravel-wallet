@@ -6,6 +6,9 @@ use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 
 class TrimZero implements CastsAttributes
 {
+    private const WITHOUT_DIGITS_REGEX = '#\.0*$/#';
+    private const HAS_DIGITS_REGEX = '#(\..*?)0*$#';
+
     /**
      * Cast the given value.
      *
@@ -17,7 +20,11 @@ class TrimZero implements CastsAttributes
      */
     public function get($model, $key, $value, $attributes)
     {
-        return rtrim($value, '0');
+        if (preg_match(self::WITHOUT_DIGITS_REGEX, $value)) {
+            return preg_replace(self::WITHOUT_DIGITS_REGEX, '', $value);
+        }
+
+        return preg_replace(self::HAS_DIGITS_REGEX, '', $value);
     }
 
     /**
