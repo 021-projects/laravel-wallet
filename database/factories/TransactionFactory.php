@@ -16,7 +16,7 @@ class TransactionFactory extends Factory
      */
     public function definition()
     {
-        $amount = $this->faker->randomFloat();
+        $amount = $this->faker->randomFloat(8, 0, 99_999_999);
 
         return [
             'user_id' => $this->faker->randomDigitNotZero(),
