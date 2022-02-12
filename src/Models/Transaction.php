@@ -15,6 +15,8 @@ use O21\LaravelWallet\Contracts\UserContract;
 use O21\LaravelWallet\Contracts\TransactionHandlerContract;
 use O21\LaravelWallet\TransactionHandlers\ReplenishmentHandler;
 use O21\LaravelWallet\TransactionHandlers\WriteOffHandler;
+use O21\SafelyTransaction;
+use Illuminate\Database\Query\Builder;
 
 /**
  * O21\LaravelWallet\Models\Transaction
@@ -135,6 +137,36 @@ class Transaction extends Model implements TransactionContract
         $transaction->save();
 
         return $transaction;
+    }
+
+    public static function safelyCreationRun(
+        $handler,
+        UserContract $user,
+        float $amount,
+        string $currency,
+        float $commission = 0,
+        array $data = [],
+        Model|Builder $queryForLock = null,
+        callable $before = null,
+        callable $after = null
+    ) {
+        return (new SafelyTransaction(
+            function ()
+            use ($handler, $user, $amount, $currency, $commission, $data, $before, $after) {
+                if (is_callable($before)) {
+                    $before();
+                }
+
+                $transaction = self::create($handler, $user, $amount, $currency, $commission, $data);
+
+                if (is_callable($after)) {
+                    $after();
+                }
+
+                return $transaction;
+            },
+            $queryForLock
+        ))->setThrow(true)->run();
     }
 
     public function makeRejected(): bool
