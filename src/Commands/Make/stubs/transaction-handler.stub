@@ -1,0 +1,10 @@
+<?php
+
+namespace DummyNamespace;
+
+use O21\LaravelWallet\TransactionHandlers\AbstractHandler;
+
+class DummyClass extends AbstractHandler
+{
+    //
+}

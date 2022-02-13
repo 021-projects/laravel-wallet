@@ -4,6 +4,7 @@ namespace O21\LaravelWallet;
 
 use Illuminate\Support\ServiceProvider as Provider;
 use Illuminate\Filesystem\Filesystem;
+use O21\LaravelWallet\Commands\Make\TransactionHandlerCommand;
 use O21\LaravelWallet\Commands\Rebuild\BalancesCommand;
 use O21\LaravelWallet\Contracts\BalanceContract;
 use O21\LaravelWallet\Contracts\CurrencyConverterContract;
@@ -104,7 +105,8 @@ class ServiceProvider extends Provider
     protected function registerCommands(): void
     {
         $this->commands([
-            BalancesCommand::class
+            BalancesCommand::class,
+            TransactionHandlerCommand::class
         ]);
     }
 }
