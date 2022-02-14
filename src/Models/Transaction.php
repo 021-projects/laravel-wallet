@@ -195,6 +195,10 @@ class Transaction extends Model implements TransactionContract
         /** @var \O21\LaravelWallet\Contracts\CurrencyConverterContract $converter */
         $converter = app(CurrencyConverterContract::class);
 
+        if (! $converter || ! config('wallet.currencies.convert')) {
+            return;
+        }
+
         $this->amount = $converter->convert(
             $this->attributes['amount'],
             $this->currency,
