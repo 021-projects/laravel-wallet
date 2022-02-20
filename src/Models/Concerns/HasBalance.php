@@ -4,6 +4,7 @@ namespace O21\LaravelWallet\Models\Concerns;
 
 use O21\LaravelWallet\Contracts\BalanceContract;
 use O21\LaravelWallet\Contracts\TransactionContract;
+use O21\LaravelWallet\Exception\InsufficientFundsException;
 
 trait HasBalance
 {
@@ -29,6 +30,18 @@ trait HasBalance
     public function setBalanceCached(BalanceContract $balance): void
     {
         $this->balances[$balance->currency] = $balance;
+    }
+
+    public function assertHaveFunds(string $needs, ?string $currency = null): void
+    {
+        if (! $this->isEnoughFunds($needs, $currency)) {
+            throw InsufficientFundsException::assertFails($this, $needs);
+        }
+    }
+
+    public function isEnoughFunds(string $needs, ?string $currency = null): bool
+    {
+        return bccomp($this->getBalance($currency)->value, $needs, 8) >= 0;
     }
 
     public function replenish(
