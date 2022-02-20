@@ -7,7 +7,7 @@
     "require": {
         "php": "^8.0",
         "ext-bcmath": "*",
-        "021/safely-transaction": "^1.0",
+        "021/safely-transaction": "^1.0.1",
         "guzzlehttp/guzzle": "^7.0.1",
         "laravel/framework": "^8.75"
     },
