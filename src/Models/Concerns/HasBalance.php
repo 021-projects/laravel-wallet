@@ -3,6 +3,7 @@
 namespace O21\LaravelWallet\Models\Concerns;
 
 use O21\LaravelWallet\Contracts\BalanceContract;
+use O21\LaravelWallet\Contracts\TransactionContract;
 
 trait HasBalance
 {
@@ -10,9 +11,7 @@ trait HasBalance
 
     public function getBalance(?string $currency = null): BalanceContract
     {
-        if (! $currency) {
-            $currency = config('wallet.currencies.basic');
-        }
+        $currency ??= config('wallet.currencies.basic');
 
         if (! isset($this->balances[$currency])) {
             $attributes = [
@@ -30,5 +29,35 @@ trait HasBalance
     public function setBalanceCached(BalanceContract $balance): void
     {
         $this->balances[$balance->currency] = $balance;
+    }
+
+    public function replenish(
+        float $amount,
+        ?string $currency = null
+    ): TransactionContract {
+        $currency ??= config('wallet.currencies.basic');
+        $transactionClass = app(TransactionContract::class);
+
+        return $transactionClass::create(
+            'replenishment',
+            $this,
+            $amount,
+            $currency
+        );
+    }
+
+    public function writeOff(
+        float $amount,
+        ?string $currency = null
+    ): TransactionContract {
+        $currency ??= config('wallet.currencies.basic');
+        $transactionClass = app(TransactionContract::class);
+
+        return $transactionClass::create(
+            'write_off',
+            $this,
+            $amount,
+            $currency
+        );
     }
 }
