@@ -14,5 +14,5 @@ interface TransactionHandlerContract
 
     public function frozen();
 
-    public function validAmount(): float;
+    public function validAmount(): string;
 }

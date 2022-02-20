@@ -6,13 +6,10 @@ use Illuminate\Support\Arr;
 
 trait HasDataColumn
 {
-    /**
-     * @param  array|string  $key
-     * @param  array|string|int|float|null  $value
-     * @return bool
-     */
-    public function updateDataColumn($key, $value = null): bool
-    {
+    public function updateDataColumn(
+        array|string $key,
+        float|array|int|string $value = null
+    ): bool {
         $data = $this->data;
 
         if (is_array($key)) {

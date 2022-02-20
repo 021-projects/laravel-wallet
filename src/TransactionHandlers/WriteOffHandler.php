@@ -4,8 +4,8 @@ namespace O21\LaravelWallet\TransactionHandlers;
 
 class WriteOffHandler extends AbstractHandler
 {
-    public function validAmount(): float
+    public function validAmount(): string
     {
-        return -abs($this->transaction->amount);
+        return crypto_number(-abs($this->transaction->amount));
     }
 }

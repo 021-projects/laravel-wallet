@@ -32,7 +32,7 @@ trait HasBalance
     }
 
     public function replenish(
-        float $amount,
+        string $amount,
         ?string $currency = null
     ): TransactionContract {
         $currency ??= config('wallet.currencies.basic');
@@ -47,7 +47,7 @@ trait HasBalance
     }
 
     public function writeOff(
-        float $amount,
+        string $amount,
         ?string $currency = null
     ): TransactionContract {
         $currency ??= config('wallet.currencies.basic');

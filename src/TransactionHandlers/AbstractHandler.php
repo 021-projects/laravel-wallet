@@ -30,7 +30,7 @@ abstract class AbstractHandler implements TransactionHandlerContract
     {
     }
 
-    public function validAmount(): float
+    public function validAmount(): string
     {
         return $this->transaction->amount;
     }

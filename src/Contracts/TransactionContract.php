@@ -12,9 +12,9 @@ interface TransactionContract
     public static function create(
         string $handler,
         UserContract $user,
-        float $amount,
+        string $amount,
         string $currency,
-        float $commission = 0,
+        string $commission = '0',
         array $data = []
     ): TransactionContract;
 

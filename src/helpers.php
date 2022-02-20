@@ -37,3 +37,46 @@ if (! function_exists('wallet_handler_id')) {
         return array_search($class, config('wallet.handlers'), true);
     }
 }
+
+if (! function_exists('crypto_number')) {
+
+    /**
+     * Format bitcoin number.
+     *
+     * @param $value
+     * @return string
+     */
+    function crypto_number($value)
+    {
+        return number_format_trim_trailing_zero($value, 8, '.', '');
+    }
+}
+
+if (! function_exists('number_format_trim_trailing_zero')) {
+
+    /**
+     * Formats a number and removes trailing zeros.
+     *
+     * @return string
+     */
+    function number_format_trim_trailing_zero()
+    {
+        return trim_trailing_zero(number_format(...func_get_args()));
+    }
+}
+
+if (! function_exists('trim_trailing_zero')) {
+
+    /**
+     * Removes trailing zeros.
+     *
+     * @param $number
+     * @return string
+     */
+    function trim_trailing_zero($number)
+    {
+        return str_contains($number, '.')
+            ? rtrim(rtrim($number,'0'),'.')
+            : $number;
+    }
+}

@@ -114,9 +114,9 @@ class Transaction extends Model implements TransactionContract
     public static function create(
         $handler,
         UserContract $user,
-        float $amount,
+        string $amount,
         string $currency,
-        float $commission = 0,
+        string $commission = '0',
         array $data = []
     ): TransactionContract {
         if (class_exists($handler)) {
@@ -142,9 +142,9 @@ class Transaction extends Model implements TransactionContract
     public static function safelyCreationRun(
         $handler,
         UserContract $user,
-        float $amount,
+        string $amount,
         string $currency,
-        float $commission = 0,
+        string $commission = '0',
         array $data = [],
         Model|Builder $queryForLock = null,
         callable $before = null,
