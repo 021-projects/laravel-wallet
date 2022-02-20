@@ -2,6 +2,7 @@
 
 namespace O21\LaravelWallet;
 
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider as Provider;
 use Illuminate\Filesystem\Filesystem;
 use O21\LaravelWallet\Commands\Make\TransactionHandlerCommand;
@@ -9,6 +10,9 @@ use O21\LaravelWallet\Commands\Rebuild\BalancesCommand;
 use O21\LaravelWallet\Contracts\BalanceContract;
 use O21\LaravelWallet\Contracts\CurrencyConverterContract;
 use O21\LaravelWallet\Contracts\TransactionContract;
+use O21\LaravelWallet\Events\TransactionCreated;
+use O21\LaravelWallet\Events\TransactionStatusChanged;
+use O21\LaravelWallet\Listeners\TransactionTriggerListener;
 
 class ServiceProvider extends Provider
 {
@@ -28,6 +32,8 @@ class ServiceProvider extends Provider
         $this->registerObservers();
 
         $this->registerCommands();
+
+        $this->registerEvents();
     }
 
     public function register(): void
@@ -108,5 +114,17 @@ class ServiceProvider extends Provider
             BalancesCommand::class,
             TransactionHandlerCommand::class
         ]);
+    }
+
+    protected function registerEvents(): void
+    {
+        Event::listen(
+            TransactionCreated::class,
+            [TransactionTriggerListener::class, 'onTransactionCreated']
+        );
+        Event::listen(
+            TransactionStatusChanged::class,
+            [TransactionTriggerListener::class, 'onTransactionStatusChanged']
+        );
     }
 }
