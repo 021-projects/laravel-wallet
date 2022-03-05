@@ -9,16 +9,16 @@
         "ext-bcmath": "*",
         "021/safely-transaction": "^1.0.1",
         "guzzlehttp/guzzle": "^7.0.1",
-        "laravel/framework": "^8.75"
+        "laravel/framework": "^8.75|^9.0"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.12",
-        "facade/ignition": "^2.5",
+        "facade/ignition": ">=2.5",
         "fakerphp/faker": "^1.9.1",
         "laravel/sail": "^1.0.1",
         "laravel/tinker": "^2.5",
         "mockery/mockery": "^1.4.4",
-        "nunomaduro/collision": "^5.10",
+        "nunomaduro/collision": ">=5.10",
         "phpunit/phpunit": "^9.5.10"
     },
     "autoload": {
