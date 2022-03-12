@@ -160,7 +160,7 @@ class Transaction extends Model implements TransactionContract
                 $transaction = self::create($handler, $user, $amount, $currency, $commission, $data);
 
                 if (is_callable($after)) {
-                    $after();
+                    $after($transaction);
                 }
 
                 return $transaction;
