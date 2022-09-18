@@ -133,7 +133,6 @@ class Transaction extends Model implements TransactionContract
             compact('handler', 'amount', 'currency', 'commission', 'data')
         );
         $transaction->User()->associate($user);
-        $transaction->prepare();
         $transaction->save();
 
         return $transaction;
@@ -186,6 +185,7 @@ class Transaction extends Model implements TransactionContract
         }
 
         $this->amount = $this->handler()->validAmount();
+        $this->total = bcsub($this->amount, $this->commission, 8);
     }
 
     public function convertToBasicCurrency(): void

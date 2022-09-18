@@ -4,7 +4,7 @@ namespace O21\LaravelWallet\Contracts;
 
 interface TransactionObserverContract
 {
-    public function creating(TransactionContract $transaction): void;
+    public function saving(TransactionContract $transaction): void;
 
     public function saved(TransactionContract $transaction): void;
 

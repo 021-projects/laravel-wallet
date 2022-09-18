@@ -13,9 +13,9 @@ class TransactionObserver implements TransactionObserverContract
      * @param  \O21\LaravelWallet\Contracts\TransactionContract  $transaction
      * @return void
      */
-    public function creating(TransactionContract $transaction): void
+    public function saving(TransactionContract $transaction): void
     {
-        $transaction->total = bcsub($transaction->amount, $transaction->commission, 8);
+        $transaction->prepare();
     }
 
     /**
