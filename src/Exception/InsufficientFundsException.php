@@ -9,8 +9,9 @@ class InsufficientFundsException extends Exception
 {
     public static function assertFails(
         UserContract $user,
-        string $needs
+        string $needs,
+        string $currency
     ): static {
-        return new static("The user ($user->id) does not have enough funds. Needs: $needs");
+        return new static("The user ($user->id) does not have enough funds. Needs: $needs $currency");
     }
 }

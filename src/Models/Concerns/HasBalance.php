@@ -34,8 +34,9 @@ trait HasBalance
 
     public function assertHaveFunds(string $needs, ?string $currency = null): void
     {
+        $currency ??= config('wallet.currencies.basic');
         if (! $this->isEnoughFunds($needs, $currency)) {
-            throw InsufficientFundsException::assertFails($this, $needs);
+            throw InsufficientFundsException::assertFails($this, $needs, $currency);
         }
     }
 
