@@ -5,11 +5,11 @@
     "keywords": ["framework", "laravel"],
     "license": "MIT",
     "require": {
-        "php": "^8.0",
+        "php": "^8.0|^8.1|^8.2",
         "ext-bcmath": "*",
         "021/safely-transaction": "^1.0.1",
         "guzzlehttp/guzzle": "^7.0.1",
-        "laravel/framework": "^8.75|^9.0"
+        "laravel/framework": "^8.75|^9.0|^10.0"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.12",
