@@ -3,9 +3,11 @@
 namespace O21\LaravelWallet\Models;
 
 use Database\Factories\TransactionFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 use O21\LaravelWallet\Casts\TrimZero;
 use O21\LaravelWallet\Contracts\CurrencyConverterContract;
 use O21\LaravelWallet\Models\Concerns\HasDataColumn;
@@ -75,7 +77,10 @@ class Transaction extends Model implements TransactionContract
 
         $result['handler_data'] = $this->handler()->getData();
 
-        return $result;
+        return collect($result)
+            ->mapWithKeys(
+                fn($value, $key) => [(string)Str::of($key)->camel() => $value]
+            )->all();
     }
 
     //-----------------------------------------------------
@@ -117,6 +122,45 @@ class Transaction extends Model implements TransactionContract
         string $amount,
         string $currency,
         string $commission = '0',
+        array $data = [],
+        Model|Builder $queryForLock = null,
+        callable $before = null,
+        callable $after = null
+    ): TransactionContract {
+        return (new SafelyTransaction(
+            function ()
+            use ($handler, $user, $amount, $currency, $commission, $data, $before, $after) {
+                $transaction = self::make(
+                    $handler,
+                    $user,
+                    $amount,
+                    $currency,
+                    $commission,
+                    $data
+                );
+
+                if (is_callable($before)) {
+                    $before($transaction);
+                }
+
+                $transaction->save();
+
+                if (is_callable($after)) {
+                    $after($transaction);
+                }
+
+                return $transaction;
+            },
+            $queryForLock
+        ))->setThrow(true)->run();
+    }
+
+    protected static function make(
+        $handler,
+        UserContract $user,
+        string $amount,
+        string $currency,
+        string $commission = '0',
         array $data = []
     ): TransactionContract {
         if (class_exists($handler)) {
@@ -133,39 +177,8 @@ class Transaction extends Model implements TransactionContract
             compact('handler', 'amount', 'currency', 'commission', 'data')
         );
         $transaction->User()->associate($user);
-        $transaction->save();
 
         return $transaction;
-    }
-
-    public static function safelyCreationRun(
-        $handler,
-        UserContract $user,
-        string $amount,
-        string $currency,
-        string $commission = '0',
-        array $data = [],
-        Model|Builder $queryForLock = null,
-        callable $before = null,
-        callable $after = null
-    ) {
-        return (new SafelyTransaction(
-            function ()
-            use ($handler, $user, $amount, $currency, $commission, $data, $before, $after) {
-                if (is_callable($before)) {
-                    $before();
-                }
-
-                $transaction = self::create($handler, $user, $amount, $currency, $commission, $data);
-
-                if (is_callable($after)) {
-                    $after($transaction);
-                }
-
-                return $transaction;
-            },
-            $queryForLock
-        ))->setThrow(true)->run();
     }
 
     public function makeRejected(): bool
@@ -245,13 +258,15 @@ class Transaction extends Model implements TransactionContract
             ->getBalance($this->currency);
     }
 
-    public function getDayAttribute(): ?string
+    public function day(): Attribute
     {
-        return $this->created_at->copy()
-            ->setHours(0)
-            ->setMinutes(0)
-            ->setSeconds(0)
-            ->toISOString(true);
+        return Attribute::make(
+            get: fn() => $this->created_at->copy()
+                ->setHours(0)
+                ->setMinutes(0)
+                ->setSeconds(0)
+                ->toISOString(true)
+        );
     }
 
     //-----------------------------------------------------
@@ -271,7 +286,7 @@ class Transaction extends Model implements TransactionContract
         'status' => 'completed'
     ];
 
-    protected $_handler;
+    protected ?TransactionHandlerContract $_handler = null;
 
     protected static $unguarded = true;
 

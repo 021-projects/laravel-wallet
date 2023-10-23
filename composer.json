@@ -9,11 +9,10 @@
         "ext-bcmath": "*",
         "021/safely-transaction": "^1.0.1",
         "guzzlehttp/guzzle": "^7.0.1",
-        "laravel/framework": "^8.75|^9.0"
+        "laravel/framework": "^10.0"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.12",
-        "facade/ignition": ">=2.5",
         "fakerphp/faker": "^1.9.1",
         "laravel/sail": "^1.0.1",
         "laravel/tinker": "^2.5",

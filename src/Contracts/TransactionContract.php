@@ -2,6 +2,9 @@
 
 namespace O21\LaravelWallet\Contracts;
 
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder;
+
 interface TransactionContract
 {
     public const STATUS_COMPLETED = 'completed';
@@ -15,7 +18,10 @@ interface TransactionContract
         string $amount,
         string $currency,
         string $commission = '0',
-        array $data = []
+        array $data = [],
+        Model|Builder $queryForLock = null,
+        callable $before = null,
+        callable $after = null
     ): TransactionContract;
 
     public function toWalletTransaction(): array;
