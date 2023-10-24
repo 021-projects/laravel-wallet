@@ -123,10 +123,14 @@ class Transaction extends Model implements TransactionContract
         string $currency,
         string $commission = '0',
         array $data = [],
-        Model|Builder $queryForLock = null,
+        Model|Builder|false $queryForLock = null,
         callable $before = null,
         callable $after = null
     ): TransactionContract {
+        $queryForLock = $queryForLock === false
+            ? null
+            : ($queryForLock || $user->getBalance($currency));
+
         return (new SafelyTransaction(
             function ()
             use ($handler, $user, $amount, $currency, $commission, $data, $before, $after) {
