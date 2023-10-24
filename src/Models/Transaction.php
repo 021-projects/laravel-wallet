@@ -127,9 +127,11 @@ class Transaction extends Model implements TransactionContract
         callable $before = null,
         callable $after = null
     ): TransactionContract {
-        $queryForLock = $queryForLock === false
-            ? null
-            : ($queryForLock || $user->getBalance($currency));
+        if ($queryForLock === false) {
+            $queryForLock = null;
+        } else {
+            $queryForLock = $queryForLock ?? $user->getBalance($currency);
+        }
 
         return (new SafelyTransaction(
             function ()
