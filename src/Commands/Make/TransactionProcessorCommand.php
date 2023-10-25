@@ -31,6 +31,6 @@ class TransactionProcessorCommand extends GeneratorCommand
 
     protected function getDefaultNamespace($rootNamespace): string
     {
-        return $rootNamespace.'\Transactions\Processors';
+        return $rootNamespace.'\Transaction\Processors';
     }
 }
