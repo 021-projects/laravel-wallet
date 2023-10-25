@@ -4,10 +4,12 @@ namespace DummyNamespace;
 
 use O21\LaravelWallet\Contracts\TransactionProcessor;
 use O21\LaravelWallet\Transaction\Processors\Concerns\BaseProcessor;
+use O21\LaravelWallet\Transaction\Processors\Concerns\InitialSuccess;
 use O21\LaravelWallet\Transaction\Processors\Concerns\NegativeAmount;
 
 class DummyClass implements TransactionProcessor
 {
     use BaseProcessor;
     use NegativeAmount;
+    use InitialSuccess;
 }
