@@ -8,6 +8,16 @@ class CreateWalletTransactionsTable extends Migration
 {
     use \O21\LaravelWallet\Concerns\MigrationHelper;
 
+    private const STATUSES = [
+        'pending',
+        'success',
+        'on_hold',
+        'canceled',
+        'failed',
+        'refunded',
+        'expired',
+    ];
+
     /**
      * Run the migrations.
      *
@@ -18,15 +28,18 @@ class CreateWalletTransactionsTable extends Migration
         Schema::create($this->assertTableNames('transactions'), function (Blueprint $table) {
             $table->id();
             $table->bigInteger('user_id')->index();
-            $table->string('currency', 10)->index();
-            $table->enum('status', ['rejected', 'processing', 'completed', 'frozen'])
-                ->default('completed')
-                ->index();
-            $table->string('handler')->index();
-            $table->decimal('total', 16, 8)->default(0);
+            $table->decimal('total', 16, 8)
+                ->default(0)
+                ->comment('Sum of amount + commission');
             $table->decimal('amount', 16, 8)->default(0);
             $table->decimal('commission', 16, 8)->default(0);
-            $table->json('data')->nullable();
+            $table->string('currency', 10)->index();
+            $table->enum('status', self::STATUSES)
+                ->default('pending')
+                ->index();
+            $table->string('processor_id')->index();
+            $table->json('meta')->nullable();
+            $table->boolean('archived')->default(false);
             $table->timestamp('created_at')->nullable()->index();
         });
     }
