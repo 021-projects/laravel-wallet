@@ -25,10 +25,11 @@ use Illuminate\Database\Eloquent\Builder;
  * @property string $commission
  * @property string $currency
  * @property string $status
- * @property string $handler_id
+ * @property string $processor_id
  * @property array|null $meta
  * @property bool $archived
  * @property \Illuminate\Support\Carbon|null $created_at
+ * @property-read \O21\LaravelWallet\Contracts\SupportsBalance $User
  * @method static Builder|Transaction canceled()
  * @method static Builder|Transaction expired()
  * @method static Builder|Transaction failed()
@@ -46,9 +47,9 @@ use Illuminate\Database\Eloquent\Builder;
  * @method static Builder|Transaction whereCommission($value)
  * @method static Builder|Transaction whereCreatedAt($value)
  * @method static Builder|Transaction whereCurrency($value)
- * @method static Builder|Transaction whereHandlerId($value)
  * @method static Builder|Transaction whereId($value)
  * @method static Builder|Transaction whereMeta($value)
+ * @method static Builder|Transaction whereProcessorId($value)
  * @method static Builder|Transaction whereStatus($value)
  * @method static Builder|Transaction whereTotal($value)
  * @method static Builder|Transaction whereUserId($value)
