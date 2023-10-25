@@ -15,6 +15,7 @@ use O21\LaravelWallet\Listeners\TransactionEventsSubscriber;
 use O21\LaravelWallet\Observers\TransactionObserver;
 use O21\LaravelWallet\Transaction\Creator;
 use O21\LaravelWallet\Transaction\Preparer;
+use O21\LaravelWallet\Transaction\TransferCreator;
 
 class ServiceProvider extends Provider
 {
@@ -66,6 +67,10 @@ class ServiceProvider extends Provider
 
         $this->app->bind(TransactionCreator::class, function () {
             return new Creator();
+        });
+
+        $this->app->bind(TransferCreator::class, function () {
+            return new TransferCreator();
         });
     }
 

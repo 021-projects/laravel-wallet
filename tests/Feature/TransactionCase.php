@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Exception\InsufficientFundsException;
+use O21\LaravelWallet\Models\Transaction;
 use Tests\Feature\Concerns\BalanceTest;
 use Tests\TestCase;
 
@@ -226,5 +227,84 @@ class TransactionCase extends TestCase
 
         $this->assertArrayHasKey('test', $transaction->getMeta());
         $this->assertEquals('value3', $transaction->getMeta('test2'));
+    }
+
+    public function test_transfer(): void
+    {
+        [$user, $currency, $balance] = $this->createBalance();
+        [$user2] = $this->createBalance();
+
+        transfer(100, $currency)
+            ->from($user)
+            ->to($user2)
+            ->overcharge()
+            ->commit();
+
+        $this->assertBalanceRefreshEquals(
+            $balance,
+            -100
+        );
+
+        $this->assertBalanceRefreshEquals(
+            $user2->getBalance($currency),
+            100
+        );
+    }
+
+    public function test_transfer_with_commission(): void
+    {
+        [$user, $currency, $balance] = $this->createBalance();
+        [$user2] = $this->createBalance();
+
+        transfer(100, $currency)
+            ->from($user)
+            ->to($user2)
+            ->commission(-10)
+            ->overcharge()
+            ->commit();
+
+        $this->assertBalanceRefreshEquals(
+            $balance,
+            -110
+        );
+
+        $this->assertBalanceRefreshEquals(
+            $user2->getBalance($currency),
+            100
+        );
+    }
+
+    public function test_transfer_not_enough_funds(): void
+    {
+        [$user, $currency, $balance] = $this->createBalance();
+        [$user2] = $this->createBalance();
+
+        $this->expectException(InsufficientFundsException::class);
+
+        transfer(100, $currency)
+            ->from($user)
+            ->to($user2)
+            ->commit();
+    }
+
+    public function test_transfer_error_during_send_funds(): void
+    {
+        [$user, $currency, $balance] = $this->createBalance();
+        [$user2] = $this->createBalance();
+
+        $this->expectException(\RuntimeException::class);
+
+        transfer(100, $currency)
+            ->from($user)
+            ->to($user2)
+            ->before(static function () {
+                throw new \RuntimeException('test');
+            })
+            ->commit();
+
+        $this->assertBalanceRefreshEquals(
+            $balance,
+            0
+        );
     }
 }

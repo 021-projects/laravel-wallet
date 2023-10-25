@@ -4,6 +4,7 @@ namespace O21\LaravelWallet\Observers;
 
 use O21\LaravelWallet\Contracts\Transaction;
 use O21\LaravelWallet\Contracts\TransactionPreparer;
+use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Events\TransactionCreated;
 use O21\LaravelWallet\Events\TransactionDeleted;
 use O21\LaravelWallet\Events\TransactionStatusChanged;
@@ -37,10 +38,12 @@ class TransactionObserver
     public function updated(Transaction $transaction): void
     {
         if ($transaction->wasChanged('status')) {
-            event(new TransactionStatusChanged(
-                $transaction,
-                $transaction->getOriginal('status')
-            ));
+            $originalStatus = $transaction->getOriginal('status');
+            if ($originalStatus instanceof TransactionStatus) {
+                $originalStatus = $originalStatus->value;
+            }
+
+            event(new TransactionStatusChanged($transaction, $originalStatus));
         }
 
         event(new TransactionUpdated($transaction));

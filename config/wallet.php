@@ -15,7 +15,8 @@ return [
     ],
 
     'processors' => [
-        'deposit' => \O21\LaravelWallet\Transaction\Processors\DepositProcessor::class,
-        'charge'  => \O21\LaravelWallet\Transaction\Processors\ChargeProcessor::class
+        'deposit'  => \O21\LaravelWallet\Transaction\Processors\DepositProcessor::class,
+        'charge'   => \O21\LaravelWallet\Transaction\Processors\ChargeProcessor::class,
+        'transfer' => \O21\LaravelWallet\Transaction\Processors\TransferProcessor::class,
     ],
 ];
