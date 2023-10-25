@@ -1,5 +1,6 @@
 <?php
 
+use O21\LaravelWallet\Contracts\TransactionCreator;
 use O21\LaravelWallet\Numeric;
 
 if (! function_exists('num')) {
@@ -16,9 +17,9 @@ if (! function_exists('num')) {
 }
 
 if (! function_exists('transaction')) {
-    function transaction(): \O21\LaravelWallet\Transaction\Creator
+    function transaction(): TransactionCreator
     {
-        return app(\O21\LaravelWallet\Transaction\Creator::class);
+        return app(TransactionCreator::class);
     }
 }
 
@@ -26,7 +27,7 @@ if (! function_exists('deposit')) {
     function deposit(
         string|float|int|Numeric $amount,
         ?string $currency = null
-    ): \O21\LaravelWallet\Transaction\Creator {
+    ): TransactionCreator {
         $creator = transaction()->processor('deposit');
 
         if ($currency) {
@@ -41,7 +42,7 @@ if (! function_exists('charge')) {
     function charge(
         string|float|int|Numeric $amount,
         ?string $currency = null
-    ): \O21\LaravelWallet\Transaction\Creator{
+    ): TransactionCreator {
         $creator = transaction()->processor('charge');
 
         if ($currency) {
