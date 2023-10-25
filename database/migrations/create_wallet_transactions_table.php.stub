@@ -39,7 +39,7 @@ class CreateWalletTransactionsTable extends Migration
                 ->index();
             $table->string('processor_id')->index();
             $table->json('meta')->nullable();
-            $table->boolean('archived')->default(false);
+            $table->boolean('archived')->default(false)->index();
             $table->timestamp('created_at')->nullable()->index();
         });
     }
