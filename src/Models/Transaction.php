@@ -86,7 +86,7 @@ class Transaction extends Model implements TransactionContract
             'archived'
         );
 
-        $result['meta'] = $this->processor->prepareMeta($this->meta);
+        $result['meta'] = $this->processor->prepareMeta($this->meta ?? []);
 
         return collect($result)
             ->mapWithKeys(
@@ -96,12 +96,27 @@ class Transaction extends Model implements TransactionContract
 
     public function hasStatus(TransactionStatus|string $status): bool
     {
+        $status = $status instanceof TransactionStatus
+            ? $status->value
+            : $status;
         return $this->status === $status;
     }
 
     public function updateStatus(TransactionStatus|string $status): bool
     {
-        return $this->update(compact('status'));
+        $this->status = $status instanceof TransactionStatus
+            ? $status->value
+            : $status;
+        return $this->save();
+    }
+
+    public function status(): Attribute
+    {
+        return Attribute::make(
+            set: fn($value) => $value instanceof TransactionStatus
+                ? $value->value
+                : $value,
+        );
     }
 
     public function processor(): Attribute
