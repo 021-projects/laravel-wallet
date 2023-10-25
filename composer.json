@@ -22,10 +22,7 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "app/",
-            "O21\\LaravelWallet\\": "src/",
-            "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/"
+            "O21\\LaravelWallet\\": "src/"
         },
         "files": [
             "src/helpers.php"
