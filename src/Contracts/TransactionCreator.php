@@ -19,5 +19,5 @@ interface TransactionCreator
     public function to(SupportsBalance $user): self; // alias for user()
     public function from(SupportsBalance $user): self; // alias for user()
     public function meta(array $meta): self;
-    public function lockOnRecord(Model|Builder $lockRecord): self;
+    public function lockOnRecord(Model|Builder|bool $lockRecord): self;
 }

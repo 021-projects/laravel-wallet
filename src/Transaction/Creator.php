@@ -129,7 +129,7 @@ class Creator implements TransactionCreator
         return $this;
     }
 
-    public function lockOnRecord(Model|Builder $lockRecord): self
+    public function lockOnRecord(Model|Builder|bool $lockRecord): self
     {
         $this->lockRecord = $lockRecord;
         return $this;
