@@ -5,14 +5,16 @@ namespace O21\LaravelWallet;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider as Provider;
 use Illuminate\Filesystem\Filesystem;
-use O21\LaravelWallet\Commands\Make\TransactionHandlerCommand;
+use O21\LaravelWallet\Commands\Make\TransactionProcessorCommand;
 use O21\LaravelWallet\Commands\Rebuild\BalancesCommand;
-use O21\LaravelWallet\Contracts\BalanceContract;
-use O21\LaravelWallet\Contracts\CurrencyConverterContract;
-use O21\LaravelWallet\Contracts\TransactionContract;
-use O21\LaravelWallet\Events\TransactionCreated;
-use O21\LaravelWallet\Events\TransactionStatusChanged;
-use O21\LaravelWallet\Listeners\TransactionTriggerListener;
+use O21\LaravelWallet\Contracts\Balance;
+use O21\LaravelWallet\Contracts\Transaction;
+use O21\LaravelWallet\Contracts\TransactionCreator;
+use O21\LaravelWallet\Contracts\TransactionPreparer;
+use O21\LaravelWallet\Listeners\TransactionEventsSubscriber;
+use O21\LaravelWallet\Observers\TransactionObserver;
+use O21\LaravelWallet\Transaction\Creator;
+use O21\LaravelWallet\Transaction\Preparer;
 
 class ServiceProvider extends Provider
 {
@@ -27,13 +29,13 @@ class ServiceProvider extends Provider
 
         $this->registerModelBindings();
 
-        $this->registerConverter();
+        $this->registerTransactionManipulators();
 
         $this->registerObservers();
 
         $this->registerCommands();
 
-        $this->registerEvents();
+        $this->registerSubscribers();
     }
 
     public function register(): void
@@ -56,6 +58,17 @@ class ServiceProvider extends Provider
         ], 'wallet-migrations');
     }
 
+    protected function registerTransactionManipulators(): void
+    {
+        $this->app->bind(TransactionPreparer::class, function () {
+            return new Preparer();
+        });
+
+        $this->app->bind(TransactionCreator::class, function () {
+            return new Creator();
+        });
+    }
+
     protected function registerModelBindings(): void
     {
         $config = $this->app->config['wallet.models'];
@@ -63,21 +76,8 @@ class ServiceProvider extends Provider
             return;
         }
 
-        $this->app->bind(BalanceContract::class, $config['balance']);
-        $this->app->bind(TransactionContract::class, $config['transaction']);
-    }
-
-    protected function registerConverter(): void
-    {
-        $this->app->bind(CurrencyConverterContract::class, function ($app) {
-            $config = $app->config['wallet.currencies'];
-
-            if ($config['convert'] && class_exists($config['converter'])) {
-                return new $config['converter']();
-            }
-
-            return null;
-        });
+        $this->app->bind(Balance::class, $config['balance']);
+        $this->app->bind(Transaction::class, $config['transaction']);
     }
 
     /**
@@ -101,30 +101,26 @@ class ServiceProvider extends Provider
 
     protected function registerObservers(): void
     {
-        $config = $this->app->config['wallet.observers'];
+        $this->app->bind(
+            TransactionObserver::class,
+            TransactionObserver::class
+        );
 
-        $transactionClass = $this->app->make(TransactionContract::class);
+        $transactionClass = $this->app->make(Transaction::class);
 
-        $transactionClass::observe($config['transaction']);
+        $transactionClass::observe($this->app->make(TransactionObserver::class));
     }
 
     protected function registerCommands(): void
     {
         $this->commands([
             BalancesCommand::class,
-            TransactionHandlerCommand::class
+            TransactionProcessorCommand::class
         ]);
     }
 
-    protected function registerEvents(): void
+    protected function registerSubscribers(): void
     {
-        Event::listen(
-            TransactionCreated::class,
-            [TransactionTriggerListener::class, 'onTransactionCreated']
-        );
-        Event::listen(
-            TransactionStatusChanged::class,
-            [TransactionTriggerListener::class, 'onTransactionStatusChanged']
-        );
+        Event::subscribe(TransactionEventsSubscriber::class);
     }
 }

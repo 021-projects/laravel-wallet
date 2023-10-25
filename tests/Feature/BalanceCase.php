@@ -5,71 +5,68 @@ namespace Tests\Feature;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use O21\LaravelWallet\Models\Transaction;
-use O21\LaravelWallet\TransactionHandlers\ReplenishmentHandler;
-use O21\LaravelWallet\TransactionHandlers\WriteOffHandler;
-use Tests\Models\User;
+use Tests\Feature\Concerns\BalanceTest;
 use Tests\TestCase;
 
 class BalanceCase extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
+    use BalanceTest;
 
-    /**
-     * @return void
-     */
-    public function test_balance_creation()
+    public function test_creation(): void
     {
-        $this->refreshDatabase();
-
-        /** @var \O21\LaravelWallet\Contracts\UserContract $user */
-        $user = User::factory()->create();
-
-        $balance = $user->getBalance($this->faker->currencyCode());
+        [$user, $currency, $balance] = $this->createBalance();
 
         $this->assertInstanceOf(Model::class, $balance);
         $this->assertTrue($balance->exists);
     }
 
-    /**
-     * @return void
-     */
-    public function test_balance_replenishment()
+    public function test_balance_interface(): void
     {
-        $this->refreshDatabase();
+        /** @var \O21\LaravelWallet\Contracts\Balance $balance */
+        [$user, $currency, $balance] = $this->createBalance();
 
-        $this->assertFakeTransactionBalanceValue(wallet_handler_id(ReplenishmentHandler::class));
-    }
+        $this->assertInstanceOf(Model::class, $balance);
+        $this->assertTrue($balance->exists);
 
-    /**
-     * @return void
-     */
-    public function test_balance_write_off()
-    {
-        $this->refreshDatabase();
+        $this->assertTrue($balance->recalculate());
+        $this->assertTrue($balance->equals(0));
 
-        $this->assertFakeTransactionBalanceValue(wallet_handler_id(WriteOffHandler::class));
-    }
+        $balance->value = 100;
 
-    protected function assertFakeTransactionBalanceValue(string $handler): void
-    {
-        $this->refreshDatabase();
+        $this->assertTrue($balance->equals(100));
+        $this->assertTrue($balance->lessThan(101));
+        $this->assertTrue($balance->lessThan(100.1));
+        $this->assertTrue($balance->lessThan('100.000001'));
+        $this->assertTrue($balance->lessThanOrEqual(100));
+        $this->assertTrue($balance->lessThanOrEqual(100.0));
+        $this->assertTrue($balance->lessThanOrEqual('100.000001'));
+        $this->assertTrue($balance->greaterThan(99));
+        $this->assertTrue($balance->greaterThan(99.9));
+        $this->assertTrue($balance->greaterThan('99.999999'));
+        $this->assertTrue($balance->greaterThanOrEqual(100));
+        $this->assertTrue($balance->greaterThanOrEqual(100.0));
+        $this->assertTrue($balance->greaterThanOrEqual('99.999999'));
+        $this->assertTrue($balance->greaterThanOrEqual('100.000000'));
 
-        /** @var \O21\LaravelWallet\Contracts\UserContract $user */
-        $user = User::factory()->create();
+        $this->assertFalse($balance->equals(100.1));
+        $this->assertFalse($balance->equals(101));
+        $this->assertFalse($balance->lessThan(99));
+        $this->assertFalse($balance->lessThan(99.9));
+        $this->assertFalse($balance->lessThan('99.999999'));
+        $this->assertFalse($balance->lessThanOrEqual(99));
+        $this->assertFalse($balance->lessThanOrEqual(99.9));
+        $this->assertFalse($balance->lessThanOrEqual('99.999999'));
+        $this->assertFalse($balance->greaterThan(100));
+        $this->assertFalse($balance->greaterThan(100.0));
+        $this->assertFalse($balance->greaterThan('100.000000'));
+        $this->assertFalse($balance->greaterThanOrEqual(101));
+        $this->assertFalse($balance->greaterThanOrEqual(100.1));
+        $this->assertFalse($balance->greaterThanOrEqual('100.000001'));
 
-        $currency = $this->faker->currencyCode();
+        $balance->recalculate();
 
-        /** @var Model|\O21\LaravelWallet\Contracts\BalanceContract $balance */
-        $balance = $user->getBalance($currency);
-
-        $transaction = Transaction::factory()->create([
-            'user_id' => $user->id,
-            'handler' => $handler,
-            'currency' => $currency
-        ]);
-
-        $this->assertEquals($transaction->total, $balance->fresh()->value);
+        $this->assertTrue($balance->equals(0));
     }
 }

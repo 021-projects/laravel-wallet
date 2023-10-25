@@ -15,7 +15,7 @@ class CreateWalletBalancesTable extends Migration
      */
     public function up()
     {
-        Schema::create($this->assertTableNames('balances'), function (Blueprint $table) {
+        Schema::create($this->assertTableName('balances'), function (Blueprint $table) {
             $table->id();
             $table->bigInteger('user_id')->index();
             $table->decimal('value', 16, 8)->default(0);
@@ -31,6 +31,6 @@ class CreateWalletBalancesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists($this->assertTableNames('balances'));
+        Schema::dropIfExists($this->assertTableName('balances'));
     }
 }

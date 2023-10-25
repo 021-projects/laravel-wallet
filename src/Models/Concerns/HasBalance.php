@@ -2,76 +2,48 @@
 
 namespace O21\LaravelWallet\Models\Concerns;
 
-use O21\LaravelWallet\Contracts\BalanceContract;
-use O21\LaravelWallet\Contracts\TransactionContract;
+use O21\LaravelWallet\Contracts\Balance;
 use O21\LaravelWallet\Exception\InsufficientFundsException;
 
 trait HasBalance
 {
-    protected array $balances = [];
+    protected array $_balances = [];
 
-    public function getBalance(?string $currency = null): BalanceContract
+    public function getBalance(?string $currency = null): Balance
     {
-        $currency ??= config('wallet.currencies.basic');
+        $currency ??= config('wallet.default_currency');
 
-        if (! isset($this->balances[$currency])) {
+        if (! isset($this->_balances[$currency])) {
             $attributes = [
-                'user_id'  => $this->id,
+                'user_id'  => $this->getAuthIdentifier(),
                 'currency' => $currency
             ];
 
-            $balanceClass = app(BalanceContract::class);
-            $this->setBalanceCached($balanceClass::firstOrCreate($attributes));
+            $balanceClass = app(Balance::class);
+            $this->cacheBalanceModel($balanceClass::firstOrCreate($attributes));
         }
 
-        return $this->balances[$currency];
+        return $this->_balances[$currency];
     }
 
-    public function setBalanceCached(BalanceContract $balance): void
-    {
-        $this->balances[$balance->currency] = $balance;
-    }
-
-    public function assertHaveFunds(string $needs, ?string $currency = null): void
-    {
-        $currency ??= config('wallet.currencies.basic');
+    public function assertHaveFunds(
+        string $needs,
+        ?string $currency = null
+    ): void {
         if (! $this->isEnoughFunds($needs, $currency)) {
             throw InsufficientFundsException::assertFails($this, $needs, $currency);
         }
     }
 
-    public function isEnoughFunds(string $needs, ?string $currency = null): bool
+    public function isEnoughFunds(
+        string $needs,
+        ?string $currency = null
+    ): bool {
+        return $this->getBalance($currency)->greaterThanOrEqual(num($needs)->positive());
+    }
+
+    protected function cacheBalanceModel(Balance $balance): void
     {
-        return bccomp($this->getBalance($currency)->value, $needs, 8) >= 0;
-    }
-
-    public function replenish(
-        string $amount,
-        ?string $currency = null
-    ): TransactionContract {
-        $currency ??= config('wallet.currencies.basic');
-        $transactionClass = app(TransactionContract::class);
-
-        return $transactionClass::create(
-            'replenishment',
-            $this,
-            $amount,
-            $currency
-        );
-    }
-
-    public function writeOff(
-        string $amount,
-        ?string $currency = null
-    ): TransactionContract {
-        $currency ??= config('wallet.currencies.basic');
-        $transactionClass = app(TransactionContract::class);
-
-        return $transactionClass::create(
-            'write_off',
-            $this,
-            $amount,
-            $currency
-        );
+        $this->_balances[$balance->currency] = $balance;
     }
 }

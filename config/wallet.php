@@ -1,43 +1,21 @@
 <?php
 
 return [
+    'default_currency' => 'USD',
+
     'models' => [
-        'user' => \Tests\Models\User::class,
-        'balance' => \O21\LaravelWallet\Models\Balance::class,
+        'user'        => \App\Models\User::class,
+        'balance'     => \O21\LaravelWallet\Models\Balance::class,
         'transaction' => \O21\LaravelWallet\Models\Transaction::class,
     ],
 
-    'observers' => [
-        'transaction' => \O21\LaravelWallet\Observers\TransactionObserver::class,
-    ],
-
     'table_names' => [
-        'balances' => 'balances',
+        'balances'     => 'balances',
         'transactions' => 'transactions',
     ],
 
-    'handlers' => [
-        'replenishment' => \O21\LaravelWallet\TransactionHandlers\ReplenishmentHandler::class,
-        'write_off'     => \O21\LaravelWallet\TransactionHandlers\WriteOffHandler::class,
+    'processors' => [
+        'deposit' => \O21\LaravelWallet\Transaction\Processors\DepositProcessor::class,
+        'charge'  => \O21\LaravelWallet\Transaction\Processors\ChargeProcessor::class
     ],
-
-    'currencies' => [
-        'basic' => 'USD',
-
-        /**
-         * Is convert all another currencies to basic currency
-         */
-        'convert' => false,
-
-        /**
-         * Currency converter class
-         * Must implement \O21\LaravelWallet\Contracts\CurrencyConverterContract contract
-         */
-        'converter' => null,
-
-        /**
-         * List of currencies which will be ignored for converting
-         */
-        'dont_convert' => [],
-    ]
 ];

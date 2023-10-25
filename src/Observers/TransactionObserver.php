@@ -2,59 +2,57 @@
 
 namespace O21\LaravelWallet\Observers;
 
-use O21\LaravelWallet\Contracts\TransactionContract;
-use O21\LaravelWallet\Contracts\TransactionObserverContract;
+use O21\LaravelWallet\Contracts\Transaction;
+use O21\LaravelWallet\Contracts\TransactionPreparer;
 use O21\LaravelWallet\Events\TransactionCreated;
+use O21\LaravelWallet\Events\TransactionDeleted;
 use O21\LaravelWallet\Events\TransactionStatusChanged;
+use O21\LaravelWallet\Events\TransactionUpdated;
+use O21\LaravelWallet\Transaction\Processors\Concerns\Events;
 
-class TransactionObserver implements TransactionObserverContract
+class TransactionObserver
 {
-    /**
-     * @param  \O21\LaravelWallet\Contracts\TransactionContract  $transaction
-     * @return void
-     */
-    public function saving(TransactionContract $transaction): void
+    use Events;
+
+    public function saved(Transaction $transaction): void
     {
-        $transaction->prepare();
+        $transaction->getRelatedBalance()?->recalculate();
     }
 
-    /**
-     * @param  \O21\LaravelWallet\Contracts\TransactionContract  $transaction
-     * @return void
-     */
-    public function created(TransactionContract $transaction): void
+    public function creating(Transaction $transaction): void
+    {
+        $this->callProcessorMethodIfExist($transaction, 'creating');
+    }
+
+    public function created(Transaction $transaction): void
     {
         event(new TransactionCreated($transaction));
     }
 
-    /**
-     * @param  \O21\LaravelWallet\Contracts\TransactionContract  $transaction
-     * @return void
-     */
-    public function updated(TransactionContract $transaction): void
+    public function updating(Transaction $transaction): void
+    {
+        $this->callProcessorMethodIfExist($transaction, 'updating');
+    }
+
+    public function updated(Transaction $transaction): void
     {
         if ($transaction->wasChanged('status')) {
-            event(new TransactionStatusChanged($transaction));
+            event(new TransactionStatusChanged(
+                $transaction,
+                $transaction->getOriginal('status')
+            ));
         }
+
+        event(new TransactionUpdated($transaction));
     }
 
-    /**
-     * @param  \O21\LaravelWallet\Contracts\TransactionContract  $transaction
-     * @return void
-     */
-    public function saved(TransactionContract $transaction): void
+    public function deleting(Transaction $transaction): void
     {
-        optional($transaction->getUserBalance())
-            ->recalculate();
+        $this->callProcessorMethodIfExist($transaction, 'deleting');
     }
 
-    /**
-     * @param  \O21\LaravelWallet\Contracts\TransactionContract  $transaction
-     * @return void
-     */
-    public function deleted(TransactionContract $transaction): void
+    public function deleted(Transaction $transaction): void
     {
-        optional($transaction->getUserBalance())
-            ->recalculate();
+        event(new TransactionDeleted($transaction));
     }
 }

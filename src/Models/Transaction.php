@@ -2,80 +2,91 @@
 
 namespace O21\LaravelWallet\Models;
 
-use Database\Factories\TransactionFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 use O21\LaravelWallet\Casts\TrimZero;
-use O21\LaravelWallet\Contracts\CurrencyConverterContract;
-use O21\LaravelWallet\Models\Concerns\HasDataColumn;
-use O21\LaravelWallet\Contracts\BalanceContract;
-use O21\LaravelWallet\Contracts\TransactionContract;
-use O21\LaravelWallet\Contracts\UserContract;
-use O21\LaravelWallet\Contracts\TransactionHandlerContract;
-use O21\LaravelWallet\TransactionHandlers\ReplenishmentHandler;
-use O21\LaravelWallet\TransactionHandlers\WriteOffHandler;
-use O21\SafelyTransaction;
-use Illuminate\Database\Query\Builder;
+use O21\LaravelWallet\Enums\TransactionStatus;
+use O21\LaravelWallet\Models\Concerns\HasMetaColumn;
+use O21\LaravelWallet\Contracts\Balance;
+use O21\LaravelWallet\Contracts\Transaction as TransactionContract;
+use O21\LaravelWallet\Contracts\SupportsBalance;
+use O21\LaravelWallet\Contracts\TransactionProcessor;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * O21\LaravelWallet\Models\Transaction
  *
  * @property int $id
  * @property int $user_id
- * @property string $currency
- * @property string $status
- * @property string $handler
- * @property string $total
+ * @property string $total Sum of amount + commission
  * @property string $amount
  * @property string $commission
- * @property mixed|null $data
+ * @property string $currency
+ * @property string $status
+ * @property string $handler_id
+ * @property array|null $meta
+ * @property bool $archived
  * @property \Illuminate\Support\Carbon|null $created_at
- * @method static \Illuminate\Database\Eloquent\Builder|Transaction newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Transaction newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Transaction query()
- * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereCommission($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereCurrency($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereData($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereHandler($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereTotal($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereUserId($value)
+ * @method static Builder|Transaction canceled()
+ * @method static Builder|Transaction expired()
+ * @method static Builder|Transaction failed()
+ * @method static Builder|Transaction forUser(\O21\LaravelWallet\Contracts\SupportsBalance $user)
+ * @method static Builder|Transaction holding()
+ * @method static Builder|Transaction newModelQuery()
+ * @method static Builder|Transaction newQuery()
+ * @method static Builder|Transaction newest()
+ * @method static Builder|Transaction pending()
+ * @method static Builder|Transaction query()
+ * @method static Builder|Transaction refunded()
+ * @method static Builder|Transaction success()
+ * @method static Builder|Transaction whereAmount($value)
+ * @method static Builder|Transaction whereArchived($value)
+ * @method static Builder|Transaction whereCommission($value)
+ * @method static Builder|Transaction whereCreatedAt($value)
+ * @method static Builder|Transaction whereCurrency($value)
+ * @method static Builder|Transaction whereHandlerId($value)
+ * @method static Builder|Transaction whereId($value)
+ * @method static Builder|Transaction whereMeta($value)
+ * @method static Builder|Transaction whereStatus($value)
+ * @method static Builder|Transaction whereTotal($value)
+ * @method static Builder|Transaction whereUserId($value)
  * @mixin \Eloquent
- * @property-read \O21\LaravelWallet\Contracts\UserContract|null $User
- * @property-read string $day
- * @method static \Illuminate\Database\Eloquent\Builder|Transaction accounted()
- * @method static \Illuminate\Database\Eloquent\Builder|Transaction completed()
- * @method static \Illuminate\Database\Eloquent\Builder|Transaction defaultOrder()
- * @method static \Illuminate\Database\Eloquent\Builder|Transaction forUser(\O21\LaravelWallet\Contracts\UserContract $user)
- * @method static \Illuminate\Database\Eloquent\Builder|Transaction processing()
- * @method static \Illuminate\Database\Eloquent\Builder|Transaction replenishment()
- * @method static \Illuminate\Database\Eloquent\Builder|Transaction writeOff()
  */
 class Transaction extends Model implements TransactionContract
 {
-    use HasFactory;
-    use HasDataColumn;
+    use HasMetaColumn;
 
-    public function toWalletTransaction(): array
+    public const UPDATED_AT = null;
+
+    protected $casts = [
+        'total'      => TrimZero::class,
+        'amount'     => TrimZero::class,
+        'commission' => TrimZero::class,
+        'meta'       => 'array',
+        'archived'   => 'boolean'
+    ];
+
+    protected $attributes = [
+        'status' => TransactionStatus::PENDING
+    ];
+
+    public function toApi(): array
     {
         $result = $this->only(
             'id',
-            'status',
+            'total',
             'amount',
-            'currency',
             'commission',
-            'day',
+            'currency',
+            'status',
+            'processor_id',
             'created_at',
-            'handler'
+            'archived'
         );
 
-        $result['handler_data'] = $this->handler()->getData();
+        $result['meta'] = $this->processor->prepareMeta($this->meta);
 
         return collect($result)
             ->mapWithKeys(
@@ -83,310 +94,129 @@ class Transaction extends Model implements TransactionContract
             )->all();
     }
 
-    //-----------------------------------------------------
-    // IS FUNCTIONS
-    //-----------------------------------------------------
-
-    public function isCompleted(): bool
+    public function hasStatus(TransactionStatus|string $status): bool
     {
-        return $this->status === self::STATUS_COMPLETED;
+        return $this->status === $status;
     }
 
-    public function isRejected(): bool
+    public function updateStatus(TransactionStatus|string $status): bool
     {
-        return $this->status === self::STATUS_REJECTED;
+        return $this->update(compact('status'));
     }
 
-    public function isProcessing(): bool
-    {
-        return $this->status === self::STATUS_PROCESSING;
-    }
-
-    public function isFrozen(): bool
-    {
-        return $this->status === self::STATUS_FROZEN;
-    }
-
-    public function isIncome(): bool
-    {
-        return $this->isCompleted() && $this->total > 0;
-    }
-
-    //-----------------------------------------------------
-    // FUNCTIONS
-    //-----------------------------------------------------
-
-    public static function create(
-        $handler,
-        UserContract $user,
-        string $amount,
-        string $currency,
-        string $commission = '0',
-        array $data = [],
-        Model|Builder|false $queryForLock = null,
-        callable $before = null,
-        callable $after = null
-    ): TransactionContract {
-        if ($queryForLock === false) {
-            $queryForLock = null;
-        } else {
-            $queryForLock = $queryForLock ?? $user->getBalance($currency);
-        }
-
-        return (new SafelyTransaction(
-            function ()
-            use ($handler, $user, $amount, $currency, $commission, $data, $before, $after) {
-                $transaction = self::make(
-                    $handler,
-                    $user,
-                    $amount,
-                    $currency,
-                    $commission,
-                    $data
-                );
-
-                if (is_callable($before)) {
-                    $before($transaction);
-                }
-
-                $transaction->save();
-
-                if (is_callable($after)) {
-                    $after($transaction);
-                }
-
-                return $transaction;
-            },
-            $queryForLock
-        ))->setThrow(true)->run();
-    }
-
-    protected static function make(
-        $handler,
-        UserContract $user,
-        string $amount,
-        string $currency,
-        string $commission = '0',
-        array $data = []
-    ): TransactionContract {
-        if (class_exists($handler)) {
-            $handler = wallet_handler_id($handler);
-        }
-
-        if (! $handler) {
-            throw new \Exception('Error: unknown wallet handler.');
-        }
-
-        $transactionClass = app(TransactionContract::class);
-
-        $transaction = new $transactionClass(
-            compact('handler', 'amount', 'currency', 'commission', 'data')
-        );
-        $transaction->User()->associate($user);
-
-        return $transaction;
-    }
-
-    public function makeRejected(): bool
-    {
-        return $this->update(['status' => self::STATUS_REJECTED]);
-    }
-
-    public function prepare(): void
-    {
-        $validCurrencies = [
-            config('wallet.currencies.main'),
-            ...config('wallet.currencies.dont_convert')
-        ];
-
-        if (! in_array($this->currency, $validCurrencies, true)) {
-            $this->convertToBasicCurrency();
-        }
-
-        $this->amount = $this->handler()->validAmount();
-        $this->total = bcsub($this->amount, $this->commission, 8);
-    }
-
-    public function convertToBasicCurrency(): void
-    {
-        $basicCurrency = config('wallet.currencies.main');
-
-        /** @var \O21\LaravelWallet\Contracts\CurrencyConverterContract $converter */
-        $converter = app(CurrencyConverterContract::class);
-
-        if (! $converter || ! config('wallet.currencies.convert')) {
-            return;
-        }
-
-        $this->amount = $converter->convert(
-            $this->attributes['amount'],
-            $this->currency,
-            $basicCurrency,
-            $this->data
-        );
-        $this->commission = $converter->convert(
-            $this->attributes['commission'],
-            $this->currency,
-            $basicCurrency,
-            $this->data
-        );
-        $this->currency = $basicCurrency;
-    }
-
-    public function handler(): TransactionHandlerContract
-    {
-        if (! $this->_handler) {
-            return $this->_handler = $this->resolveHandler();
-        }
-
-        return $this->_handler;
-    }
-
-    private function resolveHandler(): TransactionHandlerContract
-    {
-        $handler = wallet_handler($this->handler);
-        if (! ($handler instanceof TransactionHandlerContract)) {
-            throw new \Exception('Error: unknown transaction handler');
-        }
-
-        $handler->setTransaction($this);
-
-        return $handler;
-    }
-
-    //-----------------------------------------------------
-    // GETTERS
-    //-----------------------------------------------------
-
-    public function getUserBalance(): BalanceContract
-    {
-        return optional($this->User)
-            ->getBalance($this->currency);
-    }
-
-    public function day(): Attribute
+    public function processor(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->created_at->copy()
-                ->setHours(0)
-                ->setMinutes(0)
-                ->setSeconds(0)
-                ->toISOString(true)
-        );
+            get: fn() => $this->resolveProcessor(),
+        )->shouldCache();
     }
 
-    //-----------------------------------------------------
-    // MODEL DATA
-    //-----------------------------------------------------
+    private function resolveProcessor(): TransactionProcessor
+    {
+        $processorClass = config("wallet.processors.{$this->processor_id}");
+        if (! $processorClass || ! class_exists($processorClass)) {
+            throw new \RuntimeException(
+                "Processor {$this->processor_id} not found"
+            );
+        }
 
-    public const UPDATED_AT = null;
+        $processor = app($processorClass, [
+            'transaction' => $this
+        ]);
+        if (! ($processor instanceof TransactionProcessor)) {
+            throw new \RuntimeException(
+                "Processor {$this->processor_id} must be instance of ".TransactionProcessor::class
+            );
+        }
 
-    protected $casts = [
-        'total' => TrimZero::class,
-        'amount' => TrimZero::class,
-        'commission' => TrimZero::class,
-        'data' => 'array'
-    ];
+        return $processor;
+    }
 
-    protected $attributes = [
-        'status' => 'completed'
-    ];
+    public function getRelatedBalance(): ?Balance
+    {
+        return $this->User?->getBalance($this->currency);
+    }
 
-    protected ?TransactionHandlerContract $_handler = null;
-
-    protected static $unguarded = true;
-
-    //-----------------------------------------------------
-    // RELATIONS
-    //-----------------------------------------------------
+    public function getTotal(): string
+    {
+        return num($this->amount)->add($this->commission)->get();
+    }
 
     public function User(): BelongsTo
     {
         return $this->belongsTo(config('wallet.models.user'));
     }
 
-    //-----------------------------------------------------
-    // SCOPES
-    //-----------------------------------------------------
-
-    /**
-     * @param \Illuminate\Database\Query\Builder|self $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeProcessing($query)
+    public function scopePending(Builder $query): void
     {
-        return $query->whereStatus(self::STATUS_PROCESSING);
+        $query->where(
+            'status',
+            '=',
+            TransactionStatus::PENDING
+        );
     }
 
-    /**
-     * @param \Illuminate\Database\Query\Builder|self $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeCompleted($query)
+    public function scopeSuccess(Builder $query): void
     {
-        return $query->whereStatus(self::STATUS_COMPLETED);
+        $query->where(
+            'status',
+            '=',
+            TransactionStatus::SUCCESS
+        );
     }
 
-    /**
-     * Find accounted transactions.
-     *
-     * @param \Illuminate\Database\Query\Builder $query
-     * @return \Illuminate\Database\Query\Builder
-     */
-    public function scopeAccounted($query)
+    public function scopeHolding(Builder $query): void
     {
-        return $query->whereIn('status', [
-            self::STATUS_COMPLETED,
-            self::STATUS_FROZEN
-        ]);
+        $query->where(
+            'status',
+            '=',
+            TransactionStatus::ON_HOLD
+        );
     }
 
-    /**
-     * Find replenishments.
-     *
-     * @param \Illuminate\Database\Query\Builder|self $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeReplenishment($query)
+    public function scopeCanceled(Builder $query): void
     {
-        return $query->whereHandler(wallet_handler_id(ReplenishmentHandler::class));
+        $query->where(
+            'status',
+            '=',
+            TransactionStatus::CANCELED
+        );
     }
 
-    /**
-     * Find write off transactions.
-     *
-     * @param \Illuminate\Database\Query\Builder|self $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeWriteOff($query)
+    public function scopeFailed(Builder $query): void
     {
-        return $query->whereHandler(wallet_handler_id(WriteOffHandler::class));
+        $query->where(
+            'status',
+            '=',
+            TransactionStatus::FAILED
+        );
     }
 
-    /**
-     * Find transactions for user.
-     *
-     * @param \Illuminate\Database\Query\Builder|self $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeForUser($query, UserContract $user)
+    public function scopeRefunded(Builder $query): void
     {
-        return $query->defaultOrder()
-            ->whereUserId($user->id);
+        $query->where(
+            'status',
+            '=',
+            TransactionStatus::REFUNDED
+        );
     }
 
-    public function scopeDefaultOrder($query)
+    public function scopeExpired(Builder $query): void
     {
-        return $query->orderBy('created_at', 'desc');
+        $query->where(
+            'status',
+            '=',
+            TransactionStatus::EXPIRED
+        );
     }
 
-    /**
-     * Create a new factory instance for the model.
-     *
-     * @return \Illuminate\Database\Eloquent\Factories\Factory
-     */
-    protected static function newFactory()
+    public function scopeForUser(Builder $query, SupportsBalance $user): void
     {
-        return TransactionFactory::new();
+        $query->where('user_id', '=', $user->getAuthIdentifier());
+    }
+
+    public function scopeNewest(Builder $query): void
+    {
+        $query->orderBy('created_at', 'desc');
     }
 }

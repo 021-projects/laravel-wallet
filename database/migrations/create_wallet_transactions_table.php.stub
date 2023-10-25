@@ -25,7 +25,7 @@ class CreateWalletTransactionsTable extends Migration
      */
     public function up()
     {
-        Schema::create($this->assertTableNames('transactions'), function (Blueprint $table) {
+        Schema::create($this->assertTableName('transactions'), function (Blueprint $table) {
             $table->id();
             $table->bigInteger('user_id')->index();
             $table->decimal('total', 16, 8)
@@ -51,6 +51,6 @@ class CreateWalletTransactionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists($this->assertTableNames('transactions'));
+        Schema::dropIfExists($this->assertTableName('transactions'));
     }
 }

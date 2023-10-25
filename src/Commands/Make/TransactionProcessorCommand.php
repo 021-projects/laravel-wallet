@@ -4,33 +4,33 @@ namespace O21\LaravelWallet\Commands\Make;
 
 use Illuminate\Console\GeneratorCommand;
 
-class TransactionHandlerCommand extends GeneratorCommand
+class TransactionProcessorCommand extends GeneratorCommand
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $name = '021-wallet-make:transaction-handler';
+    protected $name = 'make:tx-processor';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Create a new transaction handler';
+    protected $description = 'Create a new transaction processor';
 
-    protected $type = 'Transaction handler';
+    protected $type = 'Transaction processor';
 
     protected function getStub(): string
     {
-        $stub = '/stubs/transaction-handler.stub';
+        $stub = '/stubs/TransactionProcessor.stub';
 
         return __DIR__.$stub;
     }
 
     protected function getDefaultNamespace($rootNamespace): string
     {
-        return $rootNamespace.'\TransactionHandlers';
+        return $rootNamespace.'\Transactions\Processors';
     }
 }

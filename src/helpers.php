@@ -1,82 +1,53 @@
 <?php
 
-if (! function_exists('wallet_handler')) {
+use O21\LaravelWallet\Numeric;
 
+if (! function_exists('num')) {
     /**
-     * Gets wallet content handler object.
+     * Create a new Numeric instance for safe calculations
      *
-     * @param string $id
-     * @param bool $returnClass
-     * @param mixed ...$arguments
-     * @return mixed|object|null
+     * @param  string|float|int|\O21\LaravelWallet\Numeric  $value
+     * @return \O21\LaravelWallet\Numeric
      */
-    function wallet_handler(string $id, bool $returnClass = false, ...$arguments)
+    function num(string|float|int|Numeric $value): Numeric
     {
-        $handlers = config('wallet.handlers');
+        return new Numeric($value);
+    }
+}
 
-        $class = $handlers[$id] ?? null;
+if (! function_exists('transaction')) {
+    function transaction(): \O21\LaravelWallet\Transaction\Creator
+    {
+        return app(\O21\LaravelWallet\Transaction\Creator::class);
+    }
+}
 
-        if (! ($class && class_exists($class)) || $returnClass) {
-            return $class;
+if (! function_exists('deposit')) {
+    function deposit(
+        string|float|int|Numeric $amount,
+        ?string $currency = null
+    ): \O21\LaravelWallet\Transaction\Creator {
+        $creator = transaction()->processor('deposit');
+
+        if ($currency) {
+            $creator->currency($currency);
         }
 
-        return app($class);
+        return $creator->amount($amount);
     }
 }
 
-if (! function_exists('wallet_handler_id')) {
+if (! function_exists('charge')) {
+    function charge(
+        string|float|int|Numeric $amount,
+        ?string $currency = null
+    ): \O21\LaravelWallet\Transaction\Creator{
+        $creator = transaction()->processor('charge');
 
-    /**
-     * Gets wallet handler id by class.
-     *
-     * @param $class
-     * @return false|int|string
-     */
-    function wallet_handler_id($class)
-    {
-        return array_search($class, config('wallet.handlers'), true);
-    }
-}
+        if ($currency) {
+            $creator->currency($currency);
+        }
 
-if (! function_exists('crypto_number')) {
-
-    /**
-     * Format bitcoin number.
-     *
-     * @param $value
-     * @return string
-     */
-    function crypto_number($value)
-    {
-        return number_format_trim_trailing_zero($value, 8, '.', '');
-    }
-}
-
-if (! function_exists('number_format_trim_trailing_zero')) {
-
-    /**
-     * Formats a number and removes trailing zeros.
-     *
-     * @return string
-     */
-    function number_format_trim_trailing_zero()
-    {
-        return trim_trailing_zero(number_format(...func_get_args()));
-    }
-}
-
-if (! function_exists('trim_trailing_zero')) {
-
-    /**
-     * Removes trailing zeros.
-     *
-     * @param $number
-     * @return string
-     */
-    function trim_trailing_zero($number)
-    {
-        return str_contains($number, '.')
-            ? rtrim(rtrim($number,'0'),'.')
-            : $number;
+        return $creator->amount($amount);
     }
 }

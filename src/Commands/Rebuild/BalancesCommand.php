@@ -3,7 +3,7 @@
 namespace O21\LaravelWallet\Commands\Rebuild;
 
 use Illuminate\Console\Command;
-use O21\LaravelWallet\Contracts\BalanceContract;
+use O21\LaravelWallet\Contracts\Balance;
 
 class BalancesCommand extends Command
 {
@@ -12,7 +12,7 @@ class BalancesCommand extends Command
      *
      * @var string
      */
-    protected $signature = '021-wallet:rebuild-balances';
+    protected $signature = 'wallet:rebuild-balances';
 
     /**
      * The console command description.
@@ -38,13 +38,13 @@ class BalancesCommand extends Command
      */
     public function handle()
     {
-        $balanceClass = app(BalanceContract::class);
+        $balanceClass = app(Balance::class);
 
         $progress = $this->output->createProgressBar($balanceClass::count());
         $progress->start();
 
         $balanceClass::chunk(100, static function ($balances) use ($progress) {
-            $balances->each(function(BalanceContract $balance) use ($progress) {
+            $balances->each(function(Balance $balance) use ($progress) {
                 $balance->recalculate();
                 $progress->advance();
             });

@@ -3,15 +3,15 @@
 namespace O21\LaravelWallet\Exception;
 
 use Exception;
-use O21\LaravelWallet\Contracts\UserContract;
+use O21\LaravelWallet\Contracts\SupportsBalance;
 
 class InsufficientFundsException extends Exception
 {
     public static function assertFails(
-        UserContract $user,
+        SupportsBalance $user,
         string $needs,
         string $currency
     ): static {
-        return new static("The user ($user->id) does not have enough funds. Needs: $needs $currency");
+        return new static("The user ({$user->getAuthIdentifier()}) does not have enough funds. Needs: $needs $currency");
     }
 }

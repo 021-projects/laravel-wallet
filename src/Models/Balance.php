@@ -2,13 +2,12 @@
 
 namespace O21\LaravelWallet\Models;
 
-use Database\Factories\BalanceFactory;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use O21\LaravelWallet\Casts\TrimZero;
-use O21\LaravelWallet\Contracts\BalanceContract;
-use O21\LaravelWallet\Contracts\TransactionContract;
+use O21\LaravelWallet\Contracts\Balance as BalanceContract;
+use O21\LaravelWallet\Contracts\Transaction;
 
 /**
  * O21\LaravelWallet\Models\Balance
@@ -17,7 +16,8 @@ use O21\LaravelWallet\Contracts\TransactionContract;
  * @property int $user_id
  * @property string $value
  * @property string $currency
- * @property-read \App\Models\User|null $User
+ * @property-read \O21\LaravelWallet\Contracts\SupportsBalance $User
+ * @property-read \O21\LaravelWallet\Numeric $valueNum
  * @method static \Illuminate\Database\Eloquent\Builder|Balance newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Balance newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Balance query()
@@ -29,29 +29,7 @@ use O21\LaravelWallet\Contracts\TransactionContract;
  */
 class Balance extends Model implements BalanceContract
 {
-    use HasFactory;
-
-    public function recalculate(): bool
-    {
-        $transactionClass = app(TransactionContract::class);
-
-        $total = $transactionClass::whereUserId($this->user_id)
-            ->whereCurrency($this->currency)
-            ->accounted()
-            ->sum('total');
-
-        return $this->update(['value' => $total]);
-    }
-
-    //-----------------------------------------------------
-    // MODEL DATA
-    //-----------------------------------------------------
-
     public $timestamps = false;
-
-    protected $fillable = [
-        'user_id', 'value', 'currency'
-    ];
 
     protected $casts = [
         'value' => TrimZero::class
@@ -61,23 +39,58 @@ class Balance extends Model implements BalanceContract
         'value' => 0
     ];
 
-    //-----------------------------------------------------
-    // RELATIONS
-    //-----------------------------------------------------
+    protected $fillable = [
+        'user_id',
+        'currency',
+        'value'
+    ];
+
+    public function recalculate(): bool
+    {
+        $transactionClass = app(Transaction::class);
+
+        $total = $transactionClass::whereUserId($this->user_id)
+            ->whereCurrency($this->currency)
+            ->success()
+            ->sum('total');
+
+        return $this->update(['value' => $total]);
+    }
+
+    public function equals(float|int|string $value): bool
+    {
+        return $this->valueNum->equals($value);
+    }
+
+    public function greaterThan(float|int|string $value): bool
+    {
+        return $this->valueNum->greaterThan($value);
+    }
+
+    public function greaterThanOrEqual(float|int|string $value): bool
+    {
+        return $this->valueNum->greaterThanOrEqual($value);
+    }
+
+    public function lessThan(float|int|string $value): bool
+    {
+        return $this->valueNum->lessThan($value);
+    }
+
+    public function lessThanOrEqual(float|int|string $value): bool
+    {
+        return $this->valueNum->lessThanOrEqual($value);
+    }
+
+    public function valueNum(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => num($this->value)
+        )->withoutObjectCaching();
+    }
 
     public function User(): BelongsTo
     {
         return $this->belongsTo(config('wallet.models.user'));
-    }
-
-
-    /**
-     * Create a new factory instance for the model.
-     *
-     * @return \Illuminate\Database\Eloquent\Factories\Factory
-     */
-    protected static function newFactory()
-    {
-        return BalanceFactory::new();
     }
 }

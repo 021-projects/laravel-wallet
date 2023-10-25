@@ -4,7 +4,7 @@ namespace O21\LaravelWallet\Concerns;
 
 trait MigrationHelper
 {
-    protected function assertTableNames(?string $key = null)
+    protected function assertTableName(?string $key = null)
     {
         $tableNames = config('wallet.table_names');
         if (empty($tableNames)) {
