@@ -20,6 +20,10 @@ class TrimZero implements CastsAttributes
      */
     public function get($model, $key, $value, $attributes)
     {
+        if (! is_string($value)) {
+            return $value;
+        }
+
         if (preg_match(self::WITHOUT_DIGITS_REGEX, $value)) {
             return preg_replace(self::WITHOUT_DIGITS_REGEX, '', $value);
         }

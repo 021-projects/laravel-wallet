@@ -69,7 +69,11 @@ class Transaction extends Model implements TransactionContract
     ];
 
     protected $attributes = [
-        'status' => TransactionStatus::PENDING
+        'status' => TransactionStatus::PENDING,
+        'total' => '0',
+        'amount' => '0',
+        'commission' => '0',
+        'archived' => false
     ];
 
     public function toApi(): array
