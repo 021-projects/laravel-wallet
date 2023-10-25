@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Exception\InsufficientFundsException;
 use Tests\Feature\Concerns\BalanceTest;
 use Tests\TestCase;
@@ -135,5 +136,95 @@ class TransactionCase extends TestCase
             $balance,
             0
         );
+    }
+
+    public function test_has_status(): void
+    {
+        [$user, $currency, $balance] = $this->createBalance();
+
+        $transaction = deposit(100, $currency)
+            ->to($user)
+            ->commit();
+
+        $this->assertTrue($transaction->hasStatus(TransactionStatus::SUCCESS));
+        $this->assertFalse($transaction->hasStatus(TransactionStatus::PENDING));
+        $this->assertTrue($transaction->hasStatus('success'));
+        $this->assertFalse($transaction->hasStatus('pending'));
+    }
+
+    public function test_update_status(): void
+    {
+        [$user, $currency, $balance] = $this->createBalance();
+
+        $transaction = deposit(100, $currency)
+            ->to($user)
+            ->commit();
+
+        $this->assertTrue($transaction->hasStatus(TransactionStatus::SUCCESS));
+        $this->assertFalse($transaction->hasStatus(TransactionStatus::PENDING));
+
+        $transaction->updateStatus(TransactionStatus::PENDING);
+
+        $this->assertFalse($transaction->hasStatus(TransactionStatus::SUCCESS));
+        $this->assertTrue($transaction->hasStatus(TransactionStatus::PENDING));
+
+        $this->assertBalanceRefreshEquals(
+            $balance,
+            0
+        );
+    }
+
+    public function test_to_api(): void
+    {
+        [$user, $currency, $balance] = $this->createBalance();
+
+        $transaction = deposit(100, $currency)
+            ->to($user)
+            ->commit();
+
+        $result = $transaction->toApi();
+
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('id', $result);
+        $this->assertArrayHasKey('amount', $result);
+        $this->assertArrayHasKey('currency', $result);
+        $this->assertArrayHasKey('status', $result);
+        $this->assertArrayHasKey('processorId', $result);
+        $this->assertArrayHasKey('createdAt', $result);
+        $this->assertArrayHasKey('archived', $result);
+        $this->assertArrayHasKey('meta', $result);
+        $this->assertArrayHasKey('total', $result);
+
+        $this->assertIsArray($result['meta']);
+    }
+
+    public function test_meta(): void
+    {
+        [$user, $currency, $balance] = $this->createBalance();
+
+        $transaction = deposit(100, $currency)
+            ->to($user)
+            ->meta([
+                'test' => 'value',
+            ])
+            ->commit();
+
+        $this->assertNull($transaction->getMeta('unknown'));
+        $this->assertEquals('value', $transaction->getMeta('test'));
+
+        $transaction->setMeta('test', 'value2');
+
+        $this->assertEquals('value2', $transaction->getMeta('test'));
+
+        $transaction->updateMeta('test', 'value3');
+
+        $this->assertEquals('value3', $transaction->getMeta('test'));
+
+        $transaction->updateMeta([
+            'test2' => 'value3',
+        ]);
+
+        $this->assertArrayHasKey('test', $transaction->getMeta());
+        $this->assertEquals('value3', $transaction->getMeta('test2'));
     }
 }
