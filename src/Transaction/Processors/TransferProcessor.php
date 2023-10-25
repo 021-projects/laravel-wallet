@@ -59,8 +59,8 @@ class TransferProcessor implements TransactionProcessor
         $transaction = transfer($this->transaction->amount, $this->transaction->currency)
             ->receiveFunds($this->getReceiver())
             ->meta([
-                'senderId' => $this->transaction->user_id,
                 'parentTransactionId' => $this->transaction->id,
+                ...$this->transaction->meta,
             ])
             ->commit();
 
