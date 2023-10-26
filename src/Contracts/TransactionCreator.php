@@ -4,6 +4,7 @@ namespace O21\LaravelWallet\Contracts;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
+use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Numeric;
 
 interface TransactionCreator
@@ -14,6 +15,8 @@ interface TransactionCreator
     public function amount(string|float|int|Numeric $amount): self;
     public function currency(string $currency): self;
     public function commission(string|float|int|Numeric $commission): self;
+    public function status(TransactionStatus|string $status): self;
+    public function setDefaultStatus(): self;
     public function processor(string $processor): self;
     public function user(SupportsBalance $user): self;
     public function to(SupportsBalance $user): self; // alias for user()
