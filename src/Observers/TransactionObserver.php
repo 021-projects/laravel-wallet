@@ -3,7 +3,6 @@
 namespace O21\LaravelWallet\Observers;
 
 use O21\LaravelWallet\Contracts\Transaction;
-use O21\LaravelWallet\Contracts\TransactionPreparer;
 use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Events\TransactionCreated;
 use O21\LaravelWallet\Events\TransactionDeleted;
