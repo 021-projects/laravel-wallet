@@ -306,4 +306,40 @@ class TransactionCase extends TestCase
             0
         );
     }
+
+    public function test_no_changes_in_db_if_exception(): void
+    {
+        [$user, $currency, $balance] = $this->createBalance();
+
+        $this->expectException(\RuntimeException::class);
+
+        deposit(100, $currency)
+            ->to($user)
+            ->after(static function () use ($balance) {
+                $balance->update(['value' => 999]);
+                throw new \RuntimeException('test');
+            })
+            ->commit();
+
+        $this->assertBalanceRefreshEquals(
+            $balance,
+            0
+        );
+    }
+
+    public function test_no_processor_exception(): void
+    {
+        [$user] = $this->createBalance();
+
+        $this->expectException(\RuntimeException::class);
+
+        transaction()->to($user)->commit();
+    }
+
+    public function test_no_user_exception(): void
+    {
+        $this->expectException(\Error::class);
+
+        deposit(100)->commit();
+    }
 }
