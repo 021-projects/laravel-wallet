@@ -7,13 +7,12 @@ use O21\LaravelWallet\Contracts\SupportsBalance;
 use O21\LaravelWallet\Contracts\TransactionProcessor;
 use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Transaction\Processors\Concerns\BaseProcessor;
-use O21\LaravelWallet\Transaction\Processors\Concerns\InitialSuccess;
+use O21\LaravelWallet\Transaction\Processors\Contracts\InitialSuccess;
 
-class TransferProcessor implements TransactionProcessor
+class TransferProcessor implements TransactionProcessor, InitialSuccess
 {
     use ModelStubs;
     use BaseProcessor;
-    use InitialSuccess;
 
     public function creating(): void
     {

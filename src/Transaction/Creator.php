@@ -8,7 +8,10 @@ use O21\LaravelWallet\Contracts\Transaction;
 use O21\LaravelWallet\Contracts\TransactionCreator;
 use O21\LaravelWallet\Contracts\SupportsBalance;
 use O21\LaravelWallet\Contracts\TransactionPreparer;
+use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Numeric;
+use O21\LaravelWallet\Transaction\Processors\Contracts\InitialHolding;
+use O21\LaravelWallet\Transaction\Processors\Contracts\InitialSuccess;
 use O21\SafelyTransaction;
 
 class Creator implements TransactionCreator
@@ -87,6 +90,33 @@ class Creator implements TransactionCreator
         return $this;
     }
 
+    public function status(TransactionStatus|string $status): self
+    {
+        $this->transaction->status = $status instanceof TransactionStatus
+            ? $status->value
+            : $status;
+
+        return $this;
+    }
+
+    public function setDefaultStatus(): self
+    {
+        if (! ($processor = $this->transaction->processor)) {
+            return $this;
+        }
+
+        $initialSuccess = $processor instanceof InitialSuccess;
+        $initialHolding = $processor instanceof InitialHolding;
+
+        $this->status(match (true) {
+            $initialHolding => TransactionStatus::ON_HOLD,
+            $initialSuccess => TransactionStatus::SUCCESS,
+            default         => TransactionStatus::PENDING,
+        });
+
+        return $this;
+    }
+
     public function processor(string $processor): self
     {
         if (class_exists($processor)) {
@@ -98,11 +128,13 @@ class Creator implements TransactionCreator
             return $this;
         }
 
-        $this->transaction->processor_id = $processor;
-
         if (! array_key_exists($processor, config('wallet.processors'))) {
             throw new \RuntimeException('Error: unknown transaction processor');
         }
+
+        $this->transaction->processor_id = $processor;
+
+        $this->setDefaultStatus();
 
         return $this;
     }
