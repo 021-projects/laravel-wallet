@@ -6,7 +6,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Exception\InsufficientFundsException;
-use O21\LaravelWallet\Models\Transaction;
 use Tests\Feature\Concerns\BalanceTest;
 use Tests\TestCase;
 
