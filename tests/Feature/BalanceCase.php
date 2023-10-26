@@ -5,11 +5,17 @@ namespace Tests\Feature;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use O21\LaravelWallet\Enums\TransactionStatus;
 use Tests\Feature\Concerns\BalanceTest;
 use Tests\TestCase;
 
 class BalanceCase extends TestCase
 {
+    private const SMALL_VALUE = 0.00000001;
+    private const SMALL_VALUE_STR = '0.00000001';
+    private const SMALLEST_VALUE = 0.0000000001;
+    private const SMALLEST_VALUE_STR = '0.0000000001';
+
     use RefreshDatabase;
     use WithFaker;
     use BalanceTest;
@@ -68,5 +74,134 @@ class BalanceCase extends TestCase
         $balance->recalculate();
 
         $this->assertTrue($balance->equals(0));
+    }
+
+    public function test_extra_values_enabled(): void
+    {
+        config([
+            'wallet.balance.extra_values' => [
+                'pending' => true,
+                'on_hold' => true,
+            ]
+        ]);
+
+        /** @var \O21\LaravelWallet\Contracts\Balance $balance */
+        [$user, $currency, $balance] = $this->createBalance();
+
+        deposit(self::SMALL_VALUE, $currency)
+            ->to($user)
+            ->status(TransactionStatus::PENDING)
+            ->commit();
+
+        charge(self::SMALL_VALUE, $currency)
+            ->from($user)
+            ->status(TransactionStatus::ON_HOLD)
+            ->overcharge()
+            ->commit();
+
+        $this->assertBalanceRefreshEquals(
+            $balance,
+            -self::SMALL_VALUE,
+        );
+
+        $this->assertBalanceRefreshEquals(
+            $balance,
+            self::SMALL_VALUE,
+            'value_pending'
+        );
+
+        $this->assertBalanceRefreshEquals(
+            $balance,
+            -self::SMALL_VALUE,
+            'value_on_hold'
+        );
+    }
+
+    public function test_extra_values_disabled(): void
+    {
+        config([
+            'wallet.balance.extra_values' => [
+                'pending' => false,
+                'on_hold' => false,
+            ]
+        ]);
+
+        /** @var \O21\LaravelWallet\Contracts\Balance $balance */
+        [$user, $currency, $balance] = $this->createBalance();
+
+        deposit(self::SMALL_VALUE, $currency)
+            ->to($user)
+            ->status(TransactionStatus::PENDING)
+            ->commit();
+
+        charge(self::SMALL_VALUE, $currency)
+            ->from($user)
+            ->status(TransactionStatus::ON_HOLD)
+            ->overcharge()
+            ->commit();
+
+        $this->assertBalanceRefreshEquals(
+            $balance,
+            -self::SMALL_VALUE,
+        );
+
+        $this->assertBalanceRefreshEquals(
+            $balance,
+            0,
+            'value_pending'
+        );
+
+        $this->assertBalanceRefreshEquals(
+            $balance,
+            0,
+            'value_on_hold'
+        );
+    }
+
+    public function test_accounting_statuses(): void
+    {
+        config([
+            'wallet.balance.accounting_statuses' => [
+                TransactionStatus::SUCCESS,
+                TransactionStatus::ON_HOLD,
+            ]
+        ]);
+
+        /** @var \O21\LaravelWallet\Contracts\Balance $balance */
+        [$user, $currency, $balance] = $this->createBalance();
+
+        deposit(self::SMALL_VALUE, $currency)
+            ->to($user)
+            ->status(TransactionStatus::PENDING)
+            ->commit();
+
+        $this->assertBalanceRefreshEquals(
+            $balance,
+            0,
+        );
+
+        charge(self::SMALL_VALUE, $currency)
+            ->to($user)
+            ->status(TransactionStatus::ON_HOLD)
+            ->overcharge()
+            ->commit();
+
+        $this->assertBalanceRefreshEquals(
+            $balance,
+            -self::SMALL_VALUE,
+        );
+
+        config([
+            'wallet.balance.accounting_statuses' => [
+                TransactionStatus::SUCCESS,
+            ]
+        ]);
+
+        $balance->recalculate();
+
+        $this->assertBalanceRefreshEquals(
+            $balance,
+            0,
+        );
     }
 }

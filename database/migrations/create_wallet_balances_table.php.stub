@@ -19,6 +19,8 @@ class CreateWalletBalancesTable extends Migration
             $table->id();
             $table->bigInteger('user_id')->index();
             $table->decimal('value', 16, 8)->default(0);
+            $table->decimal('value_pending', 16, 8)->default(0);
+            $table->decimal('value_on_hold', 16, 8)->default(0);
             $table->string('currency', 10)->index();
             $table->unique(['user_id', 'currency']);
         });

@@ -22,11 +22,12 @@ trait BalanceTest
 
     protected function assertBalanceRefreshEquals(
         Model $balance,
-        mixed $value
+        mixed $value,
+        string $valueColumn = 'value'
     ): void {
         $this->assertEquals(
             $value,
-            $balance->refresh()->value
+            $balance->refresh()->{$valueColumn}
         );
     }
 }
