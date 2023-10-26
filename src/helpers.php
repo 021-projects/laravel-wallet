@@ -18,9 +18,21 @@ if (! function_exists('num')) {
 }
 
 if (! function_exists('transaction')) {
-    function transaction(): TransactionCreator
-    {
-        return app(TransactionCreator::class);
+    function transaction(
+        string|float|int|Numeric|null $amount = null,
+        ?string $currency = null
+    ): TransactionCreator {
+        $creator = app(TransactionCreator::class);
+
+        if ($amount) {
+            $creator->amount($amount);
+        }
+
+        if ($currency) {
+            $creator->currency($currency);
+        }
+
+        return $creator;
     }
 }
 
