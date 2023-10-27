@@ -30,6 +30,9 @@ trait HasBalance
         string $needs,
         ?string $currency = null
     ): void {
+        // Ensure that the balance is up-to-date
+        $this->getBalance($currency)->refresh();
+
         if (! $this->isEnoughFunds($needs, $currency)) {
             throw InsufficientFundsException::assertFails($this, $needs, $currency);
         }
