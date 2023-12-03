@@ -250,6 +250,31 @@ class TransactionCase extends TestCase
         );
     }
 
+    public function test_transfer_update_status(): void
+    {
+        [$user, $currency, $balance] = $this->createBalance();
+        [$user2] = $this->createBalance();
+
+        $tx = transfer(100, $currency)
+            ->from($user)
+            ->to($user2)
+            ->overcharge()
+            ->commit();
+
+        $tx->updateStatus(TransactionStatus::PENDING);
+        $tx->updateStatus(TransactionStatus::SUCCESS);
+
+        $this->assertBalanceRefreshEquals(
+            $balance,
+            -100
+        );
+
+        $this->assertBalanceRefreshEquals(
+            $user2->getBalance($currency),
+            100
+        );
+    }
+
     public function test_transfer_with_commission(): void
     {
         [$user, $currency, $balance] = $this->createBalance();

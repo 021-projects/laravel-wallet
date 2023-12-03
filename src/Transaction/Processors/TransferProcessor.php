@@ -36,7 +36,7 @@ class TransferProcessor implements TransactionProcessor, InitialSuccess
     public function statusChanged(string $status, string $oldStatus): void
     {
         if ($status === TransactionStatus::SUCCESS->value && $oldStatus !== $status) {
-            $this->sendFundsToReceiver();
+            $this->updateSendFundsStatus();
         }
 
         if ($oldStatus === TransactionStatus::SUCCESS->value && $oldStatus !== $status) {
@@ -66,6 +66,21 @@ class TransferProcessor implements TransactionProcessor, InitialSuccess
         $this->transaction->updateMeta([
             'sendFundsTransactionId' => $transaction->id,
         ]);
+    }
+
+    protected function updateSendFundsStatus(): void
+    {
+        $sendFundsTransactionId = $this->transaction->getMeta('sendFundsTransactionId');
+        if (! $sendFundsTransactionId) {
+            return;
+        }
+
+        $sendFundsTransaction = $this->findTransaction($sendFundsTransactionId);
+        if (! $sendFundsTransaction) {
+            return;
+        }
+
+        $sendFundsTransaction->updateStatus($this->transaction->status);
     }
 
     protected function cancelSendingFunds(): void
