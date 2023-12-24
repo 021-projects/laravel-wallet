@@ -4,6 +4,7 @@ namespace O21\LaravelWallet\Transaction\Processors;
 
 use O21\LaravelWallet\Concerns\ModelStubs;
 use O21\LaravelWallet\Contracts\SupportsBalance;
+use O21\LaravelWallet\Contracts\TransactionCreator;
 use O21\LaravelWallet\Contracts\TransactionProcessor;
 use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Transaction\Processors\Concerns\BaseProcessor;
@@ -55,17 +56,21 @@ class TransferProcessor implements TransactionProcessor, InitialSuccess
             return;
         }
 
-        $transaction = transfer($this->transaction->amount, $this->transaction->currency)
-            ->receiveFunds($this->getReceiver())
-            ->meta([
-                'parentTransactionId' => $this->transaction->id,
-                ...$this->transaction->meta,
-            ])
-            ->commit();
+        $transaction = $this->sendFundsTransfer()->commit();
 
         $this->transaction->updateMeta([
             'sendFundsTransactionId' => $transaction->id,
         ]);
+    }
+
+    protected function sendFundsTransfer(): TransactionCreator
+    {
+        return transfer($this->transaction->amount, $this->transaction->currency)
+            ->receiveFunds($this->getReceiver())
+            ->meta([
+                'parentTransactionId' => $this->transaction->id,
+                ...$this->transaction->meta,
+            ]);
     }
 
     protected function updateSendFundsStatus(): void
