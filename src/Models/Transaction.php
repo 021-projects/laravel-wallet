@@ -131,6 +131,12 @@ class Transaction extends Model implements TransactionContract
         )->shouldCache();
     }
 
+    public function setProcessor(string $id): void
+    {
+        $this->processor_id = $id;
+        unset($this->attributeCastCache['processor']);
+    }
+
     private function resolveProcessor(): TransactionProcessor
     {
         $processorClass = config("wallet.processors.{$this->processor_id}");

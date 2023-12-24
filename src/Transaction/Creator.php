@@ -132,7 +132,7 @@ class Creator implements TransactionCreator
             throw new \RuntimeException('Error: unknown transaction processor');
         }
 
-        $this->transaction->processor_id = $processor;
+        $this->transaction->setProcessor($processor);
 
         $this->setDefaultStatus();
 
