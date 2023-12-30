@@ -2,9 +2,12 @@
 
 namespace O21\LaravelWallet\Contracts;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
+ * @property-read \O21\LaravelWallet\Numeric $sent
+ * @property-read \O21\LaravelWallet\Numeric $received
+ * @property-read \O21\LaravelWallet\Contracts\Payable $payable
  * @property string $currency
  */
 interface Balance
@@ -17,5 +20,5 @@ interface Balance
     public function lessThan(string|float|int $value): bool;
     public function lessThanOrEqual(string|float|int $value): bool;
 
-    public function User(): BelongsTo;
+    public function payable(): MorphTo;
 }

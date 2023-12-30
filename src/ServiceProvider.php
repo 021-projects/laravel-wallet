@@ -11,11 +11,11 @@ use O21\LaravelWallet\Contracts\Balance;
 use O21\LaravelWallet\Contracts\Transaction;
 use O21\LaravelWallet\Contracts\TransactionCreator;
 use O21\LaravelWallet\Contracts\TransactionPreparer;
+use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Listeners\TransactionEventsSubscriber;
 use O21\LaravelWallet\Observers\TransactionObserver;
 use O21\LaravelWallet\Transaction\Creator;
 use O21\LaravelWallet\Transaction\Preparer;
-use O21\LaravelWallet\Transaction\TransferCreator;
 
 class ServiceProvider extends Provider
 {
@@ -31,6 +31,8 @@ class ServiceProvider extends Provider
         $this->registerModelBindings();
 
         $this->registerTransactionManipulators();
+
+        $this->registerTransactionAccountingStatuses();
 
         $this->registerObservers();
 
@@ -54,8 +56,12 @@ class ServiceProvider extends Provider
         ], 'wallet-config');
 
         $this->publishes([
-            __DIR__.'/../database/migrations/create_wallet_balances_table.php.stub' => $this->getMigrationFileName('create_wallet_balances_table.php'),
-            __DIR__.'/../database/migrations/create_wallet_transactions_table.php.stub' => $this->getMigrationFileName('create_wallet_transactions_table.php'),
+            __DIR__.'/../database/migrations/create_wallet_balances_table.php.stub' => $this->getMigrationFileName(
+                'create_wallet_balances_table.php'
+            ),
+            __DIR__.'/../database/migrations/create_wallet_transactions_table.php.stub' => $this->getMigrationFileName(
+                'create_wallet_transactions_table.php'
+            ),
         ], 'wallet-migrations');
     }
 
@@ -68,10 +74,11 @@ class ServiceProvider extends Provider
         $this->app->bind(TransactionCreator::class, function () {
             return new Creator();
         });
+    }
 
-        $this->app->bind(TransferCreator::class, function () {
-            return new TransferCreator();
-        });
+    protected function registerTransactionAccountingStatuses(): void
+    {
+        TransactionStatus::accounting(config('wallet.balance.accounting_statuses'));
     }
 
     protected function registerModelBindings(): void

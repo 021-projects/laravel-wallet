@@ -26,13 +26,4 @@ interface TransactionProcessor
      * @return array
      */
     public function prepareMeta(array $meta): array;
-
-    /**
-     * Method to ensure that amount is correct
-     * For example: amount must be positive for deposits and negative for withdrawals
-     *
-     * @param  string  $amount
-     * @return string
-     */
-    public function prepareAmount(string $amount): string;
 }

@@ -5,30 +5,34 @@ namespace O21\LaravelWallet\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use O21\LaravelWallet\Casts\TrimZero;
 use O21\LaravelWallet\Contracts\Balance as BalanceContract;
 use O21\LaravelWallet\Contracts\Transaction;
-use O21\LaravelWallet\Enums\TransactionStatus;
 
 /**
  * O21\LaravelWallet\Models\Balance
  *
  * @property int $id
- * @property int $user_id
- * @property string $value
+ * @property string $payable_type
+ * @property int $payable_id
+ * @property \O21\LaravelWallet\Numeric $value
  * @property string $value_pending
  * @property string $value_on_hold
  * @property string $currency
- * @property-read \O21\LaravelWallet\Contracts\SupportsBalance $User
- * @property-read \O21\LaravelWallet\Numeric $valueNum
+ * @property-read Model|\Eloquent $payable
+ * @property-read \O21\LaravelWallet\Numeric $sent
+ * @property-read \O21\LaravelWallet\Numeric $received
  * @method static Builder|Balance newModelQuery()
  * @method static Builder|Balance newQuery()
  * @method static Builder|Balance query()
  * @method static Builder|Balance whereCurrency($value)
  * @method static Builder|Balance whereId($value)
- * @method static Builder|Balance whereUserId($value)
+ * @method static Builder|Balance wherePayableId($value)
+ * @method static Builder|Balance wherePayableType($value)
  * @method static Builder|Balance whereValue($value)
+ * @method static Builder|Balance whereValueOnHold($value)
+ * @method static Builder|Balance whereValuePending($value)
  * @mixin \Eloquent
  */
 class Balance extends Model implements BalanceContract
@@ -48,7 +52,8 @@ class Balance extends Model implements BalanceContract
     ];
 
     protected $fillable = [
-        'user_id',
+        'payable_type',
+        'payable_id',
         'currency',
         'value',
         'value_pending',
@@ -57,20 +62,7 @@ class Balance extends Model implements BalanceContract
 
     public function recalculate(): bool
     {
-        $transactionClass = app(Transaction::class);
-
-        $accountingStatuses = config('wallet.balance.accounting_statuses', [
-            TransactionStatus::SUCCESS,
-        ]);
-        $accountingStatuses = array_map(
-            static fn($status) => $status instanceof TransactionStatus ? $status->value : $status,
-            $accountingStatuses
-        );
-
-        $value = $transactionClass::whereUserId($this->user_id)
-            ->whereCurrency($this->currency)
-            ->whereIn('status', $accountingStatuses)
-            ->sum('total');
+        $value = $this->received->sub($this->sent)->get();
 
         $attributes = compact('value');
 
@@ -82,10 +74,11 @@ class Balance extends Model implements BalanceContract
             }
 
             $attributeKey = "value_{$status}";
-            $attributes[$attributeKey] = $transactionClass::whereUserId($this->user_id)
-                ->whereCurrency($this->currency)
-                ->whereStatus($status)
-                ->sum('total');
+
+            $sent = num($this->transactions()->from($this->payable)->whereStatus($status)->sum('amount'));
+            $received = num($this->transactions()->to($this->payable)->whereStatus($status)->sum('received'));
+
+            $attributes[$attributeKey] = $received->sub($sent)->get();
         }
 
         return $this->update($attributes);
@@ -93,38 +86,67 @@ class Balance extends Model implements BalanceContract
 
     public function equals(float|int|string $value): bool
     {
-        return $this->valueNum->equals($value);
+        return $this->value->equals($value);
     }
 
     public function greaterThan(float|int|string $value): bool
     {
-        return $this->valueNum->greaterThan($value);
+        return $this->value->greaterThan($value);
     }
 
     public function greaterThanOrEqual(float|int|string $value): bool
     {
-        return $this->valueNum->greaterThanOrEqual($value);
+        return $this->value->greaterThanOrEqual($value);
     }
 
     public function lessThan(float|int|string $value): bool
     {
-        return $this->valueNum->lessThan($value);
+        return $this->value->lessThan($value);
     }
 
     public function lessThanOrEqual(float|int|string $value): bool
     {
-        return $this->valueNum->lessThanOrEqual($value);
+        return $this->value->lessThanOrEqual($value);
     }
 
-    public function valueNum(): Attribute
+    public function sent(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => num($this->value)
+            get: fn($value) => num($this->transactions()->accountable()->from($this->payable)->sum('amount'))
         )->withoutObjectCaching();
     }
 
-    public function User(): BelongsTo
+    public function received(): Attribute
     {
-        return $this->belongsTo(config('wallet.models.user'));
+        return Attribute::make(
+            get: fn($value) => num($this->transactions()->accountable()->to($this->payable)->sum('received'))
+        )->withoutObjectCaching();
+    }
+
+    public function value(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => num($value),
+            set: fn($value) => num($value)->get()
+        )->withoutObjectCaching();
+    }
+
+    public function payable(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
+    public function transactions(): Builder
+    {
+        $transactionClass = app(Transaction::class);
+        return $transactionClass::where(function (Builder $query) {
+            $query->where(function (Builder $query) {
+                $query->where('from_type', $this->payable_type)
+                    ->where('from_id', $this->payable_id);
+            })->orWhere(function (Builder $query) {
+                $query->where('to_type', $this->payable_type)
+                    ->where('to_id', $this->payable_id);
+            });
+        })->whereCurrency($this->currency);
     }
 }

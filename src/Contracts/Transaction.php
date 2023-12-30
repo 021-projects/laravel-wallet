@@ -3,17 +3,19 @@
 namespace O21\LaravelWallet\Contracts;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use O21\LaravelWallet\Enums\TransactionStatus;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
+ * @property-read ?\O21\LaravelWallet\Contracts\Payable $from
+ * @property-read ?\O21\LaravelWallet\Contracts\Payable $to
  * @property-read ?\O21\LaravelWallet\Contracts\TransactionProcessor $processor
  */
 interface Transaction
 {
     public function toApi(): array;
 
-    public function hasStatus(TransactionStatus|string $status): bool;
-    public function updateStatus(TransactionStatus|string $status): bool;
+    public function hasStatus(string $status): bool;
+    public function updateStatus(string $status): bool;
 
     public function getMeta(string $key = null, $default = null);
     public function setMeta(
@@ -25,8 +27,15 @@ interface Transaction
         float|array|int|string $value = null
     ): bool;
 
-    public function getRelatedBalance(): ?Balance;
-    public function getTotal(): string;
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo<\O21\LaravelWallet\Contracts\Payable>
+     */
+    public function from(): MorphTo;
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo<\O21\LaravelWallet\Contracts\Payable>
+     */
+    public function to(): MorphTo;
 
     /**
      * @return \Illuminate\Database\Eloquent\Casts\Attribute<\O21\LaravelWallet\Contracts\TransactionProcessor>

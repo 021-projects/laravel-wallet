@@ -8,5 +8,4 @@ use O21\LaravelWallet\Transaction\Processors\Contracts\InitialSuccess;
 class DepositProcessor implements TransactionProcessor, InitialSuccess
 {
     use Concerns\BaseProcessor;
-    use Concerns\PositiveAmount;
 }

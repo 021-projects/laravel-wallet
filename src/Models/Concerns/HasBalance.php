@@ -9,14 +9,15 @@ trait HasBalance
 {
     protected array $_balances = [];
 
-    public function getBalance(?string $currency = null): Balance
+    public function balance(?string $currency = null): Balance
     {
         $currency ??= config('wallet.default_currency');
 
         if (! isset($this->_balances[$currency])) {
             $attributes = [
-                'user_id'  => $this->getAuthIdentifier(),
-                'currency' => $currency
+                'payable_type' => $this->getMorphClass(),
+                'payable_id'   => $this->getKey(),
+                'currency'     => $currency
             ];
 
             $balanceClass = app(Balance::class);
@@ -31,7 +32,7 @@ trait HasBalance
         ?string $currency = null
     ): void {
         // Ensure that the balance is up-to-date
-        $this->getBalance($currency)->refresh();
+        $this->balance($currency)->refresh();
 
         if (! $this->isEnoughFunds($needs, $currency)) {
             throw InsufficientFundsException::assertFails($this, $needs, $currency);
@@ -42,7 +43,7 @@ trait HasBalance
         string $needs,
         ?string $currency = null
     ): bool {
-        return $this->getBalance($currency)->greaterThanOrEqual(num($needs)->positive());
+        return $this->balance($currency)->greaterThanOrEqual(num($needs)->positive());
     }
 
     protected function cacheBalanceModel(Balance $balance): void

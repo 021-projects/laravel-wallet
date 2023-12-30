@@ -7,11 +7,8 @@ use O21\LaravelWallet\Contracts\TransactionPreparer;
 
 class Preparer implements TransactionPreparer
 {
-    public function prepare(Transaction $transaction): void
+    public function prepare(Transaction $tx): void
     {
-        $transaction->amount = $transaction->processor
-            ?->prepareAmount($transaction->amount)
-            ?? $transaction->amount;
-        $transaction->total = $transaction->getTotal();
+        $tx->received = num($tx->amount)->sub($tx->commission)->get();
     }
 }

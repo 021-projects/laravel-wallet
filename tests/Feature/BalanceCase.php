@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use O21\LaravelWallet\Enums\TransactionStatus;
+use O21\LaravelWallet\Numeric;
 use Tests\Feature\Concerns\BalanceTest;
 use Tests\TestCase;
 
@@ -40,6 +41,10 @@ class BalanceCase extends TestCase
         $this->assertTrue($balance->equals(0));
 
         $balance->value = 100;
+
+        $this->assertInstanceOf(Numeric::class, $balance->value);
+        $this->assertInstanceOf(Numeric::class, $balance->sent);
+        $this->assertInstanceOf(Numeric::class, $balance->received);
 
         $this->assertTrue($balance->equals(100));
         $this->assertTrue($balance->lessThan(101));
@@ -91,6 +96,7 @@ class BalanceCase extends TestCase
         deposit(self::SMALL_VALUE, $currency)
             ->to($user)
             ->status(TransactionStatus::PENDING)
+            ->overcharge()
             ->commit();
 
         charge(self::SMALL_VALUE, $currency)
@@ -132,6 +138,7 @@ class BalanceCase extends TestCase
         deposit(self::SMALL_VALUE, $currency)
             ->to($user)
             ->status(TransactionStatus::PENDING)
+            ->overcharge()
             ->commit();
 
         charge(self::SMALL_VALUE, $currency)
@@ -160,11 +167,9 @@ class BalanceCase extends TestCase
 
     public function test_accounting_statuses(): void
     {
-        config([
-            'wallet.balance.accounting_statuses' => [
-                TransactionStatus::SUCCESS,
-                TransactionStatus::ON_HOLD,
-            ]
+        TransactionStatus::accounting([
+            TransactionStatus::SUCCESS,
+            TransactionStatus::ON_HOLD,
         ]);
 
         /** @var \O21\LaravelWallet\Contracts\Balance $balance */
@@ -173,6 +178,7 @@ class BalanceCase extends TestCase
         deposit(self::SMALL_VALUE, $currency)
             ->to($user)
             ->status(TransactionStatus::PENDING)
+            ->overcharge()
             ->commit();
 
         $this->assertBalanceRefreshEquals(
@@ -181,7 +187,7 @@ class BalanceCase extends TestCase
         );
 
         charge(self::SMALL_VALUE, $currency)
-            ->to($user)
+            ->from($user)
             ->status(TransactionStatus::ON_HOLD)
             ->overcharge()
             ->commit();
@@ -191,10 +197,8 @@ class BalanceCase extends TestCase
             -self::SMALL_VALUE,
         );
 
-        config([
-            'wallet.balance.accounting_statuses' => [
-                TransactionStatus::SUCCESS,
-            ]
+        TransactionStatus::accounting([
+            TransactionStatus::SUCCESS,
         ]);
 
         $balance->recalculate();

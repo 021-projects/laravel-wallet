@@ -11,11 +11,11 @@ trait BalanceTest
     {
         $this->refreshDatabase();
 
-        /** @var \O21\LaravelWallet\Contracts\SupportsBalance $user */
+        /** @var \O21\LaravelWallet\Contracts\Payable $user */
         $user = User::factory()->create();
         $currency = $this->faker->currencyCode();
         /** @var \O21\LaravelWallet\Contracts\Balance $balance */
-        $balance = $user->getBalance($currency);
+        $balance = $user->balance($currency);
 
         return [$user, $currency, $balance];
     }
@@ -26,8 +26,8 @@ trait BalanceTest
         string $valueColumn = 'value'
     ): void {
         $this->assertEquals(
-            $value,
-            $balance->refresh()->{$valueColumn}
+            num($value)->get(),
+            num($balance->refresh()->{$valueColumn})->get()
         );
     }
 }

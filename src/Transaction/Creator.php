@@ -6,9 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use O21\LaravelWallet\Contracts\Transaction;
 use O21\LaravelWallet\Contracts\TransactionCreator;
-use O21\LaravelWallet\Contracts\SupportsBalance;
+use O21\LaravelWallet\Contracts\Payable;
 use O21\LaravelWallet\Contracts\TransactionPreparer;
 use O21\LaravelWallet\Enums\TransactionStatus;
+use O21\LaravelWallet\Exception\FromOrOverchargeRequired;
 use O21\LaravelWallet\Numeric;
 use O21\LaravelWallet\Transaction\Processors\Contracts\InitialHolding;
 use O21\LaravelWallet\Transaction\Processors\Contracts\InitialSuccess;
@@ -31,8 +32,7 @@ class Creator implements TransactionCreator
 
     public function __construct()
     {
-        $txClass = app(Transaction::class);
-        $this->transaction = new $txClass();
+        $this->transaction = app(Transaction::class);
 
         $this->currency(config('wallet.default_currency'));
     }
@@ -42,30 +42,32 @@ class Creator implements TransactionCreator
         $create = function () {
             $before = $this->_before;
             $after = $this->_after;
-            $transaction = $this->transaction;
+            $tx = $this->transaction;
 
             /** @var \O21\LaravelWallet\Transaction\Preparer $preparer */
             $preparer = app(TransactionPreparer::class);
-            $preparer->prepare($transaction);
+            $preparer->prepare($tx);
 
             if (is_callable($before)) {
-                $before($transaction);
+                $before($tx);
             }
 
-            if (! $this->allowOvercharge && num($transaction->amount)->lessThan(0)) {
-                $transaction->User->assertHaveFunds(
-                    $transaction->total,
-                    $transaction->currency
+            if (! $this->allowOvercharge) {
+                throw_if(! $tx->from, FromOrOverchargeRequired::class);
+
+                $tx->from?->assertHaveFunds(
+                    $tx->amount,
+                    $tx->currency
                 );
             }
 
-            $transaction->save();
+            $tx->save();
 
             if (is_callable($after)) {
-                $after($transaction);
+                $after($tx);
             }
 
-            return $transaction;
+            return $tx;
         };
 
         $safelyTransaction = new SafelyTransaction($create, $this->getLockRecord());
@@ -74,7 +76,7 @@ class Creator implements TransactionCreator
 
     public function amount(string|float|int|Numeric $amount): self
     {
-        $this->transaction->amount = (string)num($amount);
+        $this->transaction->amount = num($amount)->positive();
         return $this;
     }
 
@@ -86,16 +88,13 @@ class Creator implements TransactionCreator
 
     public function commission(string|float|int|Numeric $commission): self
     {
-        $this->transaction->commission = num($commission)->negative();
+        $this->transaction->commission = num($commission)->positive();
         return $this;
     }
 
-    public function status(TransactionStatus|string $status): self
+    public function status(string $status): self
     {
-        $this->transaction->status = $status instanceof TransactionStatus
-            ? $status->value
-            : $status;
-
+        $this->transaction->status = $status;
         return $this;
     }
 
@@ -139,19 +138,15 @@ class Creator implements TransactionCreator
         return $this;
     }
 
-    public function to(SupportsBalance $user): TransactionCreator
+    public function to(Payable $payable): self
     {
-        return $this->user($user);
+        $this->transaction->to()->associate($payable);
+        return $this;
     }
 
-    public function from(SupportsBalance $user): TransactionCreator
+    public function from(Payable $payable): self
     {
-        return $this->user($user);
-    }
-
-    public function user(SupportsBalance $user): self
-    {
-        $this->transaction->User()->associate($user);
+        $this->transaction->from()->associate($payable);
         return $this;
     }
 
@@ -169,9 +164,8 @@ class Creator implements TransactionCreator
 
     protected function getLockRecord(): Model|Builder|null
     {
-        $default = $this->transaction->User->getBalance(
-            $this->transaction->currency
-        );
+        $tx = $this->transaction;
+        $default = $tx->from?->balance($tx->currency) ?? $tx->to?->balance($tx->currency);
 
         if (is_bool($this->lockRecord)) {
             return $this->lockRecord ? $default : null;

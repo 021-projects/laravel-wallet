@@ -2,7 +2,6 @@
 
 use O21\LaravelWallet\Contracts\TransactionCreator;
 use O21\LaravelWallet\Numeric;
-use O21\LaravelWallet\Transaction\TransferCreator;
 
 if (! function_exists('num')) {
     /**
@@ -70,8 +69,8 @@ if (! function_exists('transfer')) {
     function transfer(
         string|float|int|Numeric $amount,
         ?string $currency = null
-    ): TransferCreator {
-        $creator = app(TransferCreator::class)->processor('transfer');
+    ): TransactionCreator {
+        $creator = transaction()->processor('transfer');
 
         if ($currency) {
             $creator->currency($currency);

@@ -17,12 +17,12 @@ class CreateWalletBalancesTable extends Migration
     {
         Schema::create($this->assertTableName('balances'), function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('user_id')->index();
+            $table->morphs('payable');
             $table->decimal('value', 16, 8)->default(0);
             $table->decimal('value_pending', 16, 8)->default(0);
             $table->decimal('value_on_hold', 16, 8)->default(0);
             $table->string('currency', 10)->index();
-            $table->unique(['user_id', 'currency']);
+            $table->unique(['payable_id', 'payable_type', 'currency'], 'unique_balance');
         });
     }
 

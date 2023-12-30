@@ -4,14 +4,13 @@ namespace O21\LaravelWallet\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Str;
 use O21\LaravelWallet\Casts\TrimZero;
+use O21\LaravelWallet\Contracts\Payable;
 use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Models\Concerns\HasMetaColumn;
-use O21\LaravelWallet\Contracts\Balance;
 use O21\LaravelWallet\Contracts\Transaction as TransactionContract;
-use O21\LaravelWallet\Contracts\SupportsBalance;
 use O21\LaravelWallet\Contracts\TransactionProcessor;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -19,7 +18,8 @@ use Illuminate\Database\Eloquent\Builder;
  * O21\LaravelWallet\Models\Transaction
  *
  * @property int $id
- * @property int $user_id
+ * @property string $payable_type
+ * @property int $payable_id
  * @property string $total Sum of amount + commission
  * @property string $amount
  * @property string $commission
@@ -29,19 +29,10 @@ use Illuminate\Database\Eloquent\Builder;
  * @property array|null $meta
  * @property bool $archived
  * @property \Illuminate\Support\Carbon|null $created_at
- * @property-read \O21\LaravelWallet\Contracts\SupportsBalance $User
- * @method static Builder|Transaction canceled()
- * @method static Builder|Transaction expired()
- * @method static Builder|Transaction failed()
- * @method static Builder|Transaction forUser(\O21\LaravelWallet\Contracts\SupportsBalance $user)
- * @method static Builder|Transaction holding()
  * @method static Builder|Transaction newModelQuery()
  * @method static Builder|Transaction newQuery()
  * @method static Builder|Transaction newest()
- * @method static Builder|Transaction pending()
  * @method static Builder|Transaction query()
- * @method static Builder|Transaction refunded()
- * @method static Builder|Transaction success()
  * @method static Builder|Transaction whereAmount($value)
  * @method static Builder|Transaction whereArchived($value)
  * @method static Builder|Transaction whereCommission($value)
@@ -49,10 +40,26 @@ use Illuminate\Database\Eloquent\Builder;
  * @method static Builder|Transaction whereCurrency($value)
  * @method static Builder|Transaction whereId($value)
  * @method static Builder|Transaction whereMeta($value)
+ * @method static Builder|Transaction wherePayableId($value)
+ * @method static Builder|Transaction wherePayableType($value)
  * @method static Builder|Transaction whereProcessorId($value)
  * @method static Builder|Transaction whereStatus($value)
  * @method static Builder|Transaction whereTotal($value)
- * @method static Builder|Transaction whereUserId($value)
+ * @property-read Model|\Eloquent $from
+ * @property-read Model|\Eloquent $to
+ * @method static Builder|Transaction from(\O21\LaravelWallet\Contracts\Payable $from)
+ * @method static Builder|Transaction to(\O21\LaravelWallet\Contracts\Payable $to)
+ * @property string|null $from_type
+ * @property int|null $from_id
+ * @property string|null $to_type
+ * @property int|null $to_id
+ * @method static Builder|Transaction accountable(bool $accountable)
+ * @method static Builder|Transaction whereFromId($value)
+ * @method static Builder|Transaction whereFromType($value)
+ * @method static Builder|Transaction whereToId($value)
+ * @method static Builder|Transaction whereToType($value)
+ * @property string $received received = amount - commission
+ * @method static Builder|Transaction whereReceived($value)
  * @mixin \Eloquent
  */
 class Transaction extends Model implements TransactionContract
@@ -62,7 +69,7 @@ class Transaction extends Model implements TransactionContract
     public const UPDATED_AT = null;
 
     protected $casts = [
-        'total'      => TrimZero::class,
+        'received'   => TrimZero::class,
         'amount'     => TrimZero::class,
         'commission' => TrimZero::class,
         'meta'       => 'array',
@@ -70,18 +77,18 @@ class Transaction extends Model implements TransactionContract
     ];
 
     protected $attributes = [
-        'status' => TransactionStatus::PENDING,
-        'total' => '0',
-        'amount' => '0',
+        'status'     => TransactionStatus::PENDING,
+        'received'   => '0',
+        'amount'     => '0',
         'commission' => '0',
-        'archived' => false
+        'archived'   => false
     ];
 
     public function toApi(): array
     {
         $result = $this->only(
             'id',
-            'total',
+            'received',
             'amount',
             'commission',
             'currency',
@@ -99,29 +106,15 @@ class Transaction extends Model implements TransactionContract
             )->all();
     }
 
-    public function hasStatus(TransactionStatus|string $status): bool
+    public function hasStatus(string $status): bool
     {
-        $status = $status instanceof TransactionStatus
-            ? $status->value
-            : $status;
         return $this->status === $status;
     }
 
-    public function updateStatus(TransactionStatus|string $status): bool
+    public function updateStatus(string $status): bool
     {
-        $this->status = $status instanceof TransactionStatus
-            ? $status->value
-            : $status;
+        $this->status = $status;
         return $this->save();
-    }
-
-    public function status(): Attribute
-    {
-        return Attribute::make(
-            set: fn($value) => $value instanceof TransactionStatus
-                ? $value->value
-                : $value,
-        );
     }
 
     public function processor(): Attribute
@@ -158,91 +151,34 @@ class Transaction extends Model implements TransactionContract
         return $processor;
     }
 
-    public function getRelatedBalance(): ?Balance
+    public function from(): MorphTo
     {
-        return $this->User?->getBalance($this->currency);
+        return $this->morphTo();
     }
 
-    public function getTotal(): string
+    public function to(): MorphTo
     {
-        return num($this->amount)->add($this->commission)->get();
+        return $this->morphTo();
     }
 
-    public function User(): BelongsTo
+    public function scopeFrom(Builder $query, Payable $from): void
     {
-        return $this->belongsTo(config('wallet.models.user'));
+        $query->where('from_type', '=', $from->getMorphClass())
+            ->where('from_id', '=', $from->getKey());
     }
 
-    public function scopePending(Builder $query): void
+    public function scopeTo(Builder $query, Payable $to): void
     {
-        $query->where(
-            'status',
-            '=',
-            TransactionStatus::PENDING
-        );
+        $query->where('to_type', '=', $to->getMorphClass())
+            ->where('to_id', '=', $to->getKey());
     }
 
-    public function scopeSuccess(Builder $query): void
+    public function scopeAccountable(Builder $query, bool $accountable = true): void
     {
-        $query->where(
-            'status',
-            '=',
-            TransactionStatus::SUCCESS
-        );
-    }
-
-    public function scopeHolding(Builder $query): void
-    {
-        $query->where(
-            'status',
-            '=',
-            TransactionStatus::ON_HOLD
-        );
-    }
-
-    public function scopeCanceled(Builder $query): void
-    {
-        $query->where(
-            'status',
-            '=',
-            TransactionStatus::CANCELED
-        );
-    }
-
-    public function scopeFailed(Builder $query): void
-    {
-        $query->where(
-            'status',
-            '=',
-            TransactionStatus::FAILED
-        );
-    }
-
-    public function scopeRefunded(Builder $query): void
-    {
-        $query->where(
-            'status',
-            '=',
-            TransactionStatus::REFUNDED
-        );
-    }
-
-    public function scopeExpired(Builder $query): void
-    {
-        $query->where(
-            'status',
-            '=',
-            TransactionStatus::EXPIRED
-        );
-    }
-
-    public function scopeForUser(Builder $query, SupportsBalance $user): void
-    {
-        $query->where('user_id', '=', $user->getAuthIdentifier());
-    }
-
-    public function scopeNewest(Builder $query): void
-    {
-        $query->orderBy('created_at', 'desc');
+        if ($accountable) {
+            $query->whereIn('status', TransactionStatus::accounting());
+        } else {
+            $query->whereNotIn('status', TransactionStatus::accounting());
+        }
     }
 }

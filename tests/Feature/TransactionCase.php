@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use O21\LaravelWallet\Enums\TransactionStatus;
+use O21\LaravelWallet\Exception\FromOrOverchargeRequired;
 use O21\LaravelWallet\Exception\InsufficientFundsException;
 use Tests\Feature\Concerns\BalanceTest;
 use Tests\TestCase;
@@ -21,6 +22,7 @@ class TransactionCase extends TestCase
 
         deposit(100, $currency)
             ->to($user)
+            ->overcharge()
             ->commit();
 
         $this->assertBalanceRefreshEquals(
@@ -35,7 +37,8 @@ class TransactionCase extends TestCase
 
         deposit(100, $currency)
             ->to($user)
-            ->commission(-10)
+            ->commission(10)
+            ->overcharge()
             ->commit();
 
         $this->assertBalanceRefreshEquals(
@@ -50,6 +53,7 @@ class TransactionCase extends TestCase
 
         deposit(100, $currency)
             ->to($user)
+            ->overcharge()
             ->commit();
 
         $this->assertBalanceRefreshEquals($balance, 100);
@@ -67,16 +71,17 @@ class TransactionCase extends TestCase
 
         deposit(100, $currency)
             ->to($user)
+            ->overcharge()
             ->commit();
 
         $this->assertBalanceRefreshEquals($balance, 100);
 
         charge(50, $currency)
             ->from($user)
-            ->commission(-10)
+            ->commission(10)
             ->commit();
 
-        $this->assertBalanceRefreshEquals($balance, 40);
+        $this->assertBalanceRefreshEquals($balance, 50);
     }
 
     public function test_throw_not_enough_funds(): void
@@ -144,6 +149,7 @@ class TransactionCase extends TestCase
 
         $transaction = deposit(100, $currency)
             ->to($user)
+            ->overcharge()
             ->commit();
 
         $this->assertTrue($transaction->hasStatus(TransactionStatus::SUCCESS));
@@ -158,6 +164,7 @@ class TransactionCase extends TestCase
 
         $transaction = deposit(100, $currency)
             ->to($user)
+            ->overcharge()
             ->commit();
 
         $this->assertTrue($transaction->hasStatus(TransactionStatus::SUCCESS));
@@ -180,6 +187,7 @@ class TransactionCase extends TestCase
 
         $transaction = deposit(100, $currency)
             ->to($user)
+            ->overcharge()
             ->commit();
 
         $result = $transaction->toApi();
@@ -193,7 +201,7 @@ class TransactionCase extends TestCase
         $this->assertArrayHasKey('createdAt', $result);
         $this->assertArrayHasKey('archived', $result);
         $this->assertArrayHasKey('meta', $result);
-        $this->assertArrayHasKey('total', $result);
+        $this->assertArrayHasKey('received', $result);
 
         $this->assertIsArray($result['meta']);
     }
@@ -207,6 +215,7 @@ class TransactionCase extends TestCase
             ->meta([
                 'test' => 'value',
             ])
+            ->overcharge()
             ->commit();
 
         $this->assertNull($transaction->getMeta('unknown'));
@@ -245,7 +254,7 @@ class TransactionCase extends TestCase
         );
 
         $this->assertBalanceRefreshEquals(
-            $user2->getBalance($currency),
+            $user2->balance($currency),
             100
         );
     }
@@ -270,7 +279,7 @@ class TransactionCase extends TestCase
         );
 
         $this->assertBalanceRefreshEquals(
-            $user2->getBalance($currency),
+            $user2->balance($currency),
             100
         );
     }
@@ -283,18 +292,18 @@ class TransactionCase extends TestCase
         transfer(100, $currency)
             ->from($user)
             ->to($user2)
-            ->commission(-10)
+            ->commission(10)
             ->overcharge()
             ->commit();
 
         $this->assertBalanceRefreshEquals(
             $balance,
-            -110
+            -100
         );
 
         $this->assertBalanceRefreshEquals(
-            $user2->getBalance($currency),
-            100
+            $user2->balance($currency),
+            90
         );
     }
 
@@ -361,10 +370,48 @@ class TransactionCase extends TestCase
         transaction()->to($user)->commit();
     }
 
-    public function test_no_user_exception(): void
+    public function test_from_or_overcharge_required(): void
     {
-        $this->expectException(\Error::class);
+        $this->expectException(FromOrOverchargeRequired::class);
 
         deposit(100)->commit();
+    }
+
+    public function test_something_went_wrong_during_transaction(): void
+    {
+        [$user, $currency, $balance] = $this->createBalance();
+
+        $this->expectException(\RuntimeException::class);
+
+        deposit(100, $currency)
+            ->to($user)
+            ->before(static function () {
+                throw new \RuntimeException('test');
+            })
+            ->overcharge()
+            ->commit();
+
+        $this->assertBalanceRefreshEquals(
+            $balance,
+            0
+        );
+    }
+
+    public function test_transaction_status_accounting_merge(): void
+    {
+        TransactionStatus::accounting([
+            'something'
+        ], true);
+
+        $this->assertContains('something', TransactionStatus::accounting());
+    }
+
+    public function test_transaction_status_known_merge(): void
+    {
+        TransactionStatus::known([
+            'something'
+        ], true);
+
+        $this->assertContains('something', TransactionStatus::known());
     }
 }
