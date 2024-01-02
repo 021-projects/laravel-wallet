@@ -45,8 +45,8 @@ use Illuminate\Database\Eloquent\Builder;
  * @method static Builder|Transaction whereProcessorId($value)
  * @method static Builder|Transaction whereStatus($value)
  * @method static Builder|Transaction whereTotal($value)
- * @property-read Model|\Eloquent $from
- * @property-read Model|\Eloquent $to
+ * @property-read Model|\Eloquent|Payable $from
+ * @property-read Model|\Eloquent|Payable $to
  * @method static Builder|Transaction from(\O21\LaravelWallet\Contracts\Payable $from)
  * @method static Builder|Transaction to(\O21\LaravelWallet\Contracts\Payable $to)
  * @property string|null $from_type
