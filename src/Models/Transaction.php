@@ -106,6 +106,12 @@ class Transaction extends Model implements TransactionContract
             )->all();
     }
 
+    public function recalculateBalances(): void
+    {
+        $this->from?->balance($this->currency)?->recalculate();
+        $this->to?->balance($this->currency)?->recalculate();
+    }
+
     public function hasStatus(string $status): bool
     {
         return $this->status === $status;

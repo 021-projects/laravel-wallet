@@ -15,42 +15,56 @@ class TransactionObserver
 
     public function saved(Transaction $tx): void
     {
-        $tx->from?->balance($tx->currency)?->recalculate();
-        $tx->to?->balance($tx->currency)?->recalculate();
+        $this->recalculateBalances($tx);
     }
 
-    public function creating(Transaction $transaction): void
+    public function creating(Transaction $tx): void
     {
-        $this->callProcessorMethodIfExist($transaction, 'creating');
+        $this->callProcessorMethodIfExist($tx, 'creating');
     }
 
-    public function created(Transaction $transaction): void
+    public function created(Transaction $tx): void
     {
-        event(new TransactionCreated($transaction));
+        event(new TransactionCreated($tx));
     }
 
-    public function updating(Transaction $transaction): void
+    public function updating(Transaction $tx): void
     {
-        $this->callProcessorMethodIfExist($transaction, 'updating');
+        $this->callProcessorMethodIfExist($tx, 'updating');
     }
 
-    public function updated(Transaction $transaction): void
+    public function updated(Transaction $tx): void
     {
-        if ($transaction->wasChanged('status')) {
-            $originalStatus = $transaction->getOriginal('status');
-            event(new TransactionStatusChanged($transaction, $originalStatus));
+        if ($tx->wasChanged('status')) {
+            $originalStatus = $tx->getOriginal('status');
+            event(new TransactionStatusChanged($tx, $originalStatus));
         }
 
-        event(new TransactionUpdated($transaction));
+        event(new TransactionUpdated($tx));
     }
 
-    public function deleting(Transaction $transaction): void
+    public function deleting(Transaction $tx): void
     {
-        $this->callProcessorMethodIfExist($transaction, 'deleting');
+        $this->callProcessorMethodIfExist($tx, 'deleting');
     }
 
-    public function deleted(Transaction $transaction): void
+    public function deleted(Transaction $tx): void
     {
-        event(new TransactionDeleted($transaction));
+        $this->recalculateBalances($tx);
+
+        event(new TransactionDeleted($tx));
+    }
+
+    protected function recalculateBalances(Transaction $tx): void
+    {
+        // backward compatibility
+        // TODO: add recalculateBalances method to Transaction interface in next major release
+        if (method_exists($tx, 'recalculateBalances')) {
+            $tx->recalculateBalances();
+            return;
+        }
+
+        $tx->from?->balance($tx->currency)?->recalculate();
+        $tx->to?->balance($tx->currency)?->recalculate();
     }
 }
