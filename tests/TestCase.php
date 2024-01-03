@@ -24,8 +24,8 @@ abstract class TestCase extends BaseTestCase
             $table->string('name');
         });
 
-        include_once __DIR__.'/../database/migrations/create_wallet_balances_table.php.stub';
-        include_once __DIR__.'/../database/migrations/create_wallet_transactions_table.php.stub';
+        include_once __DIR__.'/../database/migrations/create_balances_table.php.stub';
+        include_once __DIR__.'/../database/migrations/create_transactions_table.php.stub';
 
         (new \CreateWalletBalancesTable())->up();
         (new \CreateWalletTransactionsTable())->up();

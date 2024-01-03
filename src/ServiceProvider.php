@@ -56,11 +56,11 @@ class ServiceProvider extends Provider
         ], 'wallet-config');
 
         $this->publishes([
-            __DIR__.'/../database/migrations/create_wallet_balances_table.php.stub' => $this->getMigrationFileName(
-                'create_wallet_balances_table.php'
+            __DIR__.'/../database/migrations/create_balances_table.php.stub' => $this->getMigrationFileName(
+                'create_balances_table.php'
             ),
-            __DIR__.'/../database/migrations/create_wallet_transactions_table.php.stub' => $this->getMigrationFileName(
-                'create_wallet_transactions_table.php'
+            __DIR__.'/../database/migrations/create_transactions_table.php.stub' => $this->getMigrationFileName(
+                'create_transactions_table.php'
             ),
         ], 'wallet-migrations');
     }
