@@ -3,8 +3,6 @@
 namespace O21\LaravelWallet\Listeners;
 
 use Illuminate\Events\Dispatcher;
-use O21\LaravelWallet\Contracts\Balance;
-use O21\LaravelWallet\Contracts\Transaction;
 use O21\LaravelWallet\Events\TransactionCreated;
 use O21\LaravelWallet\Events\TransactionDeleted;
 use O21\LaravelWallet\Events\TransactionStatusChanged;
@@ -20,20 +18,11 @@ class TransactionEventsSubscriber
         $tx = $event->transaction;
         $this->callProcessorMethodIfExist($tx, 'created');
 
-        if (config('wallet.balance.log_states')) {
-            $this->logBalanceStates($tx);
+        if (config('wallet.balance.log_states')
+            && method_exists($tx, 'logStates')
+        ) {
+            $tx->logStates();
         }
-    }
-
-    protected function logBalanceStates(Transaction $tx): void
-    {
-        $balanceClass = app(Balance::class);
-        if (! method_exists($balanceClass, 'logState')) {
-            return;
-        }
-
-        $tx->from?->balance($tx->currency)?->logState($tx);
-        $tx->to?->balance($tx->currency)?->logState($tx);
     }
 
     public function onTransactionUpdated(TransactionUpdated $event): void
@@ -48,10 +37,18 @@ class TransactionEventsSubscriber
 
     public function onTransactionStatusChanged(TransactionStatusChanged $event): void
     {
-        $this->callProcessorMethodIfExist($event->transaction, 'statusChanged', [
-            $event->transaction->status,
+        $tx = $event->transaction;
+        $this->callProcessorMethodIfExist($tx, 'statusChanged', [
+            $tx->status,
             $event->oldStatus
         ]);
+
+        if (config('wallet.balance.log_states')
+            && method_exists($tx, 'logStates')
+        ) {
+            $tx->deleteStates();
+            $tx->logStates();
+        }
     }
 
     public function subscribe(Dispatcher $events): void

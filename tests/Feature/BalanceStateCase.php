@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use O21\LaravelWallet\Contracts\BalanceState as BalanceStateContract;
 use O21\LaravelWallet\Contracts\Transaction;
+use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Models\BalanceState;
 use Tests\Feature\Concerns\BalanceTest;
 use Tests\Models\User;
@@ -75,6 +76,34 @@ class BalanceStateCase extends TestCase
 
         $stateModel = app(BalanceStateContract::class);
         $this->assertEquals(1, $stateModel::count());
+    }
+
+    public function test_log_recreate_on_tx_status_changed(): void
+    {
+        config([
+            'wallet.balance.log_states' => true
+        ]);
+
+        [$user, $currency, $balance] = $this->createBalance();
+        [$user2] = $this->createBalance();
+
+        $tx = $this->createTransfer($user, $user2, 100, $currency);
+
+        $this->assertNotNull($tx);
+        $this->assertNotNull($tx->fromState);
+        $this->assertNotNull($tx->toState);
+        $this->assertEquals('-100', (string)$tx->fromState->value);
+        $this->assertEquals('100', (string)$tx->toState->value);
+        $this->assertTrue($tx->hasStatus(TransactionStatus::SUCCESS));
+
+        $tx->updateStatus(TransactionStatus::FAILED);
+        $tx = $tx->fresh();
+
+        $this->assertTrue($tx->hasStatus(TransactionStatus::FAILED));
+        $this->assertNotNull($tx->fromState);
+        $this->assertNotNull($tx->toState);
+        $this->assertEquals('0', (string)$tx->fromState->value);
+        $this->assertEquals('0', (string)$tx->toState->value);
     }
 
     public function test_logging_disabled(): void

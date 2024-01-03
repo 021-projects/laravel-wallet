@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Str;
 use O21\LaravelWallet\Casts\TrimZero;
+use O21\LaravelWallet\Contracts\Balance;
 use O21\LaravelWallet\Contracts\Payable;
 use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Models\Concerns\HasMetaColumn;
@@ -113,6 +114,22 @@ class Transaction extends Model implements TransactionContract
     {
         $this->from?->balance($this->currency)?->recalculate();
         $this->to?->balance($this->currency)?->recalculate();
+    }
+
+    public function logStates(): void
+    {
+        $balanceClass = app(Balance::class);
+        if (! method_exists($balanceClass, 'logState')) {
+            return;
+        }
+        $this->from?->balance($this->currency)?->logState($this);
+        $this->to?->balance($this->currency)?->logState($this);
+    }
+
+    public function deleteStates(): void
+    {
+        $this->fromState?->delete();
+        $this->toState?->delete();
     }
 
     public function hasStatus(string $status): bool
