@@ -14,7 +14,6 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
 
         $this->setUpDatabase();
-        $this->setUpConfig();
     }
 
     protected function setUpDatabase(): void
@@ -29,12 +28,5 @@ abstract class TestCase extends BaseTestCase
 
         (new \CreateBalancesTable())->up();
         (new \CreateTransactionsTable())->up();
-    }
-
-    protected function setUpConfig(): void
-    {
-        config([
-            'wallet.models.user' => \Tests\Models\User::class,
-        ]);
     }
 }
