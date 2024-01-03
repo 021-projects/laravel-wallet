@@ -20,7 +20,7 @@ class TransactionEventsSubscriber
         $tx = $event->transaction;
         $this->callProcessorMethodIfExist($tx, 'created');
 
-        if (config('wallet.balances.log_states')) {
+        if (config('wallet.balance.log_states')) {
             $this->logBalanceStates($tx);
         }
     }

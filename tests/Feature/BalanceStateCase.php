@@ -20,7 +20,7 @@ class BalanceStateCase extends TestCase
     public function test_logging(): void
     {
         config([
-            'wallet.balances.log_states' => true
+            'wallet.balance.log_states' => true
         ]);
 
         [$user, $currency, $balance] = $this->createBalance();
@@ -60,7 +60,7 @@ class BalanceStateCase extends TestCase
     public function test_logging_without_tx(): void
     {
         config([
-            'wallet.balances.log_states' => false
+            'wallet.balance.log_states' => false
         ]);
 
         [$user, $currency, $balance] = $this->createBalance();
@@ -80,7 +80,7 @@ class BalanceStateCase extends TestCase
     public function test_logging_disabled(): void
     {
         config([
-            'wallet.balances.log_states' => false
+            'wallet.balance.log_states' => false
         ]);
 
         [$user, $currency] = $this->createBalance();
@@ -99,7 +99,7 @@ class BalanceStateCase extends TestCase
     public function test_model_not_specified_in_config(): void
     {
         config([
-            'wallet.balances.log_states'  => true,
+            'wallet.balance.log_states'  => true,
         ]);
 
         config()->offsetUnset('wallet.models.balance_state');
@@ -122,7 +122,7 @@ class BalanceStateCase extends TestCase
     public function test_rebuild_states_command(): void
     {
         config([
-            'wallet.balances.log_states' => false
+            'wallet.balance.log_states' => false
         ]);
 
         [$user, $currency] = $this->createBalance();
