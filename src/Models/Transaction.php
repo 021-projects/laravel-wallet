@@ -173,13 +173,19 @@ class Transaction extends Model implements TransactionContract
     public function fromState(): HasOne
     {
         return $this->hasOne(config('wallet.models.balance_state') ?? BalanceState::class)
-            ->whereRelation('balance', 'payable_id', '=', $this->from_id);
+            ->whereRelation('balance', [
+                ['payable_id', '=', $this->from_id],
+                ['payable_type', '=', $this->from_type],
+            ]);
     }
 
     public function toState(): HasOne
     {
         return $this->hasOne(config('wallet.models.balance_state') ?? BalanceState::class)
-            ->whereRelation('balance', 'payable_id', '=', $this->to_id);
+            ->whereRelation('balance', [
+                ['payable_id', '=', $this->to_id],
+                ['payable_type', '=', $this->to_type],
+            ]);
     }
 
     public function scopeFrom(Builder $query, Payable $from): void

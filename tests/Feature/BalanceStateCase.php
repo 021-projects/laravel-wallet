@@ -23,8 +23,8 @@ class BalanceStateCase extends TestCase
             'wallet.balances.log_states' => true
         ]);
 
-        [$user, $currency] = $this->createBalance();
-        [$user2] = $this->createBalance();
+        [$user, $currency, $balance] = $this->createBalance();
+        [$user2,] = $this->createBalance();
 
         $transfers = [];
         $transferSum = 0;
@@ -46,6 +46,8 @@ class BalanceStateCase extends TestCase
             $this->assertNotNull($tx->toState);
             $this->assertInstanceOf(BalanceStateContract::class, $tx->fromState);
             $this->assertInstanceOf(BalanceStateContract::class, $tx->toState);
+            $this->assertTrue($tx->fromState->balance->is($balance));
+            $this->assertTrue($tx->toState->balance->is($user2->balance($currency)));
 
             $this->assertEquals((string)-$transferSum, (string)$tx->fromState->value);
             $this->assertEquals((string)$transferSum, (string)$tx->toState->value);
