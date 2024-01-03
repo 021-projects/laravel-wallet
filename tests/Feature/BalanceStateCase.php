@@ -55,6 +55,26 @@ class BalanceStateCase extends TestCase
         $this->assertEquals($expectedStatesCount, $stateModel::count());
     }
 
+    public function test_logging_without_tx(): void
+    {
+        config([
+            'wallet.balances.log_states' => false
+        ]);
+
+        [$user, $currency, $balance] = $this->createBalance();
+        [$user2] = $this->createBalance();
+
+        $tx = $this->createTransfer($user, $user2, 100, $currency);
+
+        $state = $balance->logState();
+
+        // tx is last transfer
+        $this->assertNull($state);
+
+        $stateModel = app(BalanceStateContract::class);
+        $this->assertEquals(1, $stateModel::count());
+    }
+
     public function test_logging_disabled(): void
     {
         config([
