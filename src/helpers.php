@@ -16,8 +16,8 @@ if (! function_exists('num')) {
     }
 }
 
-if (! function_exists('transaction')) {
-    function transaction(
+if (! function_exists('tx')) {
+    function tx(
         string|float|int|Numeric|null $amount = null,
         ?string $currency = null
     ): TransactionCreator {
@@ -35,18 +35,27 @@ if (! function_exists('transaction')) {
     }
 }
 
+if (! function_exists('transaction')) {
+    /**
+     * @deprecated Use tx() instead
+     * @param  string|float|int|\O21\LaravelWallet\Numeric|null  $amount
+     * @param  string|null  $currency
+     * @return \O21\LaravelWallet\Contracts\TransactionCreator
+     */
+    function transaction(
+        string|float|int|Numeric|null $amount = null,
+        ?string $currency = null
+    ): TransactionCreator {
+        return tx($amount, $currency);
+    }
+}
+
 if (! function_exists('deposit')) {
     function deposit(
         string|float|int|Numeric $amount,
         ?string $currency = null
     ): TransactionCreator {
-        $creator = transaction()->processor('deposit');
-
-        if ($currency) {
-            $creator->currency($currency);
-        }
-
-        return $creator->amount($amount);
+        return tx($amount, $currency)->processor('deposit');
     }
 }
 
@@ -55,13 +64,7 @@ if (! function_exists('charge')) {
         string|float|int|Numeric $amount,
         ?string $currency = null
     ): TransactionCreator {
-        $creator = transaction()->processor('charge');
-
-        if ($currency) {
-            $creator->currency($currency);
-        }
-
-        return $creator->amount($amount);
+        return tx($amount, $currency)->processor('charge');
     }
 }
 
@@ -70,12 +73,6 @@ if (! function_exists('transfer')) {
         string|float|int|Numeric $amount,
         ?string $currency = null
     ): TransactionCreator {
-        $creator = transaction()->processor('transfer');
-
-        if ($currency) {
-            $creator->currency($currency);
-        }
-
-        return $creator->amount($amount);
+        return tx($amount, $currency)->processor('transfer');
     }
 }

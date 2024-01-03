@@ -367,7 +367,7 @@ class TransactionCase extends TestCase
 
         $this->expectException(\RuntimeException::class);
 
-        transaction()->to($user)->commit();
+        tx()->to($user)->commit();
     }
 
     public function test_from_or_overcharge_required(): void
