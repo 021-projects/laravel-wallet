@@ -7,12 +7,15 @@ use Illuminate\Support\ServiceProvider as Provider;
 use Illuminate\Filesystem\Filesystem;
 use O21\LaravelWallet\Commands\Make\TransactionProcessorCommand;
 use O21\LaravelWallet\Commands\Rebuild\BalancesCommand;
+use O21\LaravelWallet\Commands\Rebuild\TxBalanceStatesCommand;
 use O21\LaravelWallet\Contracts\Balance;
+use O21\LaravelWallet\Contracts\BalanceState;
 use O21\LaravelWallet\Contracts\Transaction;
 use O21\LaravelWallet\Contracts\TransactionCreator;
 use O21\LaravelWallet\Contracts\TransactionPreparer;
 use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Listeners\TransactionEventsSubscriber;
+use O21\LaravelWallet\Models\BalanceState as BalanceStateModel;
 use O21\LaravelWallet\Observers\TransactionObserver;
 use O21\LaravelWallet\Transaction\Creator;
 use O21\LaravelWallet\Transaction\Preparer;
@@ -59,6 +62,9 @@ class ServiceProvider extends Provider
             __DIR__.'/../database/migrations/create_balances_table.php.stub' => $this->getMigrationFileName(
                 'create_balances_table.php'
             ),
+            __DIR__.'/../database/migrations/create_balance_states_table.php.stub' => $this->getMigrationFileName(
+                'create_balance_states_table.php'
+            ),
             __DIR__.'/../database/migrations/create_transactions_table.php.stub' => $this->getMigrationFileName(
                 'create_transactions_table.php'
             ),
@@ -89,6 +95,10 @@ class ServiceProvider extends Provider
         }
 
         $this->app->bind(Balance::class, $config['balance']);
+        $this->app->bind(
+            BalanceState::class,
+            $config['balance_state'] ?? BalanceStateModel::class
+        );
         $this->app->bind(Transaction::class, $config['transaction']);
     }
 
@@ -127,7 +137,8 @@ class ServiceProvider extends Provider
     {
         $this->commands([
             BalancesCommand::class,
-            TransactionProcessorCommand::class
+            TxBalanceStatesCommand::class,
+            TransactionProcessorCommand::class,
         ]);
     }
 

@@ -5,6 +5,7 @@ namespace O21\LaravelWallet\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use O21\LaravelWallet\Casts\TrimZero;
 use O21\LaravelWallet\Contracts\Balance as BalanceContract;
@@ -84,6 +85,31 @@ class Balance extends Model implements BalanceContract
         return $this->update($attributes);
     }
 
+    public function logState(?Transaction $tx = null): void
+    {
+        $value = (string)$this->value;
+
+        if ($tx) {
+            // log state before transaction
+            $sent = $this->transactions()
+                ->accountable()
+                ->from($this->payable)
+                ->where('id', '<=', $tx->id)
+                ->sum('amount');
+            $received = $this->transactions()
+                ->accountable()
+                ->to($this->payable)
+                ->where('id', '<=', $tx->id)
+                ->sum('received');
+            $value = num($received)->sub($sent)->get();
+        }
+
+        $this->states()->create([
+            'transaction_id' => $tx?->id,
+            'value'          => $value,
+        ]);
+    }
+
     public function equals(float|int|string $value): bool
     {
         return $this->value->equals($value);
@@ -134,6 +160,11 @@ class Balance extends Model implements BalanceContract
     public function payable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function states(): HasMany
+    {
+        return $this->hasMany(config('wallet.models.balance_state') ?? BalanceState::class);
     }
 
     public function transactions(): Builder

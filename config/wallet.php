@@ -14,16 +14,19 @@ return [
             \O21\LaravelWallet\Enums\TransactionStatus::SUCCESS,
             \O21\LaravelWallet\Enums\TransactionStatus::ON_HOLD
         ],
+        'log_states' => false
     ],
 
     'models' => [
-        'balance'     => \O21\LaravelWallet\Models\Balance::class,
-        'transaction' => \O21\LaravelWallet\Models\Transaction::class,
+        'balance'       => \O21\LaravelWallet\Models\Balance::class,
+        'balance_state' => \O21\LaravelWallet\Models\BalanceState::class,
+        'transaction'   => \O21\LaravelWallet\Models\Transaction::class,
     ],
 
     'table_names' => [
-        'balances'     => 'balances',
-        'transactions' => 'transactions',
+        'balances'       => 'balances',
+        'balance_states' => 'balance_states',
+        'transactions'   => 'transactions',
     ],
 
     'processors' => [

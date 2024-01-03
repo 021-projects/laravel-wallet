@@ -24,9 +24,11 @@ abstract class TestCase extends BaseTestCase
         });
 
         include_once __DIR__.'/../database/migrations/create_balances_table.php.stub';
+        include_once __DIR__.'/../database/migrations/create_balance_states_table.php.stub';
         include_once __DIR__.'/../database/migrations/create_transactions_table.php.stub';
 
         (new \CreateBalancesTable())->up();
+        (new \CreateBalanceStatesTable())->up();
         (new \CreateTransactionsTable())->up();
     }
 }

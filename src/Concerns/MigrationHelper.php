@@ -11,6 +11,10 @@ trait MigrationHelper
             throw new \Exception('Error: config/wallet.php not loaded. Run [php artisan config:clear] and try again.');
         }
 
+        if ($key && ! array_key_exists($key, $tableNames)) {
+            return $key;
+        }
+
         return $key ? $tableNames[$key] : $tableNames;
     }
 }

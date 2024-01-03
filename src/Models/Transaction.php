@@ -4,6 +4,7 @@ namespace O21\LaravelWallet\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Str;
 use O21\LaravelWallet\Casts\TrimZero;
@@ -47,6 +48,8 @@ use Illuminate\Database\Eloquent\Builder;
  * @method static Builder|Transaction whereTotal($value)
  * @property-read Model|\Eloquent|Payable $from
  * @property-read Model|\Eloquent|Payable $to
+ * @property-read Model|\Eloquent|\O21\LaravelWallet\Contracts\BalanceState|null $fromState
+ * @property-read Model|\Eloquent|\O21\LaravelWallet\Contracts\BalanceState|null $toState
  * @method static Builder|Transaction from(\O21\LaravelWallet\Contracts\Payable $from)
  * @method static Builder|Transaction to(\O21\LaravelWallet\Contracts\Payable $to)
  * @property string|null $from_type
@@ -165,6 +168,18 @@ class Transaction extends Model implements TransactionContract
     public function to(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function fromState(): HasOne
+    {
+        return $this->hasOne(config('wallet.models.balance_state') ?? BalanceState::class)
+            ->whereRelation('balance', 'payable_id', '=', $this->from_id);
+    }
+
+    public function toState(): HasOne
+    {
+        return $this->hasOne(config('wallet.models.balance_state') ?? BalanceState::class)
+            ->whereRelation('balance', 'payable_id', '=', $this->to_id);
     }
 
     public function scopeFrom(Builder $query, Payable $from): void
