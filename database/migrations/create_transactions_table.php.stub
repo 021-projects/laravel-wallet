@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use O21\LaravelWallet\Enums\TransactionStatus;
 
-class CreateWalletTransactionsTable extends Migration
+class CreateTransactionsTable extends Migration
 {
     use \O21\LaravelWallet\Concerns\MigrationHelper;
 

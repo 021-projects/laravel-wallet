@@ -27,8 +27,8 @@ abstract class TestCase extends BaseTestCase
         include_once __DIR__.'/../database/migrations/create_balances_table.php.stub';
         include_once __DIR__.'/../database/migrations/create_transactions_table.php.stub';
 
-        (new \CreateWalletBalancesTable())->up();
-        (new \CreateWalletTransactionsTable())->up();
+        (new \CreateBalancesTable())->up();
+        (new \CreateTransactionsTable())->up();
     }
 
     protected function setUpConfig(): void
