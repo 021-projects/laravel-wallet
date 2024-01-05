@@ -62,11 +62,12 @@ class ServiceProvider extends Provider
             __DIR__.'/../database/migrations/create_balances_table.php.stub' => $this->getMigrationFileName(
                 'create_balances_table.php'
             ),
-            __DIR__.'/../database/migrations/create_balance_states_table.php.stub' => $this->getMigrationFileName(
-                'create_balance_states_table.php'
-            ),
             __DIR__.'/../database/migrations/create_transactions_table.php.stub' => $this->getMigrationFileName(
                 'create_transactions_table.php'
+            ),
+            __DIR__.'/../database/migrations/create_balance_states_table.php.stub' => $this->getMigrationFileName(
+                'create_balance_states_table.php',
+                order: 1
             ),
         ], 'wallet-migrations');
     }
@@ -107,9 +108,9 @@ class ServiceProvider extends Provider
      *
      * @return string
      */
-    protected function getMigrationFileName($migrationFileName): string
+    protected function getMigrationFileName($migrationFileName, int $order = 0): string
     {
-        $timestamp = date('Y_m_d_His');
+        $timestamp = date('Y_m_d_His', time() + $order);
 
         $filesystem = $this->app->make(Filesystem::class);
 
