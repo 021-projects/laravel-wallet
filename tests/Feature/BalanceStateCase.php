@@ -194,6 +194,51 @@ class BalanceStateCase extends TestCase
         $this->assertEquals($expectedStatesCount, $stateModel::count());
     }
 
+    public function test_state_not_deleted_when_balance_deleted(): void
+    {
+        config([
+            'wallet.balance.log_states' => true
+        ]);
+
+        [$user, $currency] = $this->createBalance();
+        [$user2] = $this->createBalance();
+
+        $tx = $this->createTransfer($user, $user2, 100, $currency);
+
+        $this->assertNotNull($tx->fromState);
+        $this->assertNotNull($tx->toState);
+
+        $tx->fromState->balance->delete();
+
+        $tx = $tx->fresh();
+
+        $this->assertNotNull($tx->fromState);
+        $this->assertNotNull($tx->toState);
+    }
+
+    public function test_states_deleted_when_tx_deleted(): void
+    {
+        config([
+            'wallet.balance.log_states' => true
+        ]);
+
+        [$user, $currency] = $this->createBalance();
+        [$user2] = $this->createBalance();
+
+        $tx = $this->createTransfer($user, $user2, 100, $currency);
+
+        $this->assertNotNull($tx->fromState);
+        $this->assertNotNull($tx->toState);
+
+        $fromState = $tx->fromState;
+        $toState = $tx->toState;
+
+        $tx->delete();
+
+        $this->assertNull($fromState->fresh());
+        $this->assertNull($toState->fresh());
+    }
+
     protected function createTransfer(User $from, User $to, $amount, $currency): Transaction
     {
         return transfer($amount, $currency)
