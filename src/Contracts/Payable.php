@@ -2,9 +2,13 @@
 
 namespace O21\LaravelWallet\Contracts;
 
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+
 interface Payable
 {
     public function balance(?string $currency = null): Balance;
+
+    public function balanceStates(): MorphMany;
 
     public function assertHaveFunds(string $needs, ?string $currency = null): void;
 

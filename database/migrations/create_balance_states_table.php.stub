@@ -17,15 +17,15 @@ class CreateBalanceStatesTable extends Migration
     {
         Schema::create($this->assertTableName('balance_states'), function (Blueprint $table) {
             $table->id();
-            $table->foreignId('balance_id')
-                ->constrained($this->assertTableName('balances'))
-                ->cascadeOnDelete();
+            $table->morphs('payable');
+            $table->string('currency', 10)->index();
             $table->foreignId('transaction_id')
                 ->nullable()
                 ->constrained($this->assertTableName('transactions'))
                 ->cascadeOnDelete();
             $table->decimal('value', 16, 8)->default(0);
             $table->timestamp('created_at');
+            $table->index(['payable_id', 'payable_type', 'currency']);
         });
     }
 

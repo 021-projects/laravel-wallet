@@ -3,6 +3,7 @@
 namespace O21\LaravelWallet\Contracts;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
  * O21\LaravelWallet\Contracts\BalanceState
@@ -16,6 +17,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 interface BalanceState
 {
-    public function balance(): BelongsTo;
+    public function payable(): MorphTo;
     public function tx(): BelongsTo;
 }

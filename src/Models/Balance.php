@@ -21,7 +21,7 @@ use O21\LaravelWallet\Contracts\Transaction;
  * @property string $value_pending
  * @property string $value_on_hold
  * @property string $currency
- * @property-read Model|\Eloquent $payable
+ * @property-read Model|\Eloquent|\O21\LaravelWallet\Contracts\Payable $payable
  * @property-read \O21\LaravelWallet\Numeric $sent
  * @property-read \O21\LaravelWallet\Numeric $received
  * @method static Builder|Balance newModelQuery()
@@ -104,9 +104,10 @@ class Balance extends Model implements BalanceContract
             $value = num($received)->sub($sent)->get();
         }
 
-        $this->states()->create([
+        $this->payable?->balanceStates()->create([
             'transaction_id' => $tx?->id,
             'value'          => $value,
+            'currency'       => $this->currency,
         ]);
     }
 
@@ -160,11 +161,6 @@ class Balance extends Model implements BalanceContract
     public function payable(): MorphTo
     {
         return $this->morphTo();
-    }
-
-    public function states(): HasMany
-    {
-        return $this->hasMany(config('wallet.models.balance_state') ?? BalanceState::class);
     }
 
     public function transactions(): Builder

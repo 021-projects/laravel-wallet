@@ -45,10 +45,14 @@ class BalanceStateCase extends TestCase
 
             $this->assertNotNull($tx->fromState);
             $this->assertNotNull($tx->toState);
+            $this->assertNotNull($tx->fromState->tx);
+            $this->assertNotNull($tx->toState->tx);
             $this->assertInstanceOf(BalanceStateContract::class, $tx->fromState);
             $this->assertInstanceOf(BalanceStateContract::class, $tx->toState);
             $this->assertTrue($tx->fromState->balance->is($balance));
             $this->assertTrue($tx->toState->balance->is($user2->balance($currency)));
+            $this->assertTrue($tx->fromState->tx->is($tx));
+            $this->assertTrue($tx->toState->tx->is($tx));
 
             $this->assertEquals((string)-$transferSum, (string)$tx->fromState->value);
             $this->assertEquals((string)$transferSum, (string)$tx->toState->value);
