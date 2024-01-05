@@ -18,7 +18,7 @@ class CreateBalanceStatesTable extends Migration
         Schema::create($this->assertTableName('balance_states'), function (Blueprint $table) {
             $table->id();
             $table->morphs('payable');
-            $table->string('currency', 10)->index();
+            $table->string('currency', 10);
             $table->foreignId('transaction_id')
                 ->nullable()
                 ->constrained($this->assertTableName('transactions'))
