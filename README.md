@@ -25,6 +25,9 @@ This ensures reliable operation with numbers that typically appear when working 
 - [Configuration](https://021-projects.github.io/laravel-wallet/configuration.html)
 - [Basic Usage](https://021-projects.github.io/laravel-wallet/basic-usage.html)
 
+# Community
+- [Telegram](https://t.me/laravelwallet)
+
 ### Donate
 #### Bitcoin
 1G4U12A7VVVaUrmj4KmNt4C5SaDmCXuW49
