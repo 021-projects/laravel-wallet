@@ -13,8 +13,9 @@ class Numeric
 
     public function __construct(
         string|float|int|Numeric $value,
-        int $scale = 8
+        ?int $scale = null
     ) {
+        $scale ??= config('wallet.balance.max_scale') ?? 8;
         $this->_dirtyValue = $value instanceof self
             ? (string)$value
             : $this->format(

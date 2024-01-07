@@ -8,11 +8,12 @@ if (! function_exists('num')) {
      * Create a new Numeric instance for safe calculations
      *
      * @param  string|float|int|\O21\LaravelWallet\Numeric  $value
+     * @param  int  $scale
      * @return \O21\LaravelWallet\Numeric
      */
-    function num(string|float|int|Numeric $value): Numeric
+    function num(string|float|int|Numeric $value, ?int $scale = null): Numeric
     {
-        return new Numeric($value);
+        return new Numeric($value, $scale);
     }
 }
 

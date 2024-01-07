@@ -9,6 +9,7 @@
             <directory suffix="BalanceCase.php">./tests/Feature</directory>
             <directory suffix="BalanceStateCase.php">./tests/Feature</directory>
             <directory suffix="TransactionCase.php">./tests/Feature</directory>
+            <directory suffix="NumericCase.php">./tests/Feature</directory>
         </testsuite>
     </testsuites>
     <coverage processUncoveredFiles="true">

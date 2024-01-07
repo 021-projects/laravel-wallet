@@ -4,17 +4,18 @@ return [
     'default_currency' => 'USD',
 
     'balance' => [
-        'extra_values' => [
+        'accounting_statuses' => [
+            \O21\LaravelWallet\Enums\TransactionStatus::SUCCESS,
+            \O21\LaravelWallet\Enums\TransactionStatus::ON_HOLD
+        ],
+        'extra_values'        => [
             // enable value_pending calculation
             'pending' => false,
             // enable value_on_hold calculation
             'on_hold' => false,
         ],
-        'accounting_statuses' => [
-            \O21\LaravelWallet\Enums\TransactionStatus::SUCCESS,
-            \O21\LaravelWallet\Enums\TransactionStatus::ON_HOLD
-        ],
-        'log_states' => false
+        'max_scale'           => 8,
+        'log_states'          => false,
     ],
 
     'models' => [
