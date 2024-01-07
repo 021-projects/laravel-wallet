@@ -27,6 +27,53 @@ return [
 ];
 ```
 
+## Scaling <Badge type="tip" text="8.1+" />
+By default, all numbers in the package are limited to 99,999,999.99999999. This applies to balance values, transaction amounts, commissions, etc.
+If you want to increase this limit, first of all you need to edit the migrations.
+
+Let's increase the maximum values to 999,999,999.999999999999999999:
+::: code-group
+```php [database/migrations/create_balances_table.php]
+$table->decimal('value', 16, 8)->default(0); // [!code --:3]
+$table->decimal('value_pending', 16, 8)->default(0);
+$table->decimal('value_on_hold', 16, 8)->default(0);
+$table->decimal('value', 27, 18)->default(0); // [!code ++:3]
+$table->decimal('value_pending', 27, 18)->default(0);
+$table->decimal('value_on_hold', 27, 18)->default(0);
+```
+```php [database/migrations/create_transactions_table.php]
+$table->unsignedDecimal('amount', 16, 8)->default(0)->index(); // [!code --:6]
+$table->unsignedDecimal('commission', 16, 8)->default(0);
+$table->unsignedDecimal('received', 16, 8)
+    ->default(0)
+    ->comment('received = amount - commission')
+    ->index();
+$table->unsignedDecimal('amount', 27, 18)->default(0)->index(); // [!code ++:6]
+$table->unsignedDecimal('commission', 27, 18)->default(0);
+$table->unsignedDecimal('received', 27, 18)
+    ->default(0)
+    ->comment('received = amount - commission')
+    ->index();
+```
+```php [database/migrations/create_balance_states_table.php]
+$table->decimal('value', 16, 8)->default(0); // [!code --:3]
+$table->decimal('value', 27, 18)->default(0); // [!code ++:3]
+```
+:::
+Then you need to change the configuration:
+```php
+return [
+    // ...
+    'balance' => [ // [!code focus]
+        // ...
+        'max_scale' => 18, // [!code focus]
+        // ...
+    ], // [!code focus]
+];
+```
+
+The [Numeric](interfaces.md#numeric) class will now round numbers to 18 decimal places.
+
 ## Default Currency
 Laravel Wallet supports balances in multiple currencies, but also provides the ability to work conveniently when you only have one main currency.
 This option allows you to specify the currency in which transactions and balances will be created, unless otherwise explicitly specified.

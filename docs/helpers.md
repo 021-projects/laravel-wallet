@@ -4,6 +4,8 @@
 Creates a new [`O21\LaravelWallet\Numeric`](interfaces.md#numeric) instance from a value.
 ```php
 function num(string|float|int|Numeric $value): Numeric
+// 8.1+
+function num(string|float|int|Numeric $value, ?int $scale = null): Numeric // [!code ++]
 ```
 
 ## `tx`

@@ -2,6 +2,7 @@
 
 ## Numeric
 - **Class:** `O21\LaravelWallet\Numeric`
+- **Related Configuration:** [Scaling](configuration.md#scaling)
 
 This class is used to work with numbers that are too large or too small for the `int` and `float` types.
 Laravel Wallet uses this class in all number calculations.
@@ -14,7 +15,10 @@ We also recommend using this class for calculations in **all** cases.
 ```php
 public function __construct(
     string|float|int|Numeric $value,
-    int $scale = 8 // Number of decimal places to round to
+    // Number of decimal places to round to
+    // If null, value will be taken from config('wallet.balance.max_scale')
+    // With fallback to 8
+    ?int $scale = null
 );
 
 public function __toString(): string;
