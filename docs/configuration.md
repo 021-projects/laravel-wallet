@@ -1,6 +1,98 @@
 # Configuration
 **Path to config**: `config/wallet.php`
 
+## Accounting Transaction Statuses
+The balance value is `funds_received - funds_sent`<br>
+Where `funds_received` is
+```sql
+SUM(transactions.received) WHERE transactions.status IN (<accounting-statuses>)
+```
+And `funds_sent` is
+```sql 
+SUM(transactions.amount) WHERE transactions.status IN (<accounting-statuses>)
+```
+```php
+<?php
+
+return [
+    // ...
+    'balance' => [ // [!code focus]
+        // ...
+        'accounting_statuses' => [ // [!code focus:4]
+            \O21\LaravelWallet\Enums\TransactionStatus::SUCCESS,
+            \O21\LaravelWallet\Enums\TransactionStatus::ON_HOLD
+        ],
+        // ...
+    ],
+];
+```
+
+## Default Currency
+Laravel Wallet supports balances in multiple currencies, but also provides the ability to work conveniently when you only have one main currency.
+This option allows you to specify the currency in which transactions and balances will be created, unless otherwise explicitly specified.
+
+```php
+<?php
+
+return [
+    'default_currency' => 'USD', // [!code focus]
+    // ...
+];
+```
+
+## Overriding Default Models
+
+You can extend any model from the package:
+```php
+<?php
+
+return [
+    // ...
+    'models' => [ // [!code focus:5]
+        'balance'       => \O21\LaravelWallet\Models\Balance::class,
+        'balance_state' => \O21\LaravelWallet\Models\BalanceState::class,
+        'transaction'   => \O21\LaravelWallet\Models\Transaction::class,
+    ],
+    // ...
+];
+```
+
+:::: details Transaction Model Extending Example
+::: code-group
+```php [config/wallet.php]
+<?php
+
+return [
+    // ...
+    'models' => [
+        'balance'       => \O21\LaravelWallet\Models\Balance::class,
+        'balance_state' => \O21\LaravelWallet\Models\BalanceState::class,
+        'transaction'   => \App\Models\Transaction::class, // [!code focus]
+    ],
+    // ...
+];
+```
+```php [app/Models/Transaction.php]
+<?php
+
+namespace App\Models;
+
+use O21\LaravelWallet\Models\Transaction as BaseTransaction;
+
+class Transaction extends BaseTransaction
+{
+    public function toApi(): array
+    {
+        $output = parent::toApi();
+        $output['from'] = $this->from?->toApi();
+        $output['to'] = $this->to?->toApi();
+        return $output;
+    }
+}
+```
+:::
+::::
+
 ## Table Names
 ::: tip
 If you want to change the table names, do it before running wallet migrations ;)
@@ -25,45 +117,6 @@ return [
         'transactions'   => 'transactions',
     ],
     // ...
-];
-```
-
-## Default Currency
-Laravel Wallet supports balances in multiple currencies, but also provides the ability to work conveniently when you only have one main currency.
-This option allows you to specify the currency in which transactions and balances will be created, unless otherwise explicitly specified.
-
-```php
-<?php
-
-return [
-    'default_currency' => 'USD', // [!code focus]
-    // ...
-];
-```
-
-## Accounting Transaction Statuses
-The balance value is `funds_received - funds_sent`<br>
-Where `funds_received` is 
-```sql
-SUM(transactions.received) WHERE transactions.status IN (<accounting-statuses>)
-```
-And `funds_sent` is 
-```sql 
-SUM(transactions.amount) WHERE transactions.status IN (<accounting-statuses>)
-```
-```php
-<?php
-
-return [
-    // ...
-    'balance' => [ // [!code focus]
-        // ...
-        'accounting_statuses' => [ // [!code focus:4]
-            \O21\LaravelWallet\Enums\TransactionStatus::SUCCESS,
-            \O21\LaravelWallet\Enums\TransactionStatus::ON_HOLD
-        ],
-        // ...
-    ],
 ];
 ```
 
@@ -161,56 +214,3 @@ return [
     ], // [!code focus]
 ];
 ```
-
-## Overriding Default Models
-
-You can extend any model from the package:
-```php
-<?php
-
-return [
-    // ...
-    'models' => [ // [!code focus:5]
-        'balance'       => \O21\LaravelWallet\Models\Balance::class,
-        'balance_state' => \O21\LaravelWallet\Models\BalanceState::class,
-        'transaction'   => \O21\LaravelWallet\Models\Transaction::class,
-    ],
-    // ...
-];
-```
-
-:::: details Transaction Model Extending Example
-::: code-group
-```php [config/wallet.php]
-<?php
-
-return [
-    // ...
-    'models' => [
-        'balance'       => \O21\LaravelWallet\Models\Balance::class,
-        'balance_state' => \O21\LaravelWallet\Models\BalanceState::class,
-        'transaction'   => \App\Models\Transaction::class, // [!code focus]
-    ],
-    // ...
-];
-```
-```php [app/Models/Transaction.php]
-<?php
-
-namespace App\Models;
-
-use O21\LaravelWallet\Models\Transaction as BaseTransaction;
-
-class Transaction extends BaseTransaction
-{
-    public function toApi(): array
-    {
-        $output = parent::toApi();
-        $output['from'] = $this->from?->toApi();
-        $output['to'] = $this->to?->toApi();
-        return $output;
-    }
-}
-```
-:::
-::::
