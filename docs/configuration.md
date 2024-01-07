@@ -12,8 +12,6 @@ And `funds_sent` is
 SUM(transactions.amount) WHERE transactions.status IN (<accounting-statuses>)
 ```
 ```php
-<?php
-
 return [
     // ...
     'balance' => [ // [!code focus]
@@ -79,8 +77,6 @@ Laravel Wallet supports balances in multiple currencies, but also provides the a
 This option allows you to specify the currency in which transactions and balances will be created, unless otherwise explicitly specified.
 
 ```php
-<?php
-
 return [
     'default_currency' => 'USD', // [!code focus]
     // ...
@@ -91,8 +87,6 @@ return [
 
 You can extend any model from the package:
 ```php
-<?php
-
 return [
     // ...
     'models' => [ // [!code focus:5]
@@ -107,8 +101,6 @@ return [
 :::: details Transaction Model Extending Example
 ::: code-group
 ```php [config/wallet.php]
-<?php
-
 return [
     // ...
     'models' => [
@@ -120,8 +112,6 @@ return [
 ];
 ```
 ```php [app/Models/Transaction.php]
-<?php
-
 namespace App\Models;
 
 use O21\LaravelWallet\Models\Transaction as BaseTransaction;
@@ -154,8 +144,6 @@ By default, the package will use the following table names:
 
 It can be changed in the `table_names` section:
 ```php
-<?php
-
 return [
     // ...
     'table_names' => [ // [!code focus:5]
@@ -171,8 +159,6 @@ return [
 You may also need to track balance state for transactions with other statuses. By default, you can enable balance tracking for transactions with the status `on_hold` and `pending`.
 After enabling these options, the `value_pending` and `value_on_hold` fields will be saved in the `balances` table.
 ```php
-<?php
-
 return [
     // ...
     'balance' => [ // [!code focus:5]
@@ -192,8 +178,6 @@ Replace `<status-name>` with the name of the status you want to track.
 :::
 ::: details Migration
 ```php
-<?php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -250,8 +234,6 @@ return [
 ## Log Balance States
 You can enable logging of balance states at the time of transaction execution. 
 ```php
-<?php
-
 return [
     // ...
     'balance' => [ // [!code focus]

@@ -5,8 +5,6 @@
 ### Controller
 ::: code-group
 ```php [Controllers/WalletController.php]
-<?php
-
 // FundsAPI is a abstraction for external API
 
 namespace App\Http\Controllers;
@@ -101,8 +99,6 @@ class WalletController extends Controller
 }
 ```
 ```php [Requests/WalletWithdrawRequest.php]
-<?php
-
 namespace App\Http\Requests\V1;
 
 use App\Rules\BitcoinAddress;
@@ -139,8 +135,6 @@ class WalletWithdrawRequest extends FormRequest
 ### Rules
 ::: code-group
 ```php [Rules/MinimumNum.php]
-<?php
-
 namespace App\Rules;
 
 use Closure;
@@ -170,8 +164,6 @@ class MinimumNum implements ValidationRule // [!code focus:21]
 }
 ```
 ```php [Rules/BitcoinAddress.php]
-<?php
-
 namespace App\Rules;
 
 use Closure;
@@ -205,8 +197,6 @@ class BitcoinAddress implements ValidationRule // [!code focus:21]
 ### Transaction Processor
 ::: code-group
 ```php [Transaction/Processors/WithdrawProcessor.php]
-<?php
-
 namespace App\Transaction\Processors;
 
 use O21\LaravelWallet\Contracts\TransactionProcessor;

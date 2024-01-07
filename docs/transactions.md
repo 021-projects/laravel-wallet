@@ -38,8 +38,6 @@ php artisan make:tx-processor WithdrawProcessor
 
 ::: details Generated Processor
 ```php
-<?php
-
 namespace App\Transaction\Processors;
 
 use O21\LaravelWallet\Contracts\TransactionProcessor;

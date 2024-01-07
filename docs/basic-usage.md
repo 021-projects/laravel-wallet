@@ -7,8 +7,6 @@ Any changes to the balances must be made through transactions. Direct changes to
 :::
 ##### Add Balances To User Model
 ```php
-<?php 
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
