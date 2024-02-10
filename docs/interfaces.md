@@ -61,6 +61,7 @@ public function lessThanOrEqual(string|float|int|Numeric $value): bool;
 
 /**
  * Get the minimum value of the given values
+ * Requires 021/laravel-wallet >= 8.2.0
  * 
  * @param  string|float|int|Numeric[]  ...$values
  * @return \O21\LaravelWallet\Numeric
@@ -69,6 +70,7 @@ public function min(...$values): Numeric;
 
 /**
  * Get the maximum value of the given values
+ * Requires 021/laravel-wallet >= 8.2.0
  * 
  * @param  string|float|int|Numeric[]  ...$values
  * @return \O21\LaravelWallet\Numeric
