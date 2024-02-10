@@ -59,6 +59,22 @@ public function lessThan(string|float|int|Numeric $value): bool;
 // Check if current value is less than or equal to specified
 public function lessThanOrEqual(string|float|int|Numeric $value): bool;
 
+/**
+ * Get the minimum value of the given values
+ * 
+ * @param  string|float|int|Numeric[]  ...$values
+ * @return \O21\LaravelWallet\Numeric
+ */
+public function min(...$values): Numeric;
+
+/**
+ * Get the maximum value of the given values
+ * 
+ * @param  string|float|int|Numeric[]  ...$values
+ * @return \O21\LaravelWallet\Numeric
+ */
+public function max(...$values): Numeric;
+
 // Format value, uses PHP number_format() function
 public function format(
     int $decimals = 8,

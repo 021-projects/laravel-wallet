@@ -56,4 +56,41 @@ class NumericCase extends TestCase
 
         $this->assertEquals('0.00000025', $sub);
     }
+
+    public function test_min(): void
+    {
+        $min = '0.00000025';
+
+        $num = num($min);
+
+        $biggerNumbers = [];
+        for ($i = 0; $i < 10; $i++) {
+            $biggerNumbers[] = (clone $num)->add(num('0.00000001')->mul($i))->get();
+        }
+
+        $this->assertEquals($min, $num->min($biggerNumbers[0])->get());
+        $this->assertEquals($min, $num->min(...$biggerNumbers)->get());
+        $this->assertEquals($min, $num->min('0.00000026')->get());
+        $this->assertEquals($min, $num->min(0.00000026)->get());
+        $this->assertEquals($min, $num->min(1)->get());
+        $this->assertEquals('0.00000024', $num->min('0.00000024')->get());
+    }
+
+    public function test_max(): void
+    {
+        $max = '0.00000025';
+
+        $num = num($max);
+
+        $smallerNumbers = [];
+        for ($i = 0; $i < 10; $i++) {
+            $smallerNumbers[] = (clone $num)->sub(num('0.00000001')->mul($i))->get();
+        }
+
+        $this->assertEquals($max, $num->max($smallerNumbers[0])->get());
+        $this->assertEquals($max, $num->max(...$smallerNumbers)->get());
+        $this->assertEquals($max, $num->max('0.00000024')->get());
+        $this->assertEquals($max, $num->max(0.00000024)->get());
+        $this->assertEquals(1, $num->max(1)->get());
+    }
 }

@@ -100,6 +100,40 @@ class Numeric
         return bccomp((string)$this, (string)(new self($value)), $this->_scale) <= 0;
     }
 
+    /**
+     * Get the minimum value of the given values
+     *
+     * @param  string|float|int|Numeric[]  ...$values
+     * @return \O21\LaravelWallet\Numeric
+     */
+    public function min(...$values): Numeric
+    {
+        $min = $this;
+        foreach ($values as $value) {
+            if (num($value)->lessThan($min)) {
+                $min = $value;
+            }
+        }
+        return new self($min);
+    }
+
+    /**
+     * Get the maximum value of the given values
+     *
+     * @param  string|float|int|Numeric[]  ...$values
+     * @return \O21\LaravelWallet\Numeric
+     */
+    public function max(...$values): Numeric
+    {
+        $max = $this;
+        foreach ($values as $value) {
+            if (num($value)->greaterThan($max)) {
+                $max = $value;
+            }
+        }
+        return new self($max);
+    }
+
     public function format(
         int $decimals = 8,
         string $decimalSeparator = '.',
