@@ -1,17 +1,27 @@
-# Introduction
+---
+# https://vitepress.dev/reference/default-theme-home-page
+layout: home
+titleTemplate: false
 
-[Laravel Wallet](https://github.com/021-projects/laravel-wallet) was inspired by the idea of implementing a transaction engine in PHP that was as reliable and flexible as banking systems.
+hero:
+  name: "Laravel Wallet"
+  text: "Designed for reliable and flexible transactions"
+  actions:
+    - theme: brand
+      text: Get Started
+      link: /getting-started
+features:
+- icon: 🔒
+  title: Reliability
+  details: The package underwent private development for years, supporting multiple financial projects before its release. Despite experiencing leaks, these incidents helped us identify and fix vulnerabilities not caught by tests. Consequently, the package now includes enhanced safeguards against emergency fund leakages.
+  link: /reliability
+- icon: 🔢
+  title: Unlimited Numbers
+  details: In PHP, the int and float types struggle with very large or small numbers. The library adopts the Numeric class, leveraging the bcmath module, for precise calculations. This approach guarantees accurate handling of the extensive numerical ranges common in cryptocurrency operations.
+  link: /interfaces#numeric
+- icon: 🍬
+  title: Syntax Sugar
+  details: Intuitive helpers and interfaces for easy, straightforward, and concise transaction management. The package syntax is inspired by the simplicity and convenience of Laravel and the Ethereum blockchain implementation.
+  link: /helpers
+---
 
-## Advantages
-
-### Reliability
-The main task of the Laravel Wallet is to implement a reliable transaction mechanism. During development, all attention was focused on the security of this mechanism in order to prevent leakage of funds under the most unforeseen circumstances.
-Before the package publication, it was in private access for several years, supporting the work of several financial projects. During this period, we encountered leaks for various reasons and closed these vulnerabilities. This means that the reliability of transactions in this package has been tested not only by a tests, but also by time.
-
-### Syntax Sugar
-The package provides several intuitive [helpers](helpers.md) and [interfaces](interfaces.md) that make interacting with transactions intuitive, simple and concise.
-
-### Reliable work with numbers
-In PHP, the `int` and `float` number types have limitations that prevent them from working accurately with very large numbers or very small numbers.
-Therefore, to more accurately work with numbers, the library uses the [Numeric](interfaces.md#numeric) class, which, in turn, uses the [bcmath](https://www.php.net/manual/en/book.bc.php) module for calculations.
-This ensures reliable operation with numbers that typically appear when working with cryptocurrencies.

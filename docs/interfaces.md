@@ -5,7 +5,7 @@
 - **Related Configuration:** [Scaling](configuration.md#scaling)
 
 This class is used to work with numbers that are too large or too small for the `int` and `float` types.
-Laravel Wallet uses this class in all number calculations.
+Laravel Wallet uses this class for all calculations.
 ::: tip
 Under hood class uses the [bcmath](https://www.php.net/manual/en/book.bc.php) module for calculations.
 :::
@@ -239,15 +239,6 @@ public function meta(array $meta): self;
 public function lockOnRecord(Model|Builder|bool $lockRecord): self;
 ```
 
-## Transaction Preparer
-A global preparer for transactions. Default preparer sets received field to amount - commission.
-- **Default Class:** `O21\LaravelWallet\Transaction\Preparer`
-- **Contract Class:** `O21\LaravelWallet\Contracts\TransactionPreparer`
-
-```php
-public function prepare(Transaction $tx): void;
-```
-
 ## Transaction Processor
 - **Contract Class:** `O21\LaravelWallet\Contracts\TransactionProcessor`
 
@@ -274,4 +265,17 @@ public function __construct(Transaction $transaction);
  * @return array
  */
 public function prepareMeta(array $meta): array;
+```
+
+## Transaction Preparer
+A global preparer for transactions.
+::: warning
+Default preparer sets `received` field to `amount - commission`.
+If you plan to extend Preparer, it should also implement this behavior.
+:::
+- **Default Class:** `O21\LaravelWallet\Transaction\Preparer`
+- **Contract Class:** `O21\LaravelWallet\Contracts\TransactionPreparer`
+
+```php
+public function prepare(Transaction $tx): void;
 ```

@@ -2,15 +2,6 @@
 **Path to config**: `config/wallet.php`
 
 ## Accounting Transaction Statuses
-The balance value is `funds_received - funds_sent`<br>
-Where `funds_received` is
-```sql
-SUM(transactions.received) WHERE transactions.status IN (<accounting-statuses>)
-```
-And `funds_sent` is
-```sql 
-SUM(transactions.amount) WHERE transactions.status IN (<accounting-statuses>)
-```
 ```php
 return [
     // ...

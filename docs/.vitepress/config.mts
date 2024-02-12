@@ -21,9 +21,9 @@ export default defineConfig({
     sidebar: [
       {
         text: 'Introduction',
-        link: '/',
         items: [
           { text: 'Getting Started', link: '/getting-started' },
+          { text: 'Reliability', link: '/reliability' },
           { text: 'Configuration', link: '/configuration' },
           { text: 'Basic Usage', link: '/basic-usage' },
         ],

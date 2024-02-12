@@ -1,11 +1,12 @@
 # Basic Usage
 
 ## Balances
-Any model that implements the interface [`O21\LaravelWallet\Contracts\Payable`](interfaces.md#payable) can have its own balance and execute transactions.
 ::: warning
-Any changes to the balances must be made through transactions. Direct changes to the balance value will be lost after the next transaction is executed.
+To ensure the integrity of balance data, all modifications must be performed via transactions. Direct adjustments to balance values are not persistent and will be overwritten upon the execution of any subsequent transaction.
 :::
-##### Add Balances To User Model
+Models that implement the [`Payable`](./interfaces.md#payable) interface are capable of maintaining individual balances, alongside the transactions associated with them.
+
+##### Integrating balances into model
 ```php
 namespace App\Models;
 
@@ -19,19 +20,21 @@ class User extends Model implements Payable // [!code focus:4]
 }
 ```
 
-
-## Transactions
+## Conducting Transactions
 ::: tip
-Transaction is transfer from sender to recipient.
-Creating a transaction when the sender is absent or there are insufficient funds in his balance is only possible when `overcharge` mode is enabled.
+A transaction represents a monetary transfer from a sender to a recipient. Transactions can only be created if the sender has adequate funds, except when the `overcharge` mode is activated, allowing for transactions beyond the available balance.
 :::
 
-##### Transfer
+### Overcharge Mode
+When the `overcharge` mode is enabled, transactions can be conducted even without the sender or if the sender has insufficient funds.
+Use it if you want to allow negative balances or creating a deposit.
+
+##### Performing a Transfer
 ```php
 transfer(100, 'USD')->from($sender)->to($recipient)->commit();
 ```
 
-##### Deposit
+##### Making a Deposit
 ```php
 deposit(100, 'USD')->to($recipient)->overcharge()->commit();
 ```
