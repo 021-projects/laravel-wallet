@@ -4,6 +4,14 @@
     "description": "Reliable and flexible wallet system for Laravel",
     "keywords": ["laravel", "wallet", "transactions", "finance", "payment", "balance", "payout", "withdrawal", "deposit", "transfer"],
     "license": "MIT",
+    "authors": [
+        {
+            "name": "021",
+            "email": "devsellio@gmail.com",
+            "homepage": "https://021-projects.github.io/",
+            "role": "Developer"
+        }
+    ],
     "require": {
         "php": "^8.1|^8.2",
         "ext-bcmath": "*",
