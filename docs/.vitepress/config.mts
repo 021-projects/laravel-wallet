@@ -6,7 +6,7 @@ export default defineConfig({
   title: "Laravel Wallet",
   description: "Documentation for 021/laravel-wallet package",
   head: [
-    ['link', { rel: 'icon', href: '/laravel-wallet/favicon.ico' }]
+    ['link', { rel: 'icon', href: '/laravel-wallet/favicon.ico?v=2' }]
   ],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
