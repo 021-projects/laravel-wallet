@@ -29,7 +29,7 @@ class WalletController extends Controller
             ->commission($commission)
             ->processor('withdraw')
             ->from(auth()->user())
-            ->status(Transaction::STATUS_AWAITING_APPROVAL)
+            ->status('awaiting_approval')
             ->after(
                 /**
                  * Creating payout in after() closure allows you to avoid
