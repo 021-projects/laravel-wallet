@@ -1,8 +1,8 @@
 {
     "name": "021/laravel-wallet",
     "type": "package",
-    "description": "Laravel wallet balance with transactions and handlers.",
-    "keywords": ["framework", "laravel"],
+    "description": "Reliable and flexible wallet system for Laravel",
+    "keywords": ["laravel", "wallet", "transactions", "finance", "payment", "balance", "payout", "withdrawal", "deposit", "transfer"],
     "license": "MIT",
     "require": {
         "php": "^8.1|^8.2",
