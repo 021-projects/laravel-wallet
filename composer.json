@@ -32,7 +32,7 @@
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
-            "Tests\\": "tests/"
+            "O21\\LaravelWallet\\Tests\\": "tests/"
         }
     },
     "scripts": {

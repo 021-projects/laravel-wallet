@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Models;
+namespace O21\LaravelWallet\Tests\Models;
 
 use Database\Factories\UserFactory;
 use Illuminate\Auth\Authenticatable;

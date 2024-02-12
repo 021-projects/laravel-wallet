@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests;
+namespace O21\LaravelWallet\Tests;
 
 use Illuminate\Contracts\Console\Kernel;
 

@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Tests\Models\User;
+use O21\LaravelWallet\Tests\Models\User;
 
 class UserFactory extends Factory
 {

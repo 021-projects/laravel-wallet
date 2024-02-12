@@ -1,14 +1,14 @@
 <?php
 
-namespace Tests\Feature;
+namespace O21\LaravelWallet\Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Exception\FromOrOverchargeRequired;
 use O21\LaravelWallet\Exception\InsufficientFundsException;
-use Tests\Feature\Concerns\BalanceTest;
-use Tests\TestCase;
+use O21\LaravelWallet\Tests\Feature\Concerns\BalanceTest;
+use O21\LaravelWallet\Tests\TestCase;
 
 class TransactionCase extends TestCase
 {

@@ -1,9 +1,9 @@
 <?php
 
-namespace Tests\Feature\Concerns;
+namespace O21\LaravelWallet\Tests\Feature\Concerns;
 
 use Illuminate\Database\Eloquent\Model;
-use Tests\Models\User;
+use O21\LaravelWallet\Tests\Models\User;
 
 trait BalanceTest
 {

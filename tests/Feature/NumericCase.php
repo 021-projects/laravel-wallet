@@ -1,8 +1,8 @@
 <?php
 
-namespace Tests\Feature;
+namespace O21\LaravelWallet\Tests\Feature;
 
-use Tests\TestCase;
+use O21\LaravelWallet\Tests\TestCase;
 
 class NumericCase extends TestCase
 {

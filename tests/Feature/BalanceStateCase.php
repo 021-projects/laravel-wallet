@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace O21\LaravelWallet\Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -8,9 +8,9 @@ use O21\LaravelWallet\Contracts\BalanceState as BalanceStateContract;
 use O21\LaravelWallet\Contracts\Transaction;
 use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Models\BalanceState;
-use Tests\Feature\Concerns\BalanceTest;
-use Tests\Models\User;
-use Tests\TestCase;
+use O21\LaravelWallet\Tests\Feature\Concerns\BalanceTest;
+use O21\LaravelWallet\Tests\Models\User;
+use O21\LaravelWallet\Tests\TestCase;
 
 class BalanceStateCase extends TestCase
 {
