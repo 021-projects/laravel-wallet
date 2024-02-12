@@ -6,6 +6,7 @@ titleTemplate: false
 hero:
   name: "Laravel Wallet"
   text: "Designed for reliable and flexible transactions"
+  image: /code-hero.png
   actions:
     - theme: brand
       text: Get Started
