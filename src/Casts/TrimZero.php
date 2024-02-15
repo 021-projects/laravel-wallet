@@ -19,17 +19,17 @@ class TrimZero implements CastsAttributes
      * @param  array  $attributes
      * @return string
      */
-    public function get($model, $key, $value, $attributes)
+    public function get($model, $key, $value, $attributes): string
     {
         if (! is_string($value)) {
-            return $value;
+            return (string)$value;
         }
 
         if (preg_match(self::WITHOUT_DIGITS_REGEX, $value)) {
-            return preg_replace(self::WITHOUT_DIGITS_REGEX, '', $value);
+            return (string)preg_replace(self::WITHOUT_DIGITS_REGEX, '', $value);
         }
 
-        return preg_replace(self::HAS_DIGITS_REGEX, '$1', $value);
+        return (string)preg_replace(self::HAS_DIGITS_REGEX, '$1', $value);
     }
 
     /**
