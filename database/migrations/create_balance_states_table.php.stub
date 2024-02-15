@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBalanceStatesTable extends Migration
+return new class extends Migration
 {
     use \O21\LaravelWallet\Concerns\MigrationHelper;
 
@@ -38,4 +38,4 @@ class CreateBalanceStatesTable extends Migration
     {
         Schema::dropIfExists($this->assertTableName('balance_states'));
     }
-}
+};

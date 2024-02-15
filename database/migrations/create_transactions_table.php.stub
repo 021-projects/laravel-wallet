@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use O21\LaravelWallet\Enums\TransactionStatus;
 
-class CreateTransactionsTable extends Migration
+return new class extends Migration
 {
     use \O21\LaravelWallet\Concerns\MigrationHelper;
 
@@ -46,4 +46,4 @@ class CreateTransactionsTable extends Migration
     {
         Schema::dropIfExists($this->assertTableName('transactions'));
     }
-}
+};
