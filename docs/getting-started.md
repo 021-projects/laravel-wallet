@@ -2,11 +2,10 @@
 
 ## Requirements
 
-| Package               | Version |
-|-----------------------|---------|
-| PHP (with BCMath ext) | ^8.1    |
-| Laravel               | ^10.0   |
-| guzzlehttp/guzzle     | ^7.0    |
+| Package               | Version    |
+|-----------------------|------------|
+| PHP (with BCMath ext) | ^8.1\|^8.2 |
+| Laravel               | ^10.0      |
 
 ## Installation
 
