@@ -1,4 +1,4 @@
-<p align="center"><a href="https://021-projects.github.io/laravel-wallet/" target="_blank"><img src="https://raw.githubusercontent.com/021-projects/laravel-wallet/master/docs/public/code-hero.png" width="470" alt="Laravel Wallet Code Example"></a></p>
+<p><a href="https://021-projects.github.io/laravel-wallet/" target="_blank"><img src="https://raw.githubusercontent.com/021-projects/laravel-wallet/master/docs/public/code-hero.png" width="470" alt="Laravel Wallet Code Example"></a></p>
 
 [![Tests](https://github.com/021-projects/laravel-wallet/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/021-projects/laravel-wallet/actions/workflows/tests.yml)
 <a href="https://packagist.org/packages/021/laravel-wallet"><img src="https://img.shields.io/packagist/dt/021/laravel-wallet" alt="Total Downloads"></a>
