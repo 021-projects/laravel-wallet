@@ -1,9 +1,9 @@
 <?php
 
-namespace Database\Factories;
+namespace Workbench\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use O21\LaravelWallet\Tests\Models\User;
+use Workbench\App\Models\User;
 
 class UserFactory extends Factory
 {

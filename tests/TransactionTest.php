@@ -1,20 +1,17 @@
 <?php
 
-namespace O21\LaravelWallet\Tests\Feature;
+namespace O21\LaravelWallet\Tests;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Exception\FromOrOverchargeRequired;
 use O21\LaravelWallet\Exception\InsufficientFundsException;
-use O21\LaravelWallet\Tests\Feature\Concerns\BalanceTest;
-use O21\LaravelWallet\Tests\TestCase;
+use O21\LaravelWallet\Tests\Concerns\BalanceSeed;
 
-class TransactionCase extends TestCase
+class TransactionTest extends TestCase
 {
-    use RefreshDatabase;
+    use BalanceSeed;
     use WithFaker;
-    use BalanceTest;
 
     public function test_deposit(): void
     {
@@ -400,7 +397,7 @@ class TransactionCase extends TestCase
     public function test_transaction_status_accounting_merge(): void
     {
         TransactionStatus::accounting([
-            'something'
+            'something',
         ], true);
 
         $this->assertContains('something', TransactionStatus::accounting());
@@ -409,7 +406,7 @@ class TransactionCase extends TestCase
     public function test_transaction_status_known_merge(): void
     {
         TransactionStatus::known([
-            'something'
+            'something',
         ], true);
 
         $this->assertContains('something', TransactionStatus::known());

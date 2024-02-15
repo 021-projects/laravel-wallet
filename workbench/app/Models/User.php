@@ -1,19 +1,19 @@
 <?php
 
-namespace O21\LaravelWallet\Tests\Models;
+namespace Workbench\App\Models;
 
-use Database\Factories\UserFactory;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use O21\LaravelWallet\Contracts\Payable;
 use O21\LaravelWallet\Models\Concerns\HasBalance;
+use Workbench\Database\Factories\UserFactory;
 
 class User extends Model implements Payable
 {
-    use HasFactory;
-    use HasBalance;
     use Authenticatable;
+    use HasBalance;
+    use HasFactory;
 
     protected $fillable = ['name'];
 

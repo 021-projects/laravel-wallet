@@ -1,12 +1,11 @@
 <?php
 
-namespace O21\LaravelWallet\Tests\Feature;
+namespace O21\LaravelWallet\Tests;
 
-use O21\LaravelWallet\Tests\TestCase;
-
-class NumericCase extends TestCase
+class NumericTest extends TestCase
 {
     private const DIGITS_18 = 0.000000000000000001;
+
     private const DIGITS_8 = 0.00000025;
 
     public function test_digits_18(): void

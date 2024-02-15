@@ -1,31 +1,28 @@
 <?php
 
-namespace O21\LaravelWallet\Tests\Feature;
+namespace O21\LaravelWallet\Tests;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use O21\LaravelWallet\Contracts\BalanceState as BalanceStateContract;
 use O21\LaravelWallet\Contracts\Transaction;
 use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Models\BalanceState;
-use O21\LaravelWallet\Tests\Feature\Concerns\BalanceTest;
-use O21\LaravelWallet\Tests\Models\User;
-use O21\LaravelWallet\Tests\TestCase;
+use O21\LaravelWallet\Tests\Concerns\BalanceSeed;
+use Workbench\App\Models\User;
 
-class BalanceStateCase extends TestCase
+class BalanceStateTest extends TestCase
 {
-    use RefreshDatabase;
+    use BalanceSeed;
     use WithFaker;
-    use BalanceTest;
 
     public function test_logging(): void
     {
         config([
-            'wallet.balance.log_states' => true
+            'wallet.balance.log_states' => true,
         ]);
 
         [$user, $currency, $balance] = $this->createBalance();
-        [$user2,] = $this->createBalance();
+        [$user2] = $this->createBalance();
 
         $transfers = [];
         $transferSum = 0;
@@ -54,8 +51,8 @@ class BalanceStateCase extends TestCase
             $this->assertTrue($tx->fromState->tx->is($tx));
             $this->assertTrue($tx->toState->tx->is($tx));
 
-            $this->assertEquals((string)-$transferSum, (string)$tx->fromState->value);
-            $this->assertEquals((string)$transferSum, (string)$tx->toState->value);
+            $this->assertEquals((string) -$transferSum, (string) $tx->fromState->value);
+            $this->assertEquals((string) $transferSum, (string) $tx->toState->value);
         }
 
         $stateModel = app(BalanceStateContract::class);
@@ -65,7 +62,7 @@ class BalanceStateCase extends TestCase
     public function test_logging_without_tx(): void
     {
         config([
-            'wallet.balance.log_states' => false
+            'wallet.balance.log_states' => false,
         ]);
 
         [$user, $currency, $balance] = $this->createBalance();
@@ -85,7 +82,7 @@ class BalanceStateCase extends TestCase
     public function test_log_recreate_on_tx_status_changed(): void
     {
         config([
-            'wallet.balance.log_states' => true
+            'wallet.balance.log_states' => true,
         ]);
 
         [$user, $currency, $balance] = $this->createBalance();
@@ -96,8 +93,8 @@ class BalanceStateCase extends TestCase
         $this->assertNotNull($tx);
         $this->assertNotNull($tx->fromState);
         $this->assertNotNull($tx->toState);
-        $this->assertEquals('-100', (string)$tx->fromState->value);
-        $this->assertEquals('100', (string)$tx->toState->value);
+        $this->assertEquals('-100', (string) $tx->fromState->value);
+        $this->assertEquals('100', (string) $tx->toState->value);
         $this->assertTrue($tx->hasStatus(TransactionStatus::SUCCESS));
 
         $tx->updateStatus(TransactionStatus::FAILED);
@@ -106,14 +103,14 @@ class BalanceStateCase extends TestCase
         $this->assertTrue($tx->hasStatus(TransactionStatus::FAILED));
         $this->assertNotNull($tx->fromState);
         $this->assertNotNull($tx->toState);
-        $this->assertEquals('0', (string)$tx->fromState->value);
-        $this->assertEquals('0', (string)$tx->toState->value);
+        $this->assertEquals('0', (string) $tx->fromState->value);
+        $this->assertEquals('0', (string) $tx->toState->value);
     }
 
     public function test_logging_disabled(): void
     {
         config([
-            'wallet.balance.log_states' => false
+            'wallet.balance.log_states' => false,
         ]);
 
         [$user, $currency] = $this->createBalance();
@@ -132,7 +129,7 @@ class BalanceStateCase extends TestCase
     public function test_model_not_specified_in_config(): void
     {
         config([
-            'wallet.balance.log_states'  => true,
+            'wallet.balance.log_states' => true,
         ]);
 
         config()->offsetUnset('wallet.models.balance_state');
@@ -155,7 +152,7 @@ class BalanceStateCase extends TestCase
     public function test_rebuild_states_command(): void
     {
         config([
-            'wallet.balance.log_states' => false
+            'wallet.balance.log_states' => false,
         ]);
 
         [$user, $currency] = $this->createBalance();
@@ -187,8 +184,8 @@ class BalanceStateCase extends TestCase
             $this->assertInstanceOf(BalanceStateContract::class, $tx->fromState);
             $this->assertInstanceOf(BalanceStateContract::class, $tx->toState);
 
-            $this->assertEquals((string)-$transferSum, (string)$tx->fromState->value);
-            $this->assertEquals((string)$transferSum, (string)$tx->toState->value);
+            $this->assertEquals((string) -$transferSum, (string) $tx->fromState->value);
+            $this->assertEquals((string) $transferSum, (string) $tx->toState->value);
         }
 
         $this->assertEquals($expectedStatesCount, $stateModel::count());
@@ -197,7 +194,7 @@ class BalanceStateCase extends TestCase
     public function test_state_not_deleted_when_balance_deleted(): void
     {
         config([
-            'wallet.balance.log_states' => true
+            'wallet.balance.log_states' => true,
         ]);
 
         [$user, $currency] = $this->createBalance();
@@ -219,7 +216,7 @@ class BalanceStateCase extends TestCase
     public function test_states_deleted_when_tx_deleted(): void
     {
         config([
-            'wallet.balance.log_states' => true
+            'wallet.balance.log_states' => true,
         ]);
 
         [$user, $currency] = $this->createBalance();

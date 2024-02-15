@@ -1,25 +1,25 @@
 <?php
 
-namespace O21\LaravelWallet\Tests\Feature;
+namespace O21\LaravelWallet\Tests;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Numeric;
-use O21\LaravelWallet\Tests\Feature\Concerns\BalanceTest;
-use O21\LaravelWallet\Tests\TestCase;
+use O21\LaravelWallet\Tests\Concerns\BalanceSeed;
 
-class BalanceCase extends TestCase
+class BalanceTest extends TestCase
 {
     private const SMALL_VALUE = 0.00000001;
+
     private const SMALL_VALUE_STR = '0.00000001';
+
     private const SMALLEST_VALUE = 0.0000000001;
+
     private const SMALLEST_VALUE_STR = '0.0000000001';
 
-    use RefreshDatabase;
+    use BalanceSeed;
     use WithFaker;
-    use BalanceTest;
 
     public function test_creation(): void
     {
@@ -87,7 +87,7 @@ class BalanceCase extends TestCase
             'wallet.balance.extra_values' => [
                 'pending' => true,
                 'on_hold' => true,
-            ]
+            ],
         ]);
 
         /** @var \O21\LaravelWallet\Contracts\Balance $balance */
@@ -129,7 +129,7 @@ class BalanceCase extends TestCase
             'wallet.balance.extra_values' => [
                 'pending' => false,
                 'on_hold' => false,
-            ]
+            ],
         ]);
 
         /** @var \O21\LaravelWallet\Contracts\Balance $balance */

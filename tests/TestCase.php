@@ -2,33 +2,39 @@
 
 namespace O21\LaravelWallet\Tests;
 
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use O21\LaravelWallet\ServiceProvider;
+use Orchestra\Testbench\TestCase as BaseTestCase;
+
+use function Orchestra\Testbench\workbench_path;
 
 abstract class TestCase extends BaseTestCase
 {
-    use CreatesApplication;
+    use RefreshDatabase;
 
-    protected function setUp(): void
+    protected function defineDatabaseMigrations()
     {
-        parent::setUp();
-
-        $this->setUpDatabase();
+        $this->loadMigrationsFrom(workbench_path('database/migrations'));
+        $this->loadPackageMigrations();
     }
 
-    protected function setUpDatabase(): void
+    protected function loadPackageMigrations()
     {
-        $this->app['db']->connection()->getSchemaBuilder()->create('users', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('name');
-        });
+        $path = realpath(__DIR__.'/../database/migrations');
+        $migrationFiles = scandir($path);
+        foreach ($migrationFiles as $migrationFile) {
+            if (in_array($migrationFile, ['.', '..'])) {
+                continue;
+            }
+            $migration = require $path.'/'.$migrationFile;
+            $migration->up();
+        }
+    }
 
-        include_once __DIR__.'/../database/migrations/create_balances_table.php.stub';
-        include_once __DIR__.'/../database/migrations/create_balance_states_table.php.stub';
-        include_once __DIR__.'/../database/migrations/create_transactions_table.php.stub';
-
-        (new \CreateBalancesTable())->up();
-        (new \CreateBalanceStatesTable())->up();
-        (new \CreateTransactionsTable())->up();
+    protected function getPackageProviders($app)
+    {
+        return [
+            ServiceProvider::class,
+        ];
     }
 }

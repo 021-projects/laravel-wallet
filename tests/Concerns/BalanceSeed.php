@@ -1,11 +1,11 @@
 <?php
 
-namespace O21\LaravelWallet\Tests\Feature\Concerns;
+namespace O21\LaravelWallet\Tests\Concerns;
 
 use Illuminate\Database\Eloquent\Model;
-use O21\LaravelWallet\Tests\Models\User;
+use Workbench\App\Models\User;
 
-trait BalanceTest
+trait BalanceSeed
 {
     protected function createBalance(): array
     {
