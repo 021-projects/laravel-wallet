@@ -24,9 +24,9 @@ export default defineConfig({
         text: 'Introduction',
         items: [
           { text: 'Getting Started', link: '/getting-started' },
-          { text: 'Reliability', link: '/reliability' },
-          { text: 'Configuration', link: '/configuration' },
           { text: 'Basic Usage', link: '/basic-usage' },
+          { text: 'Configuration', link: '/configuration' },
+          { text: 'Reliability', link: '/reliability' },
         ],
         collapsed: false
       },
