@@ -8,3 +8,5 @@ tests/temp
 .php-cs-fixer.cache
 docs/.vitepress/dist
 docs/.vitepress/cache
+package-lock.json
+node_modules
