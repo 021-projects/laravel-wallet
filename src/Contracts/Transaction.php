@@ -15,16 +15,19 @@ interface Transaction
     public function toApi(): array;
 
     public function hasStatus(string $status): bool;
+
     public function updateStatus(string $status): bool;
 
-    public function getMeta(string $key = null, $default = null);
+    public function getMeta(?string $key = null, $default = null);
+
     public function setMeta(
         array|string $key,
-        float|array|int|string $value = null
+        float|array|int|string|null $value = null
     ): void;
+
     public function updateMeta(
         array|string $key,
-        float|array|int|string $value = null
+        float|array|int|string|null $value = null
     ): bool;
 
     /**

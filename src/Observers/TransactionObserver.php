@@ -61,6 +61,7 @@ class TransactionObserver
         // TODO: add recalculateBalances method to Transaction interface in next major release
         if (method_exists($tx, 'recalculateBalances')) {
             $tx->recalculateBalances();
+
             return;
         }
 

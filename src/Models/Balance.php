@@ -5,7 +5,6 @@ namespace O21\LaravelWallet\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use O21\LaravelWallet\Casts\TrimZero;
 use O21\LaravelWallet\Contracts\Balance as BalanceContract;
@@ -21,33 +20,33 @@ use O21\LaravelWallet\Contracts\Transaction;
  * @property string $value_pending
  * @property string $value_on_hold
  * @property string $currency
- * @property-read Model|\Eloquent|\O21\LaravelWallet\Contracts\Payable $payable
+ * @property-read \Illuminate\Database\Eloquent\Model|\O21\LaravelWallet\Contracts\Payable $payable
  * @property-read \O21\LaravelWallet\Numeric $sent
  * @property-read \O21\LaravelWallet\Numeric $received
- * @method static Builder|Balance newModelQuery()
- * @method static Builder|Balance newQuery()
- * @method static Builder|Balance query()
- * @method static Builder|Balance whereCurrency($value)
- * @method static Builder|Balance whereId($value)
- * @method static Builder|Balance wherePayableId($value)
- * @method static Builder|Balance wherePayableType($value)
- * @method static Builder|Balance whereValue($value)
- * @method static Builder|Balance whereValueOnHold($value)
- * @method static Builder|Balance whereValuePending($value)
- * @mixin \Eloquent
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|Balance newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Balance newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Balance query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Balance whereCurrency($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Balance whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Balance wherePayableId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Balance wherePayableType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Balance whereValue($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Balance whereValueOnHold($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Balance whereValuePending($value)
  */
 class Balance extends Model implements BalanceContract
 {
     public $timestamps = false;
 
     protected $casts = [
-        'value'         => TrimZero::class,
+        'value' => TrimZero::class,
         'value_pending' => TrimZero::class,
         'value_on_hold' => TrimZero::class,
     ];
 
     protected $attributes = [
-        'value'         => 0,
+        'value' => 0,
         'value_pending' => 0,
         'value_on_hold' => 0,
     ];
@@ -87,7 +86,7 @@ class Balance extends Model implements BalanceContract
 
     public function logState(?Transaction $tx = null): void
     {
-        $value = (string)$this->value;
+        $value = (string) $this->value;
 
         if ($tx) {
             // log state before transaction
@@ -106,8 +105,8 @@ class Balance extends Model implements BalanceContract
 
         $this->payable?->balanceStates()->create([
             'transaction_id' => $tx?->id,
-            'value'          => $value,
-            'currency'       => $this->currency,
+            'value' => $value,
+            'currency' => $this->currency,
         ]);
     }
 
@@ -139,22 +138,22 @@ class Balance extends Model implements BalanceContract
     public function sent(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => num($this->transactions()->accountable()->from($this->payable)->sum('amount'))
+            get: fn ($value) => num($this->transactions()->accountable()->from($this->payable)->sum('amount'))
         )->withoutObjectCaching();
     }
 
     public function received(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => num($this->transactions()->accountable()->to($this->payable)->sum('received'))
+            get: fn ($value) => num($this->transactions()->accountable()->to($this->payable)->sum('received'))
         )->withoutObjectCaching();
     }
 
     public function value(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => num($value),
-            set: fn($value) => num($value)->get()
+            get: fn ($value) => num($value),
+            set: fn ($value) => num($value)->get()
         )->withoutObjectCaching();
     }
 
@@ -166,6 +165,7 @@ class Balance extends Model implements BalanceContract
     public function transactions(): Builder
     {
         $transactionClass = app(Transaction::class);
+
         return $transactionClass::where(function (Builder $query) {
             $query->where(function (Builder $query) {
                 $query->where('from_type', $this->payable_type)

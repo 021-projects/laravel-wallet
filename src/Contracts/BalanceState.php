@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
  * O21\LaravelWallet\Contracts\BalanceState
+ *
  * @property int $id
  * @property int $balance_id
  * @property int|null $transaction_id
@@ -18,5 +19,6 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 interface BalanceState
 {
     public function payable(): MorphTo;
+
     public function tx(): BelongsTo;
 }

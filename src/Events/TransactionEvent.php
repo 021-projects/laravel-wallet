@@ -13,5 +13,6 @@ abstract class TransactionEvent
      */
     public function __construct(
         public Transaction $transaction
-    ) { }
+    ) {
+    }
 }

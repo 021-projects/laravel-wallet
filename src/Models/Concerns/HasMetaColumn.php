@@ -6,7 +6,7 @@ use Illuminate\Support\Arr;
 
 trait HasMetaColumn
 {
-    public function getMeta(string $key = null, $default = null)
+    public function getMeta(?string $key = null, $default = null)
     {
         if (is_null($key)) {
             return $this->meta;
@@ -17,7 +17,7 @@ trait HasMetaColumn
 
     public function setMeta(
         array|string $key,
-        float|array|int|string $value = null
+        float|array|int|string|null $value = null
     ): void {
         $meta = $this->meta;
 
@@ -34,7 +34,7 @@ trait HasMetaColumn
 
     public function updateMeta(
         array|string $key,
-        float|array|int|string $value = null
+        float|array|int|string|null $value = null
     ): bool {
         $this->setMeta($key, $value);
 

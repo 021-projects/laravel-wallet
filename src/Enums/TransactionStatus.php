@@ -5,11 +5,17 @@ namespace O21\LaravelWallet\Enums;
 class TransactionStatus
 {
     public const PENDING = 'pending';
+
     public const SUCCESS = 'success';
+
     public const ON_HOLD = 'on_hold';
+
     public const CANCELED = 'canceled';
+
     public const FAILED = 'failed';
+
     public const REFUNDED = 'refunded';
+
     public const EXPIRED = 'expired';
 
     private static array $accounting = [];
@@ -32,10 +38,12 @@ class TransactionStatus
 
         if ($merge) {
             self::$known = array_merge(self::$known, $statuses);
+
             return self::$known;
         }
 
         self::$known = $statuses;
+
         return self::$known;
     }
 
@@ -47,10 +55,12 @@ class TransactionStatus
 
         if ($merge) {
             self::$accounting = array_merge(self::$accounting, $statuses);
+
             return self::$accounting;
         }
 
         self::$accounting = $statuses;
+
         return self::$accounting;
     }
 }

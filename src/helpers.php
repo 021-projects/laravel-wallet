@@ -6,10 +6,6 @@ use O21\LaravelWallet\Numeric;
 if (! function_exists('num')) {
     /**
      * Create a new Numeric instance for safe calculations
-     *
-     * @param  string|float|int|\O21\LaravelWallet\Numeric  $value
-     * @param  int  $scale
-     * @return \O21\LaravelWallet\Numeric
      */
     function num(string|float|int|Numeric $value, ?int $scale = null): Numeric
     {
@@ -39,9 +35,6 @@ if (! function_exists('tx')) {
 if (! function_exists('transaction')) {
     /**
      * @deprecated Use tx() instead
-     * @param  string|float|int|\O21\LaravelWallet\Numeric|null  $amount
-     * @param  string|null  $currency
-     * @return \O21\LaravelWallet\Contracts\TransactionCreator
      */
     function transaction(
         string|float|int|Numeric|null $amount = null,

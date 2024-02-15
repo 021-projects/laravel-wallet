@@ -44,7 +44,7 @@ class BalancesCommand extends Command
         $progress->start();
 
         $balanceClass::chunk(100, static function ($balances) use ($progress) {
-            $balances->each(function(Balance $balance) use ($progress) {
+            $balances->each(function (Balance $balance) use ($progress) {
                 $balance->recalculate();
                 $progress->advance();
             });

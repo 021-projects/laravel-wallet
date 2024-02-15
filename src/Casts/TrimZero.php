@@ -7,6 +7,7 @@ use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 class TrimZero implements CastsAttributes
 {
     private const WITHOUT_DIGITS_REGEX = '#\.0*$#';
+
     private const HAS_DIGITS_REGEX = '#(\..*?)(0*$)#';
 
     /**

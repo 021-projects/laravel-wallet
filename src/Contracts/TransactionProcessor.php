@@ -4,7 +4,6 @@ namespace O21\LaravelWallet\Contracts;
 
 /**
  * Interface TransactionProcessor
- * @package O21\LaravelWallet\Contracts
  *
  * @method void statusChanged(string $status, string $oldStatus) Called in jobs by TransactionStatusChanged event
  * @method void creating() Called before transaction is created
@@ -13,7 +12,6 @@ namespace O21\LaravelWallet\Contracts;
  * @method void updated() Called in jobs by TransactionUpdated event
  * @method void deleting() Called before transaction is deleted
  * @method void deleted() Called in jobs by TransactionDeleted event
- *
  */
 interface TransactionProcessor
 {
@@ -21,9 +19,6 @@ interface TransactionProcessor
 
     /**
      * Method for preparing metadata
-     *
-     * @param  array  $meta
-     * @return array
      */
     public function prepareMeta(array $meta): array;
 }

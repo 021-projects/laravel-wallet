@@ -44,7 +44,7 @@ class TxBalanceStatesCommand extends Command
         $progress->start();
 
         $txModel::chunk(100, function ($txs) use ($progress) {
-            $txs->each(function(Transaction $tx) use ($progress) {
+            $txs->each(function (Transaction $tx) use ($progress) {
                 $this->rebuildStates($tx);
                 $progress->advance();
             });

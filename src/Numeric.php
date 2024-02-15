@@ -17,7 +17,7 @@ class Numeric
     ) {
         $scale ??= config('wallet.balance.max_scale') ?? 8;
         $this->_dirtyValue = $value instanceof self
-            ? (string)$value
+            ? (string) $value
             : $this->format(
                 decimals: $scale,
                 value: $value
@@ -53,58 +53,61 @@ class Numeric
 
     public function add(string|float|int|Numeric $value): self
     {
-        $this->_dirtyValue = bcadd((string)$this, (string)(new self($value)), $this->_scale);
+        $this->_dirtyValue = bcadd((string) $this, (string) (new self($value)), $this->_scale);
+
         return $this;
     }
 
     public function sub(string|float|int|Numeric $value): self
     {
-        $this->_dirtyValue = bcsub((string)$this, (string)(new self($value)), $this->_scale);
+        $this->_dirtyValue = bcsub((string) $this, (string) (new self($value)), $this->_scale);
+
         return $this;
     }
 
     public function mul(string|float|int|Numeric $value): self
     {
-        $this->_dirtyValue = bcmul((string)$this, (string)(new self($value)), $this->_scale);
+        $this->_dirtyValue = bcmul((string) $this, (string) (new self($value)), $this->_scale);
+
         return $this;
     }
 
     public function div(string|float|int|Numeric $value): self
     {
-        $this->_dirtyValue = bcdiv((string)$this, (string)(new self($value)), $this->_scale);
+        $this->_dirtyValue = bcdiv((string) $this, (string) (new self($value)), $this->_scale);
+
         return $this;
     }
 
     public function equals(string|float|int|Numeric $value): bool
     {
-        return bccomp((string)$this, (string)(new self($value)), $this->_scale) === 0;
+        return bccomp((string) $this, (string) (new self($value)), $this->_scale) === 0;
     }
 
     public function greaterThan(string|float|int|Numeric $value): bool
     {
-        return bccomp((string)$this, (string)(new self($value)), $this->_scale) === 1;
+        return bccomp((string) $this, (string) (new self($value)), $this->_scale) === 1;
     }
 
     public function lessThan(string|float|int|Numeric $value): bool
     {
-        return bccomp((string)$this, (string)(new self($value)), $this->_scale) === -1;
+        return bccomp((string) $this, (string) (new self($value)), $this->_scale) === -1;
     }
 
     public function greaterThanOrEqual(string|float|int|Numeric $value): bool
     {
-        return bccomp((string)$this, (string)(new self($value)), $this->_scale) >= 0;
+        return bccomp((string) $this, (string) (new self($value)), $this->_scale) >= 0;
     }
 
     public function lessThanOrEqual(string|float|int|Numeric $value): bool
     {
-        return bccomp((string)$this, (string)(new self($value)), $this->_scale) <= 0;
+        return bccomp((string) $this, (string) (new self($value)), $this->_scale) <= 0;
     }
 
     /**
      * Get the minimum value of the given values
      *
      * @param  string|float|int|Numeric[]  ...$values
-     * @return \O21\LaravelWallet\Numeric
      */
     public function min(...$values): Numeric
     {
@@ -114,6 +117,7 @@ class Numeric
                 $min = $value;
             }
         }
+
         return new self($min);
     }
 
@@ -121,7 +125,6 @@ class Numeric
      * Get the maximum value of the given values
      *
      * @param  string|float|int|Numeric[]  ...$values
-     * @return \O21\LaravelWallet\Numeric
      */
     public function max(...$values): Numeric
     {
@@ -131,6 +134,7 @@ class Numeric
                 $max = $value;
             }
         }
+
         return new self($max);
     }
 
@@ -141,8 +145,9 @@ class Numeric
         mixed $value = null
     ): string {
         $value ??= $this->_dirtyValue;
+
         return number_format(
-            (float)$value,
+            (float) $value,
             $decimals,
             $decimalSeparator,
             $thousandsSeparator
@@ -159,6 +164,7 @@ class Numeric
     public function scale(int $scale): self
     {
         $this->_scale = $scale;
+
         return $this;
     }
 }

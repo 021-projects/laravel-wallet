@@ -40,7 +40,7 @@ class TransactionEventsSubscriber
         $tx = $event->transaction;
         $this->callProcessorMethodIfExist($tx, 'statusChanged', [
             $tx->status,
-            $event->oldStatus
+            $event->oldStatus,
         ]);
 
         if (config('wallet.balance.log_states')

@@ -2,9 +2,9 @@
 
 namespace O21\LaravelWallet;
 
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider as Provider;
-use Illuminate\Filesystem\Filesystem;
 use O21\LaravelWallet\Commands\Make\TransactionProcessorCommand;
 use O21\LaravelWallet\Commands\Rebuild\BalancesCommand;
 use O21\LaravelWallet\Commands\Rebuild\TxBalanceStatesCommand;
@@ -24,8 +24,6 @@ class ServiceProvider extends Provider
 {
     /**
      * Bootstrap any application services.
-     *
-     * @return void
      */
     public function boot(): void
     {
@@ -105,8 +103,6 @@ class ServiceProvider extends Provider
 
     /**
      * Returns existing migration file if found, else uses the current timestamp.
-     *
-     * @return string
      */
     protected function getMigrationFileName($migrationFileName, int $order = 0): string
     {

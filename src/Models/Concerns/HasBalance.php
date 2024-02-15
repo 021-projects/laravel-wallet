@@ -18,8 +18,8 @@ trait HasBalance
         if (! isset($this->_balances[$currency])) {
             $attributes = [
                 'payable_type' => $this->getMorphClass(),
-                'payable_id'   => $this->getKey(),
-                'currency'     => $currency
+                'payable_id' => $this->getKey(),
+                'currency' => $currency,
             ];
 
             $balanceClass = app(Balance::class);

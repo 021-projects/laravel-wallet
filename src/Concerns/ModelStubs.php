@@ -9,6 +9,7 @@ trait ModelStubs
     protected function findTransaction(int $transactionId): ?Transaction
     {
         $modelClass = config('wallet.models.transaction');
+
         return $modelClass::find($transactionId);
     }
 }
