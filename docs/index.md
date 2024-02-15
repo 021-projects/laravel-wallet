@@ -11,6 +11,9 @@ hero:
     - theme: brand
       text: Get Started
       link: /getting-started
+    - theme: alt
+      text: Star on GitHub ⭐
+      link: https://github.com/021-projects/laravel-wallet
 features:
 - icon: 🔒
   title: Reliability
