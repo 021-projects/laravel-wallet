@@ -411,4 +411,32 @@ class TransactionTest extends TestCase
 
         $this->assertContains('something', TransactionStatus::known());
     }
+
+    public function test_balance_refresh_after_currency_change(): void
+    {
+        [$user, $currency, $balance] = $this->createBalance();
+        $newCurrency = $this->faker->currencyCode();
+
+        $transaction = deposit(100, $currency)
+            ->to($user)
+            ->overcharge()
+            ->commit();
+
+        $this->assertBalanceRefreshEquals(
+            $balance,
+            100
+        );
+
+        $transaction->currency = $newCurrency;
+        $transaction->save();
+
+        $this->assertBalanceRefreshEquals(
+            $balance,
+            0
+        );
+        $this->assertEquals(
+            100,
+            $user->balance($newCurrency)->value->get()
+        );
+    }
 }

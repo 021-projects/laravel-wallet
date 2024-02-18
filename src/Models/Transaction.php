@@ -118,6 +118,12 @@ class Transaction extends Model implements TransactionContract
 
     public function recalculateBalances(): void
     {
+        if ($this->wasChanged('currency')) {
+            $oldCurrency = $this->getOriginal('currency');
+            $this->from?->balance($oldCurrency)?->recalculate();
+            $this->to?->balance($oldCurrency)?->recalculate();
+        }
+
         $this->from?->balance($this->currency)?->recalculate();
         $this->to?->balance($this->currency)?->recalculate();
     }

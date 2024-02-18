@@ -65,6 +65,12 @@ class TransactionObserver
             return;
         }
 
+        if ($tx->wasChanged('currency')) {
+            $oldCurrency = $tx->getOriginal('currency');
+            $tx->from?->balance($oldCurrency)?->recalculate();
+            $tx->to?->balance($oldCurrency)?->recalculate();
+        }
+
         $tx->from?->balance($tx->currency)?->recalculate();
         $tx->to?->balance($tx->currency)?->recalculate();
     }
