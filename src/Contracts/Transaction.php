@@ -30,6 +30,8 @@ interface Transaction
         float|array|int|string|null $value = null
     ): bool;
 
+    public function recalculateBalances(): void;
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo<\O21\LaravelWallet\Contracts\Payable>
      */

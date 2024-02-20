@@ -16,7 +16,7 @@ class TransactionObserver
 
     public function saved(Transaction $tx): void
     {
-        $this->recalculateBalances($tx);
+        $tx->recalculateBalances();
     }
 
     public function creating(Transaction $tx): void
@@ -57,28 +57,8 @@ class TransactionObserver
 
     public function deleted(Transaction $tx): void
     {
-        $this->recalculateBalances($tx);
+        $tx->recalculateBalances();
 
         event(new TransactionDeleted($tx));
-    }
-
-    protected function recalculateBalances(Transaction $tx): void
-    {
-        // backward compatibility
-        // TODO: add recalculateBalances method to Transaction interface in next major release
-        if (method_exists($tx, 'recalculateBalances')) {
-            $tx->recalculateBalances();
-
-            return;
-        }
-
-        if ($tx->wasChanged('currency')) {
-            $oldCurrency = $tx->getOriginal('currency');
-            $tx->from?->balance($oldCurrency)?->recalculate();
-            $tx->to?->balance($oldCurrency)?->recalculate();
-        }
-
-        $tx->from?->balance($tx->currency)?->recalculate();
-        $tx->to?->balance($tx->currency)?->recalculate();
     }
 }
