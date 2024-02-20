@@ -32,6 +32,12 @@ class TransactionObserver
     public function updating(Transaction $tx): void
     {
         $this->callProcessorMethodIfExist($tx, 'updating');
+
+        if ($tx->isDirty('amount')) {
+            /** @var \O21\LaravelWallet\Transaction\Preparer $preparer */
+            $preparer = app(TransactionPreparer::class);
+            $preparer->prepare($tx);
+        }
     }
 
     public function updated(Transaction $tx): void
@@ -39,12 +45,6 @@ class TransactionObserver
         if ($tx->wasChanged('status')) {
             $originalStatus = $tx->getOriginal('status');
             event(new TransactionStatusChanged($tx, $originalStatus));
-        }
-
-        if ($tx->wasChanged('amount')) {
-            /** @var \O21\LaravelWallet\Transaction\Preparer $preparer */
-            $preparer = app(TransactionPreparer::class);
-            $preparer->prepare($tx);
         }
 
         event(new TransactionUpdated($tx));

@@ -460,7 +460,7 @@ class TransactionTest extends TestCase
 
         $this->assertEquals(
             40,
-            $tx->received
+            $tx->fresh()->received
         );
     }
 }
