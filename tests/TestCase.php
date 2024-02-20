@@ -26,6 +26,7 @@ abstract class TestCase extends BaseTestCase
         usort($migrationFiles, function ($a, $b) use ($path) {
             $aPath = $path.'/'.$a;
             $bPath = $path.'/'.$b;
+
             return filemtime($aPath) > filemtime($bPath);
         });
 
