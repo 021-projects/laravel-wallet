@@ -3,6 +3,7 @@
 namespace O21\LaravelWallet\Observers;
 
 use O21\LaravelWallet\Contracts\Transaction;
+use O21\LaravelWallet\Contracts\TransactionPreparer;
 use O21\LaravelWallet\Events\TransactionCreated;
 use O21\LaravelWallet\Events\TransactionDeleted;
 use O21\LaravelWallet\Events\TransactionStatusChanged;
@@ -38,6 +39,12 @@ class TransactionObserver
         if ($tx->wasChanged('status')) {
             $originalStatus = $tx->getOriginal('status');
             event(new TransactionStatusChanged($tx, $originalStatus));
+        }
+
+        if ($tx->wasChanged('amount')) {
+            /** @var \O21\LaravelWallet\Transaction\Preparer $preparer */
+            $preparer = app(TransactionPreparer::class);
+            $preparer->prepare($tx);
         }
 
         event(new TransactionUpdated($tx));

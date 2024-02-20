@@ -439,4 +439,28 @@ class TransactionTest extends TestCase
             $user->balance($newCurrency)->value->get()
         );
     }
+
+    public function test_received_changed_when_amount_changed(): void
+    {
+        [$user, $currency, $balance] = $this->createBalance();
+
+        $tx = deposit(100, $currency)
+            ->commission(10)
+            ->to($user)
+            ->overcharge()
+            ->commit();
+
+        $this->assertEquals(
+            90,
+            $tx->received
+        );
+
+        $tx->amount = 50;
+        $tx->save();
+
+        $this->assertEquals(
+            40,
+            $tx->received
+        );
+    }
 }
