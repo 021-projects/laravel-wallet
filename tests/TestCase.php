@@ -21,11 +21,15 @@ abstract class TestCase extends BaseTestCase
     protected function loadPackageMigrations()
     {
         $path = realpath(__DIR__.'/../database/migrations');
-        $migrationFiles = scandir($path);
+        $migrationFiles = array_filter(scandir($path), fn ($fPath) => ! in_array($fPath, ['.', '..']));
+        // order files by date
+        usort($migrationFiles, function ($a, $b) use ($path) {
+            $aPath = $path.'/'.$a;
+            $bPath = $path.'/'.$b;
+            return filemtime($aPath) > filemtime($bPath);
+        });
+
         foreach ($migrationFiles as $migrationFile) {
-            if (in_array($migrationFile, ['.', '..'])) {
-                continue;
-            }
             $migration = require $path.'/'.$migrationFile;
             $migration->up();
         }
