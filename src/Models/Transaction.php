@@ -30,6 +30,7 @@ use O21\LaravelWallet\Models\Concerns\HasMetaColumn;
  * @property string $processor_id
  * @property array|null $meta
  * @property bool $archived
+ * @property bool $hidden
  * @property \Illuminate\Support\Carbon|null $created_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction newModelQuery()
@@ -63,6 +64,7 @@ use O21\LaravelWallet\Models\Concerns\HasMetaColumn;
  * @property int|null $to_id
  *
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction accountable(bool $accountable)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transaction skipHidden()
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereFromId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereFromType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereToId($value)
@@ -84,6 +86,7 @@ class Transaction extends Model implements TransactionContract
         'commission' => TrimZero::class,
         'meta' => 'array',
         'archived' => 'boolean',
+        'hidden' => 'boolean',
     ];
 
     protected $attributes = [
@@ -244,5 +247,10 @@ class Transaction extends Model implements TransactionContract
         } else {
             $query->whereNotIn('status', TransactionStatus::accounting());
         }
+    }
+
+    public function scopeSkipHidden(Builder $query): void
+    {
+        $query->where('hidden', false);
     }
 }

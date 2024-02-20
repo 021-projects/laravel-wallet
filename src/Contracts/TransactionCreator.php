@@ -20,6 +20,8 @@ interface TransactionCreator
 
     public function commission(string|float|int|Numeric $commission): self;
 
+    public function hidden(): self;
+
     public function status(string $status): self;
 
     public function setDefaultStatus(): self;

@@ -33,6 +33,7 @@ return new class extends Migration
             $table->string('processor_id')->index();
             $table->json('meta')->nullable();
             $table->boolean('archived')->default(false)->index();
+            $table->boolean('hidden')->default(false)->index();
             $table->timestamp('created_at')->nullable()->index();
         });
     }
