@@ -10,6 +10,8 @@ interface TransactionCreator
 {
     public function commit(): Transaction;
 
+    public function model(): Transaction;
+
     public function amount(string|float|int|Numeric $amount): self;
 
     public function currency(string $currency): self;

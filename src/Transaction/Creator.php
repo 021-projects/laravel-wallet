@@ -68,6 +68,11 @@ class Creator implements TransactionCreator
         return $safelyTransaction->setThrow(true)->run();
     }
 
+    public function model(): Transaction
+    {
+        return $this->tx;
+    }
+
     public function amount(string|float|int|Numeric $amount): self
     {
         $this->tx->amount = num($amount)->positive();
