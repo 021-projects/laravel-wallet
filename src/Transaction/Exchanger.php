@@ -95,7 +95,7 @@ class Exchanger implements IExchanger
         if (! $this->debitTxCreator) {
             $this->debitTxCreator = tx($this->debitAmount(), $this->srcCurrency)
                 ->commission($this->srcCommission)
-                ->processor('exchange_debit')
+                ->processor($this->debitProcessor())
                 ->meta($this->getMeta())
                 ->from($payable)
                 ->overcharge($this->allowOvercharge)
@@ -110,7 +110,7 @@ class Exchanger implements IExchanger
         if (! $this->creditTxCreator) {
             $this->creditTxCreator = tx($this->creditAmount(), $this->destCurrency)
                 ->commission($this->destCommission)
-                ->processor('exchange_credit')
+                ->processor($this->creditProcessor())
                 ->meta($this->getMeta())
                 ->to($payable)
                 ->overcharge()
@@ -132,6 +132,16 @@ class Exchanger implements IExchanger
     {
         return num($this->exchangeAmount)
             ->scale(currency_scale($this->srcCurrency));
+    }
+
+    protected function creditProcessor(): string
+    {
+        return 'exchange_credit';
+    }
+
+    protected function debitProcessor(): string
+    {
+        return 'exchange_debit';
     }
 
     public function rate(float|Numeric|int|string $value): IExchanger
