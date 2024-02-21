@@ -18,6 +18,13 @@ return [
         'log_states' => false,
     ],
 
+    'currency_scaling' => [
+        'USD' => 2,
+        'EUR' => 2,
+        'BTC' => 8,
+        'ETH' => 8,
+    ],
+
     'models' => [
         'balance' => \O21\LaravelWallet\Models\Balance::class,
         'balance_state' => \O21\LaravelWallet\Models\BalanceState::class,
@@ -34,5 +41,7 @@ return [
         'deposit' => \O21\LaravelWallet\Transaction\Processors\DepositProcessor::class,
         'charge' => \O21\LaravelWallet\Transaction\Processors\ChargeProcessor::class,
         'transfer' => \O21\LaravelWallet\Transaction\Processors\TransferProcessor::class,
+        'exchange_credit' => \O21\LaravelWallet\Transaction\Processors\ExchangeCreditProcessor::class,
+        'exchange_debit' => \O21\LaravelWallet\Transaction\Processors\ExchangeDebitProcessor::class,
     ],
 ];
