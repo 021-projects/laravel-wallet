@@ -13,7 +13,7 @@ trait Eventable
         return $this;
     }
 
-    protected function trigger(string $event, ...$args): void
+    protected function fire(string $event, ...$args): void
     {
         if (! isset($this->eventListeners[$event])) {
             return;
