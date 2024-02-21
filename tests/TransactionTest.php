@@ -3,6 +3,8 @@
 namespace O21\LaravelWallet\Tests;
 
 use Illuminate\Foundation\Testing\WithFaker;
+use O21\LaravelWallet\Contracts\Transaction;
+use O21\LaravelWallet\Contracts\TransactionCreator;
 use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Exception\FromOrOverchargeRequired;
 use O21\LaravelWallet\Exception\InsufficientFundsException;
@@ -462,5 +464,34 @@ class TransactionTest extends TestCase
             40,
             $tx->fresh()->received
         );
+    }
+
+    public function test_creator_args_resolving(): void
+    {
+        [$user, $currency, $balance] = $this->createBalance();
+
+        deposit(100, $currency)
+            ->to($user)
+            ->overcharge()
+            ->before(function ($creator, $tx) {
+                $this->assertInstanceOf(TransactionCreator::class, $creator);
+                $this->assertInstanceOf(Transaction::class, $tx);
+            })
+            ->after(function ($creator, $tx) {
+                $this->assertInstanceOf(TransactionCreator::class, $creator);
+                $this->assertInstanceOf(Transaction::class, $tx);
+            })
+            ->commit();
+
+        deposit(100, $currency)
+            ->to($user)
+            ->overcharge()
+            ->before(function ($tx) {
+                $this->assertInstanceOf(Transaction::class, $tx);
+            })
+            ->after(function ($tx) {
+                $this->assertInstanceOf(Transaction::class, $tx);
+            })
+            ->commit();
     }
 }

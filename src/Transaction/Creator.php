@@ -38,7 +38,10 @@ class Creator implements TransactionCreator
 
             app(TransactionPreparer::class)->prepare($tx);
 
-            $this->fire('before', $tx);
+            $this->fire('before', [
+                'creator' => $this,
+                'tx' => $tx,
+            ]);
 
             $this->validateSender();
 
@@ -52,7 +55,10 @@ class Creator implements TransactionCreator
 
             $tx->save();
 
-            $this->fire('after', $tx);
+            $this->fire('after', [
+                'creator' => $this,
+                'tx' => $tx,
+            ]);
 
             return $tx;
         };

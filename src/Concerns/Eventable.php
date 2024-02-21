@@ -19,8 +19,10 @@ trait Eventable
             return;
         }
 
+        $parameters = count($args) === 1 && is_array($args[0]) ? $args[0] : $args;
+
         foreach ($this->eventListeners[$event] as $callback) {
-            $callback(...$args);
+            app()->call($callback, $parameters);
         }
     }
 
