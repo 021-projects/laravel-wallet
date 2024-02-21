@@ -30,9 +30,9 @@ interface TransactionCreator
 
     public function lockOnRecord(Model|Builder|bool $lockRecord): self;
 
-    public function before(callable $before): self;
+    public function before(callable $callback): self;
 
-    public function after(callable $after): self;
+    public function after(callable $callback): self;
 
     public function overcharge(bool $allow = true): self;
 }

@@ -4,6 +4,9 @@ namespace O21\LaravelWallet\Transaction;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
+use O21\LaravelWallet\Concerns\Eventable;
+use O21\LaravelWallet\Concerns\Lockable;
+use O21\LaravelWallet\Concerns\Overchargable;
 use O21\LaravelWallet\Contracts\Payable;
 use O21\LaravelWallet\Contracts\Transaction;
 use O21\LaravelWallet\Contracts\TransactionCreator;
@@ -17,25 +20,13 @@ use O21\SafelyTransaction;
 
 class Creator implements TransactionCreator
 {
-    protected Transaction $transaction;
+    use Eventable, Overchargable, Lockable;
 
-    protected Model|Builder|bool|null $lockRecord = null;
-
-    /**
-     * @var callable|null
-     */
-    protected $_before = null;
-
-    /**
-     * @var callable|null
-     */
-    protected $_after = null;
-
-    protected bool $allowOvercharge = false;
+    protected Transaction $tx;
 
     public function __construct()
     {
-        $this->transaction = app(Transaction::class);
+        $this->tx = app(Transaction::class);
 
         $this->currency(config('wallet.default_currency'));
     }
@@ -43,22 +34,17 @@ class Creator implements TransactionCreator
     public function commit(): Transaction
     {
         $create = function () {
-            $before = $this->_before;
-            $after = $this->_after;
-            $tx = $this->transaction;
+            $tx = $this->tx;
 
-            /** @var \O21\LaravelWallet\Transaction\Preparer $preparer */
-            $preparer = app(TransactionPreparer::class);
-            $preparer->prepare($tx);
+            app(TransactionPreparer::class)->prepare($tx);
 
-            if (is_callable($before)) {
-                $before($tx);
-            }
+            $this->trigger('before', $tx);
 
-            if (! $this->allowOvercharge) {
-                throw_if(! $tx->from, FromOrOverchargeRequired::class);
+            $this->assertHaveSender();
 
-                $tx->from?->assertHaveFunds(
+            if ($tx->from && ! $this->allowOvercharge) {
+                $this->assertHaveFunds(
+                    $tx->from,
                     $tx->amount,
                     $tx->currency
                 );
@@ -66,9 +52,7 @@ class Creator implements TransactionCreator
 
             $tx->save();
 
-            if (is_callable($after)) {
-                $after($tx);
-            }
+            $this->trigger('after', $tx);
 
             return $tx;
         };
@@ -80,35 +64,35 @@ class Creator implements TransactionCreator
 
     public function amount(string|float|int|Numeric $amount): self
     {
-        $this->transaction->amount = num($amount)->positive();
+        $this->tx->amount = num($amount)->positive();
 
         return $this;
     }
 
     public function currency(string $currency): self
     {
-        $this->transaction->currency = $currency;
+        $this->tx->currency = $currency;
 
         return $this;
     }
 
     public function commission(string|float|int|Numeric $commission): self
     {
-        $this->transaction->commission = num($commission)->positive();
+        $this->tx->commission = num($commission)->positive();
 
         return $this;
     }
 
     public function status(string $status): self
     {
-        $this->transaction->status = $status;
+        $this->tx->status = $status;
 
         return $this;
     }
 
     public function setDefaultStatus(): self
     {
-        if (! ($processor = $this->transaction->processor)) {
+        if (! ($processor = $this->tx->processor)) {
             return $this;
         }
 
@@ -127,7 +111,7 @@ class Creator implements TransactionCreator
     public function processor(string $processor): self
     {
         if (class_exists($processor)) {
-            $this->transaction->processor_id = array_search(
+            $this->tx->processor_id = array_search(
                 $processor,
                 config('wallet.processors'),
                 true
@@ -140,7 +124,7 @@ class Creator implements TransactionCreator
             throw new \RuntimeException('Error: unknown transaction processor');
         }
 
-        $this->transaction->setProcessor($processor);
+        $this->tx->setProcessor($processor);
 
         $this->setDefaultStatus();
 
@@ -149,35 +133,28 @@ class Creator implements TransactionCreator
 
     public function to(Payable $payable): self
     {
-        $this->transaction->to()->associate($payable);
+        $this->tx->to()->associate($payable);
 
         return $this;
     }
 
     public function from(Payable $payable): self
     {
-        $this->transaction->from()->associate($payable);
+        $this->tx->from()->associate($payable);
 
         return $this;
     }
 
     public function meta(array $meta): self
     {
-        $this->transaction->setMeta($meta);
-
-        return $this;
-    }
-
-    public function lockOnRecord(Model|Builder|bool $lockRecord): self
-    {
-        $this->lockRecord = $lockRecord;
+        $this->tx->setMeta($meta);
 
         return $this;
     }
 
     protected function getLockRecord(): Model|Builder|null
     {
-        $tx = $this->transaction;
+        $tx = $this->tx;
         $default = $tx->from?->balance($tx->currency) ?? $tx->to?->balance($tx->currency);
 
         if (is_bool($this->lockRecord)) {
@@ -187,16 +164,18 @@ class Creator implements TransactionCreator
         return $this->lockRecord ?? $default;
     }
 
-    public function before(callable $before): self
+    public function before(callable $callback): self
     {
-        $this->_before = $before;
+        $this->off('before');
+        $this->on('before', $callback);
 
         return $this;
     }
 
-    public function after(callable $after): self
+    public function after(callable $callback): self
     {
-        $this->_after = $after;
+        $this->off('after');
+        $this->on('after', $callback);
 
         return $this;
     }
@@ -206,5 +185,13 @@ class Creator implements TransactionCreator
         $this->allowOvercharge = $allow;
 
         return $this;
+    }
+
+    protected function assertHaveSender(): void
+    {
+        throw_if(
+            ! $this->tx->from && ! $this->allowOvercharge,
+            FromOrOverchargeRequired::class
+        );
     }
 }
