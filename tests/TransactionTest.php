@@ -3,7 +3,6 @@
 namespace O21\LaravelWallet\Tests;
 
 use Illuminate\Foundation\Testing\WithFaker;
-use O21\LaravelWallet\Contracts\Transaction;
 use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Exception\FromOrOverchargeRequired;
 use O21\LaravelWallet\Exception\InsufficientFundsException;
@@ -463,32 +462,5 @@ class TransactionTest extends TestCase
             40,
             $tx->fresh()->received
         );
-    }
-
-    public function test_hidden_tx_creation(): void
-    {
-        [$user, $currency, $balance] = $this->createBalance();
-
-        $tx = deposit(100, $currency)
-            ->to($user)
-            ->overcharge()
-            ->hidden()
-            ->commit();
-
-        $this->assertTrue($tx->hidden);
-    }
-
-    public function test_skip_hidden_scope(): void
-    {
-        [$user, $currency, $balance] = $this->createBalance();
-
-        $tx = deposit(100, $currency)
-            ->to($user)
-            ->overcharge()
-            ->hidden()
-            ->commit();
-
-        $this->assertEquals(1, app(Transaction::class)->count());
-        $this->assertEquals(0, app(Transaction::class)->skipHidden()->count());
     }
 }

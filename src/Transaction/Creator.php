@@ -99,13 +99,6 @@ class Creator implements TransactionCreator
         return $this;
     }
 
-    public function hidden(): self
-    {
-        $this->transaction->hidden = true;
-
-        return $this;
-    }
-
     public function status(string $status): self
     {
         $this->transaction->status = $status;
