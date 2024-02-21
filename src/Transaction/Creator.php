@@ -43,7 +43,7 @@ class Creator implements TransactionCreator
                 'tx' => $tx,
             ]);
 
-            $this->validateSender();
+            $this->validate();
 
             if ($tx->from && ! $this->allowOvercharge) {
                 $this->assertHaveFunds(
@@ -193,7 +193,7 @@ class Creator implements TransactionCreator
         return $this;
     }
 
-    protected function validateSender(): void
+    protected function validate(): void
     {
         throw_if(
             ! $this->tx->from && ! $this->allowOvercharge,
