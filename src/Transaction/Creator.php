@@ -34,6 +34,8 @@ class Creator implements TransactionCreator
     public function commit(): Transaction
     {
         $create = function () {
+            $this->validate();
+
             $tx = $this->tx;
 
             app(TransactionPreparer::class)->prepare($tx);
@@ -42,8 +44,6 @@ class Creator implements TransactionCreator
                 'creator' => $this,
                 'tx' => $tx,
             ]);
-
-            $this->validate();
 
             if ($tx->from && ! $this->allowOvercharge) {
                 $this->assertHaveFunds(
