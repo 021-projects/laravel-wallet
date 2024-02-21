@@ -261,22 +261,26 @@ class Exchanger implements IExchanger
     {
         throw_if(
             $this->exchangeAmount->lessThanOrEqual(0),
-            new InvalidArgumentException('Amount must be greater than 0')
+            InvalidArgumentException::class,
+           'Amount must be greater than 0'
         );
 
         throw_if(
             $this->srcCurrency === null || $this->destCurrency === null,
-            new InvalidArgumentException('Source and destination currencies must be set')
+            InvalidArgumentException::class,
+            'Source and destination currencies must be set'
         );
 
         throw_if(
             $this->rateMultiplier->lessThanOrEqual(0),
-            new InvalidArgumentException('Rate must be greater than 0')
+            InvalidArgumentException::class,
+            'Rate must be greater than 0'
         );
 
         throw_if(
             $this->srcCurrency === $this->destCurrency,
-            new InvalidArgumentException('Source and destination currencies must be different')
+            InvalidArgumentException::class,
+            'Source and destination currencies must be different'
         );
     }
 
