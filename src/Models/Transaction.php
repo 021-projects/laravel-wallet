@@ -94,6 +94,13 @@ class Transaction extends Model implements TransactionContract
         'archived' => false,
     ];
 
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+
+        $this->setTable(config('wallet.table_names.transactions', 'transactions'));
+    }
+
     public function toApi(): array
     {
         $result = $this->only(

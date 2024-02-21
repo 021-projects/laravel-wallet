@@ -51,6 +51,13 @@ class BalanceState extends Model implements BalanceStateContract
         'currency',
     ];
 
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+
+        $this->setTable(config('wallet.table_names.balance_states', 'balance_states'));
+    }
+
     public function value(): Attribute
     {
         return Attribute::make(

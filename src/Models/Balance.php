@@ -60,6 +60,13 @@ class Balance extends Model implements BalanceContract
         'value_on_hold',
     ];
 
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+
+        $this->setTable(config('wallet.table_names.balances', 'balances'));
+    }
+
     public function recalculate(): bool
     {
         $value = $this->received->sub($this->sent)->get();
