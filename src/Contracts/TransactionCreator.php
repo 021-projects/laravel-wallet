@@ -10,10 +10,6 @@ interface TransactionCreator
 {
     public function commit(): Transaction;
 
-    public function before(callable $before): self;
-
-    public function after(callable $after): self;
-
     public function amount(string|float|int|Numeric $amount): self;
 
     public function currency(string $currency): self;
@@ -33,4 +29,10 @@ interface TransactionCreator
     public function meta(array $meta): self;
 
     public function lockOnRecord(Model|Builder|bool $lockRecord): self;
+
+    public function before(callable $before): self;
+
+    public function after(callable $after): self;
+
+    public function overcharge(bool $allow = true): self;
 }
