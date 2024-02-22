@@ -7,6 +7,7 @@ use O21\LaravelWallet\Contracts\Transaction;
 use O21\LaravelWallet\Contracts\TransactionCreator;
 use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Exception\FromOrOverchargeRequired;
+use O21\LaravelWallet\Exception\ImplicitTransactionMergeAttemptException;
 use O21\LaravelWallet\Exception\InsufficientFundsException;
 use O21\LaravelWallet\Tests\Concerns\BalanceSeed;
 
@@ -493,5 +494,110 @@ class TransactionTest extends TestCase
                 $this->assertInstanceOf(Transaction::class, $tx);
             })
             ->commit();
+    }
+
+    public function test_batch(): void
+    {
+        [$user, $currency, $balance] = $this->createBalance();
+
+        $depositCounts = 5;
+        $txs = [];
+
+        for ($i = 0; $i < $depositCounts; $i++) {
+            $txs[$i] = deposit(100, $currency)
+                ->to($user)
+                ->overcharge()
+                ->commit();
+        }
+
+        $this->assertNotEmpty($txs);
+
+        for ($i = 0; $i < $depositCounts; $i++) {
+            $this->assertEquals(
+                $i + 1,
+                $txs[$i]->batch
+            );
+        }
+    }
+
+    public function test_next_batch_jump(): void
+    {
+        [$user, $currency, $balance] = $this->createBalance();
+
+        $tx = deposit(100, $currency)
+            ->to($user)
+            ->overcharge()
+            ->batch(100)
+            ->commit();
+
+        $this->assertEquals(
+            100,
+            $tx->batch
+        );
+
+        $tx = deposit(100, $currency)
+            ->to($user)
+            ->overcharge()
+            ->commit();
+
+        $this->assertEquals(
+            101,
+            $tx->batch
+        );
+    }
+
+    public function test_batch_exists_exception(): void
+    {
+        [$user, $currency, $balance] = $this->createBalance();
+
+        $tx = deposit(100, $currency)
+            ->to($user)
+            ->overcharge()
+            ->batch(100, true)
+            ->commit();
+
+        $this->assertEquals(
+            100,
+            $tx->batch
+        );
+
+        $this->expectException(ImplicitTransactionMergeAttemptException::class);
+
+        deposit(100, $currency)
+            ->to($user)
+            ->overcharge()
+            ->batch(100, false)
+            ->commit();
+    }
+
+    public function test_add_to_batch(): void
+    {
+        [$user, $currency, $balance] = $this->createBalance();
+
+        $tx = deposit(100, $currency)
+            ->to($user)
+            ->overcharge()
+            ->batch(100)
+            ->commit();
+
+        $this->assertEquals(
+            100,
+            $tx->batch
+        );
+
+        $tx = deposit(100, $currency)
+            ->to($user)
+            ->overcharge()
+            ->batch(100, exists: true)
+            ->commit();
+
+        $this->assertEquals(
+            100,
+            $tx->batch
+        );
+
+        $txsCount = app(Transaction::class)->where('batch', 100)->count();
+
+        $this->assertEquals(2, $txsCount);
     }
 }

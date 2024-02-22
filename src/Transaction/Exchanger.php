@@ -4,6 +4,7 @@ namespace O21\LaravelWallet\Transaction;
 
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
+use O21\LaravelWallet\Concerns\Batchable;
 use O21\LaravelWallet\Concerns\Eventable;
 use O21\LaravelWallet\Concerns\Lockable;
 use O21\LaravelWallet\Concerns\Overchargable;
@@ -18,7 +19,7 @@ use function O21\LaravelWallet\ConfigHelpers\currency_scale;
 
 class Exchanger implements IExchanger
 {
-    use Eventable, Overchargable, Lockable;
+    use Batchable, Eventable, Overchargable, Lockable;
 
     protected ?string $srcCurrency = null;
 
@@ -65,6 +66,8 @@ class Exchanger implements IExchanger
                 'creditTxCreator' => $creditTxCreator,
             ]);
 
+            $this->setBatch();
+
             $debitTx = $debitTxCreator->commit();
             $creditTx = $creditTxCreator->commit();
 
@@ -88,6 +91,14 @@ class Exchanger implements IExchanger
         $safelyTransaction = new SafelyTransaction($perform, $lockRecord);
 
         return $safelyTransaction->setThrow(true)->run();
+    }
+
+    protected function setBatch(): void
+    {
+        $batch = $this->nextBatch();
+        $this->validateBatch($batch);
+        $this->debitTxCreator->batch($batch, exists: true);
+        $this->creditTxCreator->batch($batch, exists: true);
     }
 
     protected function makeDebitTx(Payable $payable): TransactionCreator

@@ -5,8 +5,10 @@ namespace O21\LaravelWallet\Tests;
 use Illuminate\Foundation\Testing\WithFaker;
 use InvalidArgumentException;
 use O21\LaravelWallet\Contracts\Exchanger;
+use O21\LaravelWallet\Contracts\Transaction;
 use O21\LaravelWallet\Contracts\Transaction as ITransaction;
 use O21\LaravelWallet\Contracts\TransactionCreator;
+use O21\LaravelWallet\Exception\ImplicitTransactionMergeAttemptException;
 use O21\LaravelWallet\Exception\InsufficientFundsException;
 use O21\LaravelWallet\Tests\Concerns\BalanceSeed;
 use Workbench\Database\Factories\UserFactory;
@@ -191,6 +193,91 @@ class ExchangerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
 
         $this->btcExchange()->to('BTC')->performOn($user);
+    }
+
+    public function test_batch(): void
+    {
+        $user = UserFactory::new()->create();
+
+        $lastBatch = deposit(100, 'BTC')->to($user)
+            ->overcharge()
+            ->commit()
+            ->batch;
+
+        $exchangeCounts = 5;
+        $exchanges = [];
+
+        for ($i = 0; $i < $exchangeCounts; $i++) {
+            $exchanges[] = $this->btcExchange()->performOn($user);
+        }
+
+        $this->assertNotEmpty($exchanges);
+
+        for ($i = 0; $i < $exchangeCounts; $i++) {
+            $txs = $exchanges[$i];
+            $debitTx = $txs->get('debit');
+            $creditTx = $txs->get('credit');
+            $this->assertInstanceOf(ITransaction::class, $debitTx);
+            $this->assertInstanceOf(ITransaction::class, $creditTx);
+            $this->assertEquals($lastBatch + $i + 1, $debitTx->batch);
+            $this->assertEquals($lastBatch + $i + 1, $creditTx->batch);
+        }
+    }
+
+    public function test_next_batch_jump(): void
+    {
+        $user = UserFactory::new()->create();
+
+        deposit(100, 'BTC')->to($user)
+            ->overcharge()
+            ->commit();
+
+        $this->btcExchange()
+            ->batch(100)
+            ->performOn($user);
+
+        $nextBatch = $this->btcExchange()
+            ->performOn($user)
+            ->get('debit')
+            ->batch;
+
+        $this->assertEquals(101, $nextBatch);
+    }
+
+    public function test_batch_exists_exception(): void
+    {
+        $user = UserFactory::new()->create();
+
+        deposit(100, 'BTC')->to($user)
+            ->overcharge()
+            ->commit();
+
+        $this->expectException(ImplicitTransactionMergeAttemptException::class);
+
+        $this->btcExchange()
+            ->batch(1)
+            ->performOn($user);
+    }
+
+    public function test_add_to_batch(): void
+    {
+        $user = UserFactory::new()->create();
+
+        deposit(100, 'BTC')->to($user)
+            ->overcharge()
+            ->commit();
+
+        $txs = $this->btcExchange()
+            ->batch(1, exists: true)
+            ->performOn($user);
+
+        $this->assertEquals(1, $txs->get('debit')->batch);
+        $this->assertEquals(1, $txs->get('credit')->batch);
+
+        $this->assertEquals(
+            3,
+            app(ITransaction::class)->where('batch', 1)->count()
+        );
     }
 
     protected function btcExchange(): Exchanger

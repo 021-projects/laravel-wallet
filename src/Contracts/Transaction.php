@@ -46,4 +46,6 @@ interface Transaction
      * @return \Illuminate\Database\Eloquent\Casts\Attribute<\O21\LaravelWallet\Contracts\TransactionProcessor>
      */
     public function processor(): Attribute;
+
+    public function nextBatch(): int;
 }

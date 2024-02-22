@@ -4,6 +4,7 @@ namespace O21\LaravelWallet\Transaction;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
+use O21\LaravelWallet\Concerns\Batchable;
 use O21\LaravelWallet\Concerns\Eventable;
 use O21\LaravelWallet\Concerns\Lockable;
 use O21\LaravelWallet\Concerns\Overchargable;
@@ -20,7 +21,7 @@ use O21\SafelyTransaction;
 
 class Creator implements TransactionCreator
 {
-    use Eventable, Overchargable, Lockable;
+    use Batchable, Eventable, Overchargable, Lockable;
 
     protected Transaction $tx;
 
@@ -45,6 +46,8 @@ class Creator implements TransactionCreator
                 'tx' => $tx,
             ]);
 
+            $this->setBatch();
+
             if ($tx->from && ! $this->allowOvercharge) {
                 $this->assertHaveFunds(
                     $tx->from,
@@ -66,6 +69,13 @@ class Creator implements TransactionCreator
         $safelyTransaction = new SafelyTransaction($create, $this->getLockRecord());
 
         return $safelyTransaction->setThrow(true)->run();
+    }
+
+    protected function setBatch(): void
+    {
+        $batch = $this->nextBatch();
+        $this->validateBatch($batch);
+        $this->tx->batch = $batch;
     }
 
     public function model(): Transaction

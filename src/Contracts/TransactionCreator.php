@@ -37,4 +37,6 @@ interface TransactionCreator
     public function after(callable $callback): self;
 
     public function overcharge(bool $allow = true): self;
+
+    public function batch(int $id, ?bool $exists = null): self;
 }

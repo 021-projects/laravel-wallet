@@ -30,6 +30,7 @@ use O21\LaravelWallet\Models\Concerns\HasMetaColumn;
  * @property string $processor_id
  * @property array|null $meta
  * @property bool $archived
+ * @property int $batch
  * @property \Illuminate\Support\Carbon|null $created_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction newModelQuery()
@@ -67,6 +68,7 @@ use O21\LaravelWallet\Models\Concerns\HasMetaColumn;
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereFromType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereToId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereToType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereBatch($value)
  *
  * @property string $received received = amount - commission
  *
@@ -112,7 +114,8 @@ class Transaction extends Model implements TransactionContract
             'status',
             'processor_id',
             'created_at',
-            'archived'
+            'archived',
+            'batch'
         );
 
         $result['meta'] = $this->processor->prepareMeta($this->meta ?? []);
@@ -195,6 +198,11 @@ class Transaction extends Model implements TransactionContract
         }
 
         return $processor;
+    }
+
+    public function nextBatch(): int
+    {
+        return static::query()->max('batch') + 1;
     }
 
     public function from(): MorphTo
