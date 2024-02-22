@@ -600,4 +600,33 @@ class TransactionTest extends TestCase
 
         $this->assertEquals(2, $txsCount);
     }
+
+    public function test_currency_scaling(): void
+    {
+        [$user,] = $this->createBalance();
+
+        config(['wallet.currency_scaling.USD' => 2]);
+
+        $tx = deposit(0.000001, 'USD')
+            ->to($user)
+            ->overcharge()
+            ->commit();
+
+        $this->assertEquals(
+            0.00,
+            $tx->amount
+        );
+
+        config(['wallet.currency_scaling.USD' => 8]);
+
+        $tx = deposit(0.00000001, 'USD')
+            ->to($user)
+            ->overcharge()
+            ->commit();
+
+        $this->assertEquals(
+            0.00000001,
+            $tx->amount
+        );
+    }
 }

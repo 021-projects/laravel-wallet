@@ -10,9 +10,19 @@ use O21\LaravelWallet\Events\TransactionStatusChanged;
 use O21\LaravelWallet\Events\TransactionUpdated;
 use O21\LaravelWallet\Transaction\Processors\Concerns\Events;
 
+use function O21\LaravelWallet\ConfigHelpers\currency_scale;
+
 class TransactionObserver
 {
     use Events;
+
+    public function saving(Transaction $tx): void
+    {
+        $scale = currency_scale($tx->currency);
+        $tx->amount = num($tx->amount)->scale($scale)->get();
+        $tx->commission = num($tx->commission)->scale($scale)->get();
+        $tx->received = num($tx->received)->scale($scale)->get();
+    }
 
     public function saved(Transaction $tx): void
     {
