@@ -14,8 +14,6 @@ interface Exchanger
      */
     public function performOn(Payable $payable): Collection;
 
-    public function rate(string|float|int|Numeric $value): self;
-
     public function amount(string|float|int|Numeric $amount): self;
 
     public function commission(
@@ -26,6 +24,8 @@ interface Exchanger
     public function from(string $currency): self;
 
     public function to(string $currency): self;
+
+    public function at(string|float|int|Numeric $rate): self;
 
     public function meta(array $meta): self;
 

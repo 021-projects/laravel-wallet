@@ -102,7 +102,7 @@ class ExchangerTest extends TestCase
                 $exchanger->amount($newAmount)->commission(
                     src: $newCommission,
                     dest: $smallFee
-                )->rate(self::BTC_RATE * 2);
+                )->at(self::BTC_RATE * 2);
 
                 $debitTxCreator->meta(['debit_test' => true]);
                 $creditTxCreator->meta(['credit_test' => true]);
@@ -192,7 +192,7 @@ class ExchangerTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
 
-        $this->btcExchange()->to('USD')->rate(0)->performOn($user);
+        $this->btcExchange()->to('USD')->at(0)->performOn($user);
 
         $this->expectException(InvalidArgumentException::class);
 
@@ -333,6 +333,6 @@ class ExchangerTest extends TestCase
     {
         return exchange(self::BTC_AMOUNT, 'BTC')
             ->to('USD')
-            ->rate(self::BTC_RATE);
+            ->at(self::BTC_RATE);
     }
 }

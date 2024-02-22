@@ -154,9 +154,9 @@ class Exchanger implements IExchanger
         return 'exchange_debit';
     }
 
-    public function rate(float|Numeric|int|string $value): IExchanger
+    public function at(float|Numeric|int|string $rate): IExchanger
     {
-        $this->rateMultiplier = num($value);
+        $this->rateMultiplier = num($rate);
 
         $this->fire('rate:changed');
 
