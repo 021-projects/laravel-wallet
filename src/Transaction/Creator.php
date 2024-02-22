@@ -21,7 +21,7 @@ use O21\SafelyTransaction;
 
 class Creator implements TransactionCreator
 {
-    use Batchable, Eventable, Overchargable, Lockable;
+    use Batchable, Eventable, Lockable, Overchargable;
 
     protected Transaction $tx;
 

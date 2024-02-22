@@ -8,7 +8,7 @@ class ImplicitTransactionMergeAttemptException extends \RuntimeException
     {
         parent::__construct(
             "Implicit attempt to add a transaction to an existing batch [{$batchId}]."
-            . " Use batch({$batchId}, exists: true) if you want to prevent this error."
+            ." Use batch({$batchId}, exists: true) if you want to prevent this error."
         );
     }
 }

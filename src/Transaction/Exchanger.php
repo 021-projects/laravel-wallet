@@ -10,7 +10,6 @@ use O21\LaravelWallet\Concerns\Lockable;
 use O21\LaravelWallet\Concerns\Overchargable;
 use O21\LaravelWallet\Contracts\Exchanger as IExchanger;
 use O21\LaravelWallet\Contracts\Payable;
-use O21\LaravelWallet\Contracts\Transaction;
 use O21\LaravelWallet\Contracts\TransactionCreator;
 use O21\LaravelWallet\Numeric;
 use O21\SafelyTransaction;
@@ -19,7 +18,7 @@ use function O21\LaravelWallet\ConfigHelpers\currency_scale;
 
 class Exchanger implements IExchanger
 {
-    use Batchable, Eventable, Overchargable, Lockable;
+    use Batchable, Eventable, Lockable, Overchargable;
 
     protected ?string $srcCurrency = null;
 
@@ -273,7 +272,7 @@ class Exchanger implements IExchanger
         throw_if(
             $this->exchangeAmount->lessThanOrEqual(0),
             InvalidArgumentException::class,
-           'Amount must be greater than 0'
+            'Amount must be greater than 0'
         );
 
         throw_if(
