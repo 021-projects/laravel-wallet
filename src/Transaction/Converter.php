@@ -8,7 +8,7 @@ use O21\LaravelWallet\Concerns\Batchable;
 use O21\LaravelWallet\Concerns\Eventable;
 use O21\LaravelWallet\Concerns\Lockable;
 use O21\LaravelWallet\Concerns\Overchargable;
-use O21\LaravelWallet\Contracts\Exchanger as IExchanger;
+use O21\LaravelWallet\Contracts\Converter as IConverter;
 use O21\LaravelWallet\Contracts\Payable;
 use O21\LaravelWallet\Contracts\TransactionCreator;
 use O21\LaravelWallet\Numeric;
@@ -16,7 +16,7 @@ use O21\SafelyTransaction;
 
 use function O21\LaravelWallet\ConfigHelpers\currency_scale;
 
-class Exchanger implements IExchanger
+class Converter implements IConverter
 {
     use Batchable, Eventable, Lockable, Overchargable;
 
@@ -24,7 +24,7 @@ class Exchanger implements IExchanger
 
     protected ?string $destCurrency = null;
 
-    protected Numeric $exchangeAmount;
+    protected Numeric $conversionAmount;
 
     protected Numeric $srcCommission;
 
@@ -40,7 +40,7 @@ class Exchanger implements IExchanger
 
     public function __construct()
     {
-        $this->exchangeAmount = num(0);
+        $this->conversionAmount = num(0);
         $this->srcCurrency = config('wallet.default_currency');
         $this->srcCommission = num(0);
         $this->destCommission = num(0);
@@ -60,7 +60,7 @@ class Exchanger implements IExchanger
             $creditTxCreator = $this->makeCreditTx($payable);
 
             $this->fire('before', [
-                'exchanger' => $this,
+                'converter' => $this,
                 'debitTxCreator' => $debitTxCreator,
                 'creditTxCreator' => $creditTxCreator,
             ]);
@@ -74,7 +74,7 @@ class Exchanger implements IExchanger
             $this->debitTxCreator = null;
 
             $this->fire('after', [
-                'exchanger' => $this,
+                'converter' => $this,
                 'debitTx' => $debitTx,
                 'creditTx' => $creditTx,
             ]);
@@ -132,7 +132,7 @@ class Exchanger implements IExchanger
 
     protected function creditAmount(): Numeric
     {
-        return num($this->exchangeAmount)
+        return num($this->conversionAmount)
             ->sub($this->srcCommission)
             ->mul($this->rateMultiplier)
             ->scale(currency_scale($this->destCurrency));
@@ -140,21 +140,21 @@ class Exchanger implements IExchanger
 
     protected function debitAmount(): Numeric
     {
-        return num($this->exchangeAmount)
+        return num($this->conversionAmount)
             ->scale(currency_scale($this->srcCurrency));
     }
 
     protected function creditProcessor(): string
     {
-        return 'exchange_credit';
+        return 'conversion_credit';
     }
 
     protected function debitProcessor(): string
     {
-        return 'exchange_debit';
+        return 'conversion_debit';
     }
 
-    public function at(float|Numeric|int|string $rate): IExchanger
+    public function at(float|Numeric|int|string $rate): IConverter
     {
         $this->rateMultiplier = num($rate);
 
@@ -165,7 +165,7 @@ class Exchanger implements IExchanger
 
     protected function onRateChanged(): void
     {
-        if (! $this->duringExchange()) {
+        if (! $this->duringConversion()) {
             return;
         }
 
@@ -173,9 +173,9 @@ class Exchanger implements IExchanger
         $this->creditTxCreator->amount($this->creditAmount());
     }
 
-    public function amount(float|Numeric|int|string $amount): IExchanger
+    public function amount(float|Numeric|int|string $amount): IConverter
     {
-        $this->exchangeAmount = num($amount);
+        $this->conversionAmount = num($amount);
 
         $this->fire('amount:changed');
 
@@ -184,7 +184,7 @@ class Exchanger implements IExchanger
 
     protected function onAmountChanged(): void
     {
-        if (! $this->duringExchange()) {
+        if (! $this->duringConversion()) {
             return;
         }
 
@@ -195,7 +195,7 @@ class Exchanger implements IExchanger
     public function commission(
         float|Numeric|int|string|null $src = null,
         float|Numeric|int|string|null $dest = null
-    ): IExchanger {
+    ): IConverter {
         throw_if(
             $src === null && $dest === null,
             new InvalidArgumentException('At least one commission value must be provided')
@@ -215,7 +215,7 @@ class Exchanger implements IExchanger
 
     protected function onCommissionChanged(): void
     {
-        if (! $this->duringExchange()) {
+        if (! $this->duringConversion()) {
             return;
         }
 
@@ -223,7 +223,7 @@ class Exchanger implements IExchanger
         $this->creditTxCreator->commission($this->destCommission);
     }
 
-    public function before(callable $callback): IExchanger
+    public function before(callable $callback): IConverter
     {
         $this->off('before');
         $this->on('before', $callback);
@@ -231,7 +231,7 @@ class Exchanger implements IExchanger
         return $this;
     }
 
-    public function after(callable $callback): IExchanger
+    public function after(callable $callback): IConverter
     {
         $this->off('after');
         $this->on('after', $callback);
@@ -239,21 +239,21 @@ class Exchanger implements IExchanger
         return $this;
     }
 
-    public function from(string $currency): IExchanger
+    public function from(string $currency): IConverter
     {
         $this->srcCurrency = $currency;
 
         return $this;
     }
 
-    public function to(string $currency): IExchanger
+    public function to(string $currency): IConverter
     {
         $this->destCurrency = $currency;
 
         return $this;
     }
 
-    public function meta(array $meta): IExchanger
+    public function meta(array $meta): IConverter
     {
         $this->meta = $meta;
 
@@ -270,7 +270,7 @@ class Exchanger implements IExchanger
     protected function validate(): void
     {
         throw_if(
-            $this->exchangeAmount->lessThanOrEqual(0),
+            $this->conversionAmount->lessThanOrEqual(0),
             InvalidArgumentException::class,
             'Amount must be greater than 0'
         );
@@ -294,7 +294,7 @@ class Exchanger implements IExchanger
         );
     }
 
-    protected function duringExchange(): bool
+    protected function duringConversion(): bool
     {
         return $this->debitTxCreator !== null && $this->creditTxCreator !== null;
     }

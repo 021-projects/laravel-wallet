@@ -7,7 +7,7 @@ use O21\LaravelWallet\Transaction\Processors\Concerns\BaseProcessor;
 use O21\LaravelWallet\Transaction\Processors\Concerns\BatchSync;
 use O21\LaravelWallet\Transaction\Processors\Contracts\InitialSuccess;
 
-class ExchangeDebitProcessor implements InitialSuccess, TransactionProcessor
+class ConversionCreditProcessor implements InitialSuccess, TransactionProcessor
 {
     use BaseProcessor, BatchSync;
 }

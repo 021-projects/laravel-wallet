@@ -1,6 +1,6 @@
 <?php
 
-use O21\LaravelWallet\Contracts\Exchanger;
+use O21\LaravelWallet\Contracts\Converter;
 use O21\LaravelWallet\Contracts\TransactionCreator;
 use O21\LaravelWallet\Numeric;
 
@@ -63,30 +63,30 @@ if (! function_exists('charge')) {
     }
 }
 
+if (! function_exists('conversion')) {
+    function conversion(
+        string|float|int|Numeric|null $amount = null,
+        ?string $currency = null
+    ): Converter {
+        $converter = app(Converter::class);
+
+        if ($amount) {
+            $converter->amount($amount);
+        }
+
+        if ($currency) {
+            $converter->from($currency);
+        }
+
+        return $converter;
+    }
+}
+
 if (! function_exists('transfer')) {
     function transfer(
         string|float|int|Numeric $amount,
         ?string $currency = null
     ): TransactionCreator {
         return tx($amount, $currency)->processor('transfer');
-    }
-}
-
-if (! function_exists('exchange')) {
-    function exchange(
-        string|float|int|Numeric|null $amount = null,
-        ?string $currency = null
-    ): Exchanger {
-        $exchanger = app(Exchanger::class);
-
-        if ($amount) {
-            $exchanger->amount($amount);
-        }
-
-        if ($currency) {
-            $exchanger->from($currency);
-        }
-
-        return $exchanger;
     }
 }

@@ -7,7 +7,7 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use O21\LaravelWallet\Numeric;
 
-interface Exchanger
+interface Converter
 {
     /**
      * @return \Illuminate\Support\Collection<\O21\LaravelWallet\Contracts\Transaction>

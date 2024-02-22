@@ -40,8 +40,8 @@ return [
     'processors' => [
         'deposit' => \O21\LaravelWallet\Transaction\Processors\DepositProcessor::class,
         'charge' => \O21\LaravelWallet\Transaction\Processors\ChargeProcessor::class,
+        'conversion_credit' => \O21\LaravelWallet\Transaction\Processors\ConversionCreditProcessor::class,
+        'conversion_debit' => \O21\LaravelWallet\Transaction\Processors\ConversionDebitProcessor::class,
         'transfer' => \O21\LaravelWallet\Transaction\Processors\TransferProcessor::class,
-        'exchange_credit' => \O21\LaravelWallet\Transaction\Processors\ExchangeCreditProcessor::class,
-        'exchange_debit' => \O21\LaravelWallet\Transaction\Processors\ExchangeDebitProcessor::class,
     ],
 ];

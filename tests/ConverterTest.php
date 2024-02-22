@@ -4,7 +4,7 @@ namespace O21\LaravelWallet\Tests;
 
 use Illuminate\Foundation\Testing\WithFaker;
 use InvalidArgumentException;
-use O21\LaravelWallet\Contracts\Exchanger;
+use O21\LaravelWallet\Contracts\Converter;
 use O21\LaravelWallet\Contracts\Transaction as ITransaction;
 use O21\LaravelWallet\Contracts\TransactionCreator;
 use O21\LaravelWallet\Enums\TransactionStatus;
@@ -13,7 +13,7 @@ use O21\LaravelWallet\Exception\InsufficientFundsException;
 use O21\LaravelWallet\Tests\Concerns\BalanceSeed;
 use Workbench\Database\Factories\UserFactory;
 
-class ExchangerTest extends TestCase
+class ConverterTest extends TestCase
 {
     use BalanceSeed;
     use WithFaker;
@@ -26,7 +26,7 @@ class ExchangerTest extends TestCase
 
     private const USD_COMMISSION = 25;
 
-    private const GENIUS_NOTE = 'BTC to USD exchange';
+    private const GENIUS_NOTE = 'BTC to USD conversion haha';
 
     public function test_interface(): void
     {
@@ -41,7 +41,7 @@ class ExchangerTest extends TestCase
             ->sub(self::USD_COMMISSION)
             ->get();
 
-        $txs = $this->btcExchange()
+        $txs = $this->btcConversion()
             ->commission(
                 src : self::BTC_COMMISSION, // take 1% of BTC
                 dest: self::USD_COMMISSION // and take 25 USD
@@ -67,8 +67,8 @@ class ExchangerTest extends TestCase
 
         $this->assertEquals('BTC', $debitTx->currency);
         $this->assertEquals('USD', $creditTx->currency);
-        $this->assertEquals('exchange_debit', $debitTx->processor_id);
-        $this->assertEquals('exchange_credit', $creditTx->processor_id);
+        $this->assertEquals('conversion_debit', $debitTx->processor_id);
+        $this->assertEquals('conversion_credit', $creditTx->processor_id);
 
         $this->assertEquals(self::BTC_AMOUNT, $debitTx->amount);
         $this->assertEquals(
@@ -93,13 +93,13 @@ class ExchangerTest extends TestCase
         $newCommission = num($newAmount)->mul(0.01);
         $smallFee = 0.02;
 
-        $txs = $this->btcExchange()
+        $txs = $this->btcConversion()
             ->before(function (
-                Exchanger $exchanger,
+                Converter $converter,
                 TransactionCreator $debitTxCreator,
                 TransactionCreator $creditTxCreator
             ) use ($newAmount, $newCommission, $smallFee) {
-                $exchanger->amount($newAmount)->commission(
+                $converter->amount($newAmount)->commission(
                     src: $newCommission,
                     dest: $smallFee
                 )->at(self::BTC_RATE * 2);
@@ -139,9 +139,9 @@ class ExchangerTest extends TestCase
 
         $called = false;
 
-        $this->btcExchange()
+        $this->btcConversion()
             ->after(function (
-                Exchanger $exchanger,
+                Converter $converter,
                 ITransaction $debitTx,
                 ITransaction $creditTx
             ) use (&$called) {
@@ -158,14 +158,14 @@ class ExchangerTest extends TestCase
 
         $this->expectException(InsufficientFundsException::class);
 
-        $this->btcExchange()->performOn($user);
+        $this->btcConversion()->performOn($user);
     }
 
     public function test_overcharge_allowed(): void
     {
         $user = UserFactory::new()->create();
 
-        $this->btcExchange()->overcharge()->performOn($user);
+        $this->btcConversion()->overcharge()->performOn($user);
 
         $this->assertBalanceRefreshEquals(
             $user->balance('BTC'),
@@ -184,19 +184,19 @@ class ExchangerTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
 
-        exchange()->performOn($user);
+        conversion()->performOn($user);
 
         $this->expectException(InvalidArgumentException::class);
 
-        exchange(0, 'BTC')->to('USD')->performOn($user);
+        conversion(0, 'BTC')->to('USD')->performOn($user);
 
         $this->expectException(InvalidArgumentException::class);
 
-        $this->btcExchange()->to('USD')->at(0)->performOn($user);
+        $this->btcConversion()->to('USD')->at(0)->performOn($user);
 
         $this->expectException(InvalidArgumentException::class);
 
-        $this->btcExchange()->to('BTC')->performOn($user);
+        $this->btcConversion()->to('BTC')->performOn($user);
     }
 
     public function test_batch(): void
@@ -208,17 +208,17 @@ class ExchangerTest extends TestCase
             ->commit()
             ->batch;
 
-        $exchangeCounts = 5;
-        $exchanges = [];
+        $conversionCounts = 5;
+        $conversions = [];
 
-        for ($i = 0; $i < $exchangeCounts; $i++) {
-            $exchanges[] = $this->btcExchange()->performOn($user);
+        for ($i = 0; $i < $conversionCounts; $i++) {
+            $conversions[] = $this->btcConversion()->performOn($user);
         }
 
-        $this->assertNotEmpty($exchanges);
+        $this->assertNotEmpty($conversions);
 
-        for ($i = 0; $i < $exchangeCounts; $i++) {
-            $txs = $exchanges[$i];
+        for ($i = 0; $i < $conversionCounts; $i++) {
+            $txs = $conversions[$i];
             $debitTx = $txs->get('debit');
             $creditTx = $txs->get('credit');
             $this->assertInstanceOf(ITransaction::class, $debitTx);
@@ -236,11 +236,11 @@ class ExchangerTest extends TestCase
             ->overcharge()
             ->commit();
 
-        $this->btcExchange()
+        $this->btcConversion()
             ->batch(100)
             ->performOn($user);
 
-        $nextBatch = $this->btcExchange()
+        $nextBatch = $this->btcConversion()
             ->performOn($user)
             ->get('debit')
             ->batch;
@@ -258,7 +258,7 @@ class ExchangerTest extends TestCase
 
         $this->expectException(ImplicitTransactionMergeAttemptException::class);
 
-        $this->btcExchange()
+        $this->btcConversion()
             ->batch(1)
             ->performOn($user);
     }
@@ -271,7 +271,7 @@ class ExchangerTest extends TestCase
             ->overcharge()
             ->commit();
 
-        $txs = $this->btcExchange()
+        $txs = $this->btcConversion()
             ->batch(1, exists: true)
             ->performOn($user);
 
@@ -292,7 +292,7 @@ class ExchangerTest extends TestCase
             ->overcharge()
             ->commit();
 
-        $txs = $this->btcExchange()
+        $txs = $this->btcConversion()
             ->performOn($user);
 
         $debitTx = $txs->get('debit');
@@ -329,9 +329,9 @@ class ExchangerTest extends TestCase
         );
     }
 
-    protected function btcExchange(): Exchanger
+    protected function btcConversion(): Converter
     {
-        return exchange(self::BTC_AMOUNT, 'BTC')
+        return conversion(self::BTC_AMOUNT, 'BTC')
             ->to('USD')
             ->at(self::BTC_RATE);
     }
