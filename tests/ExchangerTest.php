@@ -5,9 +5,9 @@ namespace O21\LaravelWallet\Tests;
 use Illuminate\Foundation\Testing\WithFaker;
 use InvalidArgumentException;
 use O21\LaravelWallet\Contracts\Exchanger;
-use O21\LaravelWallet\Contracts\Transaction;
 use O21\LaravelWallet\Contracts\Transaction as ITransaction;
 use O21\LaravelWallet\Contracts\TransactionCreator;
+use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Exception\ImplicitTransactionMergeAttemptException;
 use O21\LaravelWallet\Exception\InsufficientFundsException;
 use O21\LaravelWallet\Tests\Concerns\BalanceSeed;
@@ -19,9 +19,13 @@ class ExchangerTest extends TestCase
     use WithFaker;
 
     private const BTC_AMOUNT = 0.01;
+
     private const BTC_RATE = 50_000;
+
     private const BTC_COMMISSION = 0.001 * 0.01;
+
     private const USD_COMMISSION = 25;
+
     private const GENIUS_NOTE = 'BTC to USD exchange';
 
     public function test_interface(): void
@@ -277,6 +281,51 @@ class ExchangerTest extends TestCase
         $this->assertEquals(
             3,
             app(ITransaction::class)->where('batch', 1)->count()
+        );
+    }
+
+    public function test_batch_status_update(): void
+    {
+        $user = UserFactory::new()->create();
+
+        deposit(100, 'BTC')->to($user)
+            ->overcharge()
+            ->commit();
+
+        $txs = $this->btcExchange()
+            ->performOn($user);
+
+        $debitTx = $txs->get('debit');
+        $creditTx = $txs->get('credit');
+
+        $debitTx->updateStatus(TransactionStatus::FAILED);
+
+        $debitTx = $debitTx->fresh();
+        $creditTx = $creditTx->fresh();
+
+        $this->assertEquals(
+            TransactionStatus::FAILED,
+            $debitTx->status
+        );
+
+        $this->assertEquals(
+            TransactionStatus::FAILED,
+            $creditTx->status
+        );
+
+        $creditTx->updateStatus(TransactionStatus::SUCCESS);
+
+        $debitTx = $debitTx->fresh();
+        $creditTx = $creditTx->fresh();
+
+        $this->assertEquals(
+            TransactionStatus::SUCCESS,
+            $debitTx->status
+        );
+
+        $this->assertEquals(
+            TransactionStatus::SUCCESS,
+            $creditTx->status
         );
     }
 

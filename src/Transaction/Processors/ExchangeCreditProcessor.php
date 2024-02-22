@@ -4,9 +4,10 @@ namespace O21\LaravelWallet\Transaction\Processors;
 
 use O21\LaravelWallet\Contracts\TransactionProcessor;
 use O21\LaravelWallet\Transaction\Processors\Concerns\BaseProcessor;
+use O21\LaravelWallet\Transaction\Processors\Concerns\BatchSync;
 use O21\LaravelWallet\Transaction\Processors\Contracts\InitialSuccess;
 
 class ExchangeCreditProcessor implements InitialSuccess, TransactionProcessor
 {
-    use BaseProcessor;
+    use BaseProcessor, BatchSync;
 }

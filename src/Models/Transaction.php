@@ -5,6 +5,7 @@ namespace O21\LaravelWallet\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Str;
@@ -54,6 +55,7 @@ use O21\LaravelWallet\Models\Concerns\HasMetaColumn;
  * @property-read \Illuminate\Database\Eloquent\Model|Payable $to
  * @property-read \Illuminate\Database\Eloquent\Model|\O21\LaravelWallet\Contracts\BalanceState|null $fromState
  * @property-read \Illuminate\Database\Eloquent\Model|\O21\LaravelWallet\Contracts\BalanceState|null $toState
+ * @property-read \Illuminate\Database\Eloquent\Collection|\O21\LaravelWallet\Models\Transaction[] $neighbours
  *
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction from(\O21\LaravelWallet\Contracts\Payable $from)
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction to(\O21\LaravelWallet\Contracts\Payable $to)
@@ -231,6 +233,15 @@ class Transaction extends Model implements TransactionContract
                 ['payable_id', '=', $this->to_id],
                 ['payable_type', '=', $this->to_type],
             ]);
+    }
+
+    public function neighbours(): HasMany
+    {
+        return $this->hasMany(
+            config('wallet.models.transaction') ?? self::class,
+            'batch',
+            'batch'
+        )->where('id', '!=', $this->id);
     }
 
     public function scopeFrom(Builder $query, Payable $from): void

@@ -2,6 +2,7 @@
 
 namespace O21\LaravelWallet\Tests;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\WithFaker;
 use O21\LaravelWallet\Contracts\Transaction;
 use O21\LaravelWallet\Contracts\TransactionCreator;
@@ -603,7 +604,7 @@ class TransactionTest extends TestCase
 
     public function test_currency_scaling(): void
     {
-        [$user,] = $this->createBalance();
+        [$user] = $this->createBalance();
 
         config(['wallet.currency_scaling.USD' => 2]);
 
@@ -628,5 +629,32 @@ class TransactionTest extends TestCase
             0.00000001,
             $tx->amount
         );
+    }
+
+    public function test_batch_neighbours(): void
+    {
+        [$user] = $this->createBalance();
+
+        $depositsCount = 3;
+
+        for ($i = 0; $i < $depositsCount; $i++) {
+            $tx = deposit(100, 'USD')
+                ->to($user)
+                ->overcharge()
+                ->batch(1, exists: true)
+                ->commit();
+        }
+
+        $neighbours = $tx->neighbours;
+
+        $this->assertNotEmpty($neighbours);
+
+        $this->assertInstanceOf(Collection::class, $neighbours);
+
+        $this->assertCount($depositsCount - 1, $neighbours);
+
+        $neighbours->each(function ($neighbour) use ($tx) {
+            $this->assertNotEquals($neighbour->id, $tx->id);
+        });
     }
 }
