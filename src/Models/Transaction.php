@@ -117,7 +117,7 @@ class Transaction extends Model implements TransactionContract
         $camelKeys = data_get($opts, 'camelKeys', true);
 
         $result = $this->only(
-            'uuid',
+            $this->getRouteKeyName(),
             'amount',
             'received',
             'commission',
@@ -302,5 +302,10 @@ class Transaction extends Model implements TransactionContract
     public function uniqueIds(): array
     {
         return ['uuid'];
+    }
+
+    public function getRouteKeyName()
+    {
+        return config('wallet.transactions.route_key', 'uuid') ?? 'uuid';
     }
 }

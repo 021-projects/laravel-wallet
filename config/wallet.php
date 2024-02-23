@@ -37,6 +37,10 @@ return [
         'transactions' => 'transactions',
     ],
 
+    'transactions' => [
+        'route_key' => 'uuid',
+    ],
+
     'processors' => [
         'deposit' => \O21\LaravelWallet\Transaction\Processors\DepositProcessor::class,
         'charge' => \O21\LaravelWallet\Transaction\Processors\ChargeProcessor::class,
