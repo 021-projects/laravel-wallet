@@ -14,6 +14,8 @@ interface Balance
 {
     public function recalculate(): bool;
 
+    public function logState(?Transaction $tx = null): void;
+
     public function equals(string|float|int $value): bool;
 
     public function greaterThan(string|float|int $value): bool;

@@ -176,10 +176,6 @@ class Transaction extends Model implements TransactionContract
 
     public function logStates(): void
     {
-        $balanceClass = app(Balance::class);
-        if (! method_exists($balanceClass, 'logState')) {
-            return;
-        }
         $this->from?->balance($this->currency)?->logState($this);
         $this->to?->balance($this->currency)?->logState($this);
     }
