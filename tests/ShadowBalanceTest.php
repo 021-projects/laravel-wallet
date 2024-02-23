@@ -20,6 +20,15 @@ class ShadowBalanceTest extends TestCase
         $shadow = ShadowBalance::of();
         $this->assertModelExists($shadow);
         $this->assertMatchesRegularExpression('/[a-z0-9-]{36}/', $shadow->uuid);
+
+        $shadow = ShadowBalance::of(self::MY_UUID, ['a' => 1]);
+
+        $this->assertEquals(1, $shadow->meta['a']);
+
+        $shadow = ShadowBalance::of('random_new', ['a' => 2]);
+
+        $this->assertEquals('random_new', $shadow->uuid);
+        $this->assertEquals(2, $shadow->meta['a']);
     }
 
     public function test_created_only_once(): void

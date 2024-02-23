@@ -44,7 +44,13 @@ class ShadowBalance extends Model implements ShadowBalanceContract
             return self::create(compact('meta'));
         }
 
-        return self::firstOrCreate(compact('uuid'), compact('meta'));
+        $shadow = self::firstOrCreate(compact('uuid'), compact('meta'));
+
+        if (! empty($meta)) {
+            $shadow->updateMeta($meta);
+        }
+
+        return $shadow;
     }
 
     public function uniqueIds(): array
