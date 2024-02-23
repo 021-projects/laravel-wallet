@@ -69,6 +69,10 @@ class ServiceProvider extends Provider
                 'create_balance_states_table.php',
                 order: 1
             ),
+            __DIR__.'/../database/migrations/create_shadow_balances_table.php.stub' => $this->getMigrationFileName(
+                'create_shadow_balances_table.php',
+                order: 2
+            ),
         ], 'wallet-migrations');
     }
 
