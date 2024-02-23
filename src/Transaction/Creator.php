@@ -14,6 +14,7 @@ use O21\LaravelWallet\Contracts\TransactionCreator;
 use O21\LaravelWallet\Contracts\TransactionPreparer;
 use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Exception\FromOrOverchargeRequired;
+use O21\LaravelWallet\Exception\UnknownTxProcessorException;
 use O21\LaravelWallet\Numeric;
 use O21\LaravelWallet\Transaction\Processors\Contracts\InitialHolding;
 use O21\LaravelWallet\Transaction\Processors\Contracts\InitialSuccess;
@@ -141,9 +142,11 @@ class Creator implements TransactionCreator
             return $this;
         }
 
-        if (! array_key_exists($processor, config('wallet.processors'))) {
-            throw new \RuntimeException('Error: unknown transaction processor');
-        }
+        throw_if(
+            ! array_key_exists($processor, config('wallet.processors')),
+            UnknownTxProcessorException::class,
+            $processor
+        );
 
         $this->tx->setProcessor($processor);
 

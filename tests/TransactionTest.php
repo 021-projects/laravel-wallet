@@ -10,6 +10,8 @@ use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Exception\FromOrOverchargeRequired;
 use O21\LaravelWallet\Exception\ImplicitTransactionMergeAttemptException;
 use O21\LaravelWallet\Exception\InsufficientFundsException;
+use O21\LaravelWallet\Exception\InvalidTxProcessorException;
+use O21\LaravelWallet\Exception\UnknownTxProcessorException;
 use O21\LaravelWallet\Tests\Concerns\BalanceSeed;
 use Workbench\Database\Factories\APIUserFactory;
 use Workbench\Database\Factories\UserFactory;
@@ -438,13 +440,13 @@ class TransactionTest extends TestCase
         );
     }
 
-    public function test_no_processor_exception(): void
+    public function test_unknown_processor_exception(): void
     {
         [$user] = $this->createBalance();
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(UnknownTxProcessorException::class);
 
-        tx()->to($user)->commit();
+        tx()->to($user)->overcharge()->commit();
     }
 
     public function test_from_or_overcharge_required(): void
@@ -732,5 +734,24 @@ class TransactionTest extends TestCase
         $neighbours->each(function ($neighbour) use ($tx) {
             $this->assertNotEquals($neighbour->id, $tx->id);
         });
+    }
+
+    public function test_resolve_invalid_processor_exceptions(): void
+    {
+        $this->expectException(UnknownTxProcessorException::class);
+
+        $tx = deposit(100, 'USD')
+            ->to($this->createBalance()[0])
+            ->overcharge()
+            ->commit();
+
+        $tx->processor_id = 'invalid';
+        $tx->save();
+
+        $tx->fresh()->processor;
+
+        $this->expectException(InvalidTxProcessorException::class);
+
+        $tx->fresh()->processor;
     }
 }

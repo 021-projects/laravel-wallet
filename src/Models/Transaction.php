@@ -16,6 +16,8 @@ use O21\LaravelWallet\Contracts\Payable;
 use O21\LaravelWallet\Contracts\Transaction as TransactionContract;
 use O21\LaravelWallet\Contracts\TransactionProcessor;
 use O21\LaravelWallet\Enums\TransactionStatus;
+use O21\LaravelWallet\Exception\InvalidTxProcessorException;
+use O21\LaravelWallet\Exception\UnknownTxProcessorException;
 use O21\LaravelWallet\Models\Concerns\HasMetaColumn;
 
 /**
@@ -214,20 +216,22 @@ class Transaction extends Model implements TransactionContract
     private function resolveProcessor(): TransactionProcessor
     {
         $processorClass = config("wallet.processors.{$this->processor_id}");
-        if (! $processorClass || ! class_exists($processorClass)) {
-            throw new \RuntimeException(
-                "Processor {$this->processor_id} not found"
-            );
-        }
+
+        throw_if(
+            ! class_exists($processorClass),
+            UnknownTxProcessorException::class,
+            $this->processor_id
+        );
 
         $processor = app($processorClass, [
             'transaction' => $this,
         ]);
-        if (! ($processor instanceof TransactionProcessor)) {
-            throw new \RuntimeException(
-                "Processor {$this->processor_id} must be instance of ".TransactionProcessor::class
-            );
-        }
+
+        throw_if(
+            ! ($processor instanceof TransactionProcessor),
+            InvalidTxProcessorException::class,
+            $this->processor_id
+        );
 
         return $processor;
     }
