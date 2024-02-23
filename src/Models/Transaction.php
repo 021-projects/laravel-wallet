@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Str;
 use O21\LaravelWallet\Casts\TrimZero;
-use O21\LaravelWallet\Contracts\Balance;
 use O21\LaravelWallet\Contracts\Payable;
 use O21\LaravelWallet\Contracts\Transaction as TransactionContract;
 use O21\LaravelWallet\Contracts\TransactionProcessor;

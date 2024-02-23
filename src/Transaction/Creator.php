@@ -160,7 +160,8 @@ class Creator implements TransactionCreator
 
         try {
             $processor = $this->tx->processor;
-        } catch (UnknownTxProcessorException $e) {}
+        } catch (UnknownTxProcessorException $e) {
+        }
 
         $initialSuccess = $processor instanceof InitialSuccess;
         $initialHolding = $processor instanceof InitialHolding;

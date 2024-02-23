@@ -11,7 +11,7 @@ class InvalidTxProcessorException extends RuntimeException
     {
         parent::__construct(
             "Processor `$processorId` is invalid. "
-            ."It should be an instance of ".TransactionProcessor::class
+            .'It should be an instance of '.TransactionProcessor::class
         );
     }
 }

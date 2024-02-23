@@ -787,7 +787,6 @@ class TransactionTest extends TestCase
                 ->commit();
         }
 
-
         $this->assertEquals(
             $accountableDeps,
             app(Transaction::class)->accountable()->count()
