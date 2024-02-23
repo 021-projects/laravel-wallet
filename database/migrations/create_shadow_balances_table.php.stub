@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists($this->assertTableName('balances'));
+        Schema::dropIfExists($this->assertTableName('shadow_balances'));
     }
 };
