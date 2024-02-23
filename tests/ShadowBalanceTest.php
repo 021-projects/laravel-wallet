@@ -40,7 +40,7 @@ class ShadowBalanceTest extends TestCase
 
         $this->assertModelExists($tx);
 
-        $this->assertEquals(100, (string)$shadow->balance()->fresh()->value);
+        $this->assertEquals(100, (string) $shadow->balance()->fresh()->value);
     }
 
     public function test_transfer(): void
@@ -63,8 +63,8 @@ class ShadowBalanceTest extends TestCase
 
         $this->assertModelExists($tx);
 
-        $this->assertEquals(50, (string)$shadow->balance()->fresh()->value);
-        $this->assertEquals(50, (string)$shadow2->balance()->fresh()->value);
+        $this->assertEquals(50, (string) $shadow->balance()->fresh()->value);
+        $this->assertEquals(50, (string) $shadow2->balance()->fresh()->value);
     }
 
     public function test_model_from_contract(): void
