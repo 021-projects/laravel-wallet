@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\WithFaker;
 use O21\LaravelWallet\Contracts\Transaction;
 use O21\LaravelWallet\Contracts\TransactionCreator;
+use O21\LaravelWallet\Enums\CommissionStrategy;
 use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Exception\FromOrOverchargeRequired;
 use O21\LaravelWallet\Exception\ImplicitTxMergeAttemptException;
@@ -840,5 +841,38 @@ class TransactionTest extends TestCase
             ->processor('invalid')
             ->overcharge()
             ->commit();
+    }
+
+    public function test_commission_percent_strategy(): void
+    {
+        $tx = deposit(100, 'USD')
+            ->to($this->createBalance()[0])
+            ->commission(10, strategy: CommissionStrategy::PERCENT)
+            ->overcharge()
+            ->commit();
+
+        $this->assertEquals(10, $tx->commission);
+    }
+
+    public function test_commission_mixed_strategy(): void
+    {
+        $tx = deposit(100, 'USD')
+            ->to($this->createBalance()[0])
+            ->commission(10, strategy: CommissionStrategy::PERCENT_AND_FIXED, fixed: 5)
+            ->overcharge()
+            ->commit();
+
+        $this->assertEquals(15, $tx->commission);
+    }
+
+    public function test_commission_minimum(): void
+    {
+        $tx = deposit(100, 'USD')
+            ->to($this->createBalance()[0])
+            ->commission(10, strategy: CommissionStrategy::PERCENT, minimum: 50)
+            ->overcharge()
+            ->commit();
+
+        $this->assertEquals(50, $tx->commission);
     }
 }

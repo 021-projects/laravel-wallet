@@ -16,7 +16,7 @@ interface TransactionCreator
 
     public function currency(string $currency): self;
 
-    public function commission(string|float|int|Numeric $commission): self;
+    public function commission(string|float|int|Numeric $value, ...$opts): self;
 
     public function status(string $status): self;
 

@@ -12,6 +12,7 @@ use O21\LaravelWallet\Contracts\Payable;
 use O21\LaravelWallet\Contracts\Transaction;
 use O21\LaravelWallet\Contracts\TransactionCreator;
 use O21\LaravelWallet\Contracts\TransactionPreparer;
+use O21\LaravelWallet\Enums\CommissionStrategy;
 use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Exception\FromOrOverchargeRequired;
 use O21\LaravelWallet\Exception\UnknownTxProcessorException;
@@ -26,9 +27,19 @@ class Creator implements TransactionCreator
 
     protected Transaction $tx;
 
+    protected Numeric $commissionValue;
+
+    protected Numeric $commissionMinimumThreshold;
+
+    protected Numeric $fixedCommissionValue;
+
+    protected CommissionStrategy $commissionStrategy;
+
     public function __construct()
     {
         $this->tx = app(Transaction::class);
+        $this->commissionValue = num(0);
+        $this->commissionMinimumThreshold = num(0);
 
         $this->currency(config('wallet.default_currency'));
     }
@@ -98,11 +109,42 @@ class Creator implements TransactionCreator
         return $this;
     }
 
-    public function commission(string|float|int|Numeric $commission): self
+    public function commission(string|float|int|Numeric $value, ...$opts): self
     {
-        $this->tx->commission = num($commission)->positive();
+        $strategy = data_get($opts, 'strategy', CommissionStrategy::FIXED);
+        $minimum = data_get($opts, 'minimum', 0);
+        $fixed = data_get($opts, 'fixed', 0);
+
+        $this->commissionValue = num(num($value)->positive());
+        $this->commissionStrategy = $strategy;
+        $this->commissionMinimumThreshold = num(num($minimum)->positive());
+        $this->fixedCommissionValue = num(num($fixed)->positive());
+
+        $this->setCommission();
 
         return $this;
+    }
+
+    protected function setCommission(): void
+    {
+        $commission = num(0);
+
+        switch ($this->commissionStrategy) {
+            case CommissionStrategy::FIXED:
+                $commission = $this->commissionValue;
+                break;
+            case CommissionStrategy::PERCENT:
+                $commission = num($this->tx->amount)
+                    ->mul(num($this->commissionValue)->div(100));
+                break;
+            case CommissionStrategy::PERCENT_AND_FIXED:
+                $commission = num($this->tx->amount)
+                    ->mul(num($this->commissionValue)->div(100))
+                    ->add($this->fixedCommissionValue);
+                break;
+        }
+
+        $this->tx->commission = $commission->max($this->commissionMinimumThreshold);
     }
 
     public function status(string $status): self
