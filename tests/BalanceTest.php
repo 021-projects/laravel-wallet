@@ -21,6 +21,14 @@ class BalanceTest extends TestCase
     use BalanceSeed;
     use WithFaker;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Reset the scaling for the currencies to prevent test failing with small values
+        config(['wallet.currency_scaling' => []]);
+    }
+
     public function test_creation(): void
     {
         [$user, $currency, $balance] = $this->createBalance();
