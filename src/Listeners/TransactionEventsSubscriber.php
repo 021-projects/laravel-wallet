@@ -18,9 +18,7 @@ class TransactionEventsSubscriber
         $tx = $event->transaction;
         $this->callProcessorMethodIfExist($tx, 'created');
 
-        if (config('wallet.balance.log_states')
-            && method_exists($tx, 'logStates')
-        ) {
+        if (config('wallet.balance.log_states')) {
             $tx->logStates();
         }
     }
@@ -43,9 +41,7 @@ class TransactionEventsSubscriber
             $event->oldStatus,
         ]);
 
-        if (config('wallet.balance.log_states')
-            && method_exists($tx, 'logStates')
-        ) {
+        if (config('wallet.balance.log_states')) {
             $tx->deleteStates();
             $tx->logStates();
         }

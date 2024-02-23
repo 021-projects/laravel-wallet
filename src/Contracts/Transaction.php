@@ -48,4 +48,8 @@ interface Transaction
     public function processor(): Attribute;
 
     public function nextBatch(): int;
+
+    public function logStates(): void;
+
+    public function deleteStates(): void;
 }
