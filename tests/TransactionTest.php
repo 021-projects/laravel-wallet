@@ -13,6 +13,8 @@ use O21\LaravelWallet\Exception\InsufficientFundsException;
 use O21\LaravelWallet\Exception\InvalidTxProcessorException;
 use O21\LaravelWallet\Exception\UnknownTxProcessorException;
 use O21\LaravelWallet\Tests\Concerns\BalanceSeed;
+use O21\LaravelWallet\Transaction\Processors\DepositProcessor;
+use Workbench\App\Transaction\Processors\InvalidProcessor;
 use Workbench\Database\Factories\APIUserFactory;
 use Workbench\Database\Factories\UserFactory;
 
@@ -761,5 +763,82 @@ class TransactionTest extends TestCase
         $this->expectException(InvalidTxProcessorException::class);
 
         $tx->fresh()->processor;
+    }
+
+    public function test_get_accountable_scope(): void
+    {
+        [$user] = $this->createBalance();
+        $accountableDeps = 1;
+        $nonAccountableDeps = 2;
+
+        for ($i = 0; $i < $accountableDeps; $i++) {
+            deposit(100, 'USD')
+                ->to($user)
+                ->overcharge()
+                ->commit();
+        }
+
+        for ($i = 0; $i < $nonAccountableDeps; $i++) {
+            deposit(100, 'USD')
+                ->to($user)
+                ->status('pending')
+                ->overcharge()
+                ->commit();
+        }
+
+
+        $this->assertEquals(
+            $accountableDeps,
+            app(Transaction::class)->accountable()->count()
+        );
+
+        $this->assertEquals(
+            $nonAccountableDeps,
+            app(Transaction::class)->accountable(false)->count()
+        );
+    }
+
+    public function test_set_processor_from_class(): void
+    {
+        $tx = tx(100, 'USD')
+            ->to($this->createBalance()[0])
+            ->processor(DepositProcessor::class)
+            ->overcharge()
+            ->commit();
+
+        $this->assertEquals('deposit', $tx->processor_id);
+    }
+
+    public function test_default_status_is_pending(): void
+    {
+        [$user] = $this->createBalance();
+
+        $tx = tx(100, 'USD')->setDefaultStatus()
+            ->processor(DepositProcessor::class)
+            ->to($user)
+            ->overcharge()
+            ->commit();
+
+        $this->assertEquals('pending', $tx->status);
+    }
+
+    public function test_creator_get_model(): void
+    {
+        $this->assertInstanceOf(Transaction::class, tx()->model());
+    }
+
+    public function test_invalid_tx_processor_throw(): void
+    {
+        config(['wallet.processors.invalid' => InvalidProcessor::class]);
+
+        [$user] = $this->createBalance();
+
+        $this->expectException(InvalidTxProcessorException::class);
+
+        tx(100, 'USD')
+            ->to($user)
+            ->processor('invalid')
+            ->overcharge()
+            ->commit();
     }
 }
