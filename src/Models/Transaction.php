@@ -107,27 +107,59 @@ class Transaction extends Model implements TransactionContract
         $this->setTable(config('wallet.table_names.transactions', 'transactions'));
     }
 
-    public function toApi(): array
+    public function toApi(...$opts): array
     {
+        $parties = data_get($opts, 'parties', true);
+        $neighbours = data_get($opts, 'neighbours', false);
+        $meta = data_get($opts, 'meta', true);
+        $camelKeys = data_get($opts, 'camelKeys', true);
+
         $result = $this->only(
             'uuid',
-            'received',
             'amount',
+            'received',
             'commission',
             'currency',
             'status',
             'processor_id',
-            'created_at',
             'archived',
-            'batch'
+            'batch',
+            'created_at',
         );
 
-        $result['meta'] = $this->processor->prepareMeta($this->meta ?? []);
+        if ($parties) {
+            $from = $this->from;
+            $to = $this->to;
+            $result['from'] = null;
+            $result['to'] = null;
+            if ($from) {
+                $result['from'] = method_exists($from, 'toApi') ? $from->toApi() : $from->toArray();
+            }
+            if ($to) {
+                $result['to'] = method_exists($to, 'toApi') ? $to->toApi() : $to->toArray();
+            }
+        }
 
-        return collect($result)
-            ->mapWithKeys(
-                fn ($value, $key) => [(string) Str::of($key)->camel() => $value]
-            )->all();
+        if ($neighbours) {
+            $result['neighbours'] = $this->neighbours->map->toApi(
+                parties: $parties,
+                neighbours: false,
+                meta: $meta
+            );
+        }
+
+        if ($meta) {
+            $result['meta'] = $this->processor->prepareMeta($this->meta ?? []);
+        }
+
+        if ($camelKeys) {
+            $result = collect($result)
+                ->mapWithKeys(
+                    fn ($value, $key) => [(string) Str::of($key)->camel() => $value]
+                )->all();
+        }
+
+        return $result;
     }
 
     public function recalculateBalances(): void

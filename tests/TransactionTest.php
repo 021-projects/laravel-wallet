@@ -11,6 +11,8 @@ use O21\LaravelWallet\Exception\FromOrOverchargeRequired;
 use O21\LaravelWallet\Exception\ImplicitTransactionMergeAttemptException;
 use O21\LaravelWallet\Exception\InsufficientFundsException;
 use O21\LaravelWallet\Tests\Concerns\BalanceSeed;
+use Workbench\Database\Factories\APIUserFactory;
+use Workbench\Database\Factories\UserFactory;
 
 class TransactionTest extends TestCase
 {
@@ -191,23 +193,94 @@ class TransactionTest extends TestCase
             ->overcharge()
             ->commit();
 
-        $result = $transaction->toApi();
+        $result = $transaction->toApi(
+            parties   : false,
+            neighbours: false,
+            meta      : false,
+            camelKeys : false,
+        );
 
         $this->assertIsArray($result);
         $this->assertArrayHasKey('uuid', $result);
+        // check uuid format
+        $this->assertMatchesRegularExpression('/[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}/', $result['uuid']);
         $this->assertArrayHasKey('amount', $result);
         $this->assertArrayHasKey('currency', $result);
         $this->assertArrayHasKey('status', $result);
+        $this->assertArrayHasKey('processor_id', $result);
+        $this->assertArrayHasKey('created_at', $result);
+        $this->assertArrayHasKey('archived', $result);
+        $this->assertArrayHasKey('received', $result);
+        $this->assertArrayNotHasKey('from', $result);
+        $this->assertArrayNotHasKey('to', $result);
+        $this->assertArrayNotHasKey('neighbours', $result);
+        $this->assertArrayNotHasKey('meta', $result);
+
+        // test parties
+        $result = $transaction->toApi(
+            parties   : true,
+            neighbours: false,
+            meta      : false,
+            camelKeys : false,
+        );
+        $this->assertArrayHasKey('from', $result);
+        $this->assertNull($result['from']);
+        $this->assertArrayHasKey('to', $result);
+        $this->assertIsArray($result['to']);
+
+        // test neighbours
+        $result = $transaction->toApi(
+            parties   : false,
+            neighbours: true,
+            meta      : false,
+            camelKeys : false,
+        );
+
+        $this->assertArrayHasKey('neighbours', $result);
+
+        // test meta
+        $result = $transaction->toApi(
+            parties   : false,
+            neighbours: false,
+            meta      : true,
+            camelKeys : false,
+        );
+        $this->assertArrayHasKey('meta', $result);
+        $this->assertIsArray($result['meta']);
+
+        // test camelCase
+        $result = $transaction->toApi(
+            parties   : false,
+            neighbours: false,
+            meta      : false,
+            camelKeys : true,
+        );
         $this->assertArrayHasKey('processorId', $result);
         $this->assertArrayHasKey('createdAt', $result);
-        $this->assertArrayHasKey('archived', $result);
-        $this->assertArrayHasKey('meta', $result);
-        $this->assertArrayHasKey('received', $result);
+    }
 
-        // check uuid format
-        $this->assertMatchesRegularExpression('/[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}/', $result['uuid']);
+    public function test_to_api_parties(): void
+    {
+        $sender = APIUserFactory::new()->create();
+        $recipient = UserFactory::new()->create();
 
-        $this->assertIsArray($result['meta']);
+        $tx = transfer(100, 'USD')
+            ->from($sender)
+            ->to($recipient)
+            ->overcharge()
+            ->commit();
+
+        $result = $tx->toApi(parties: true);
+
+        $this->assertArrayHasKey('from', $result);
+        $this->assertArrayHasKey('to', $result);
+        $this->assertIsArray($result['from']);
+        $this->assertIsArray($result['to']);
+        $this->assertArrayHasKey('gg', $result['from']);
+        $this->assertArrayHasKey('name', $result['from']);
+        $this->assertArrayHasKey('id', $result['to']);
+        $this->assertArrayHasKey('name', $result['to']);
+        $this->assertArrayNotHasKey('gg', $result['to']);
     }
 
     public function test_meta(): void

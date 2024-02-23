@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  */
 interface Transaction
 {
-    public function toApi(): array;
+    public function toApi(...$opts): array;
 
     public function hasStatus(string $status): bool;
 
