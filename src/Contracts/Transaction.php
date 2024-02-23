@@ -12,25 +12,13 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  *
  * @mixin \Illuminate\Database\Eloquent\Model
  */
-interface Transaction
+interface Transaction extends Metable
 {
     public function toApi(...$opts): array;
 
     public function hasStatus(string $status): bool;
 
     public function updateStatus(string $status): bool;
-
-    public function getMeta(?string $key = null, $default = null);
-
-    public function setMeta(
-        array|string $key,
-        float|array|int|string|null $value = null
-    ): void;
-
-    public function updateMeta(
-        array|string $key,
-        float|array|int|string|null $value = null
-    ): bool;
 
     public function recalculateBalances(): void;
 

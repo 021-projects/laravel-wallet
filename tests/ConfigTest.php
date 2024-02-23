@@ -4,6 +4,7 @@ namespace O21\LaravelWallet\Tests;
 
 use O21\LaravelWallet\Models\Balance;
 use O21\LaravelWallet\Models\BalanceState;
+use O21\LaravelWallet\Models\ShadowBalance;
 use O21\LaravelWallet\Models\Transaction;
 use Workbench\App\Models\User;
 
@@ -26,11 +27,13 @@ class ConfigTest extends TestCase
             'wallet.table_names.balances' => 'mock_balances',
             'wallet.table_names.balance_states' => 'mock_balance_states',
             'wallet.table_names.transactions' => 'mock_transactions',
+            'wallet.table_names.shadow_balances' => 'mock_shadow_balances',
         ]);
 
         $this->assertEquals('mock_balances', Balance::make()->getTable());
         $this->assertEquals('mock_balance_states', BalanceState::make()->getTable());
         $this->assertEquals('mock_transactions', Transaction::make()->getTable());
+        $this->assertEquals('mock_shadow_balances', ShadowBalance::make()->getTable());
     }
 
     public function test_processors(): void

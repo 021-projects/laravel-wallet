@@ -11,6 +11,7 @@ use O21\LaravelWallet\Commands\Rebuild\TxBalanceStatesCommand;
 use O21\LaravelWallet\Contracts\Balance;
 use O21\LaravelWallet\Contracts\BalanceState;
 use O21\LaravelWallet\Contracts\Converter as IConverter;
+use O21\LaravelWallet\Contracts\ShadowBalance;
 use O21\LaravelWallet\Contracts\Transaction;
 use O21\LaravelWallet\Contracts\TransactionCreator;
 use O21\LaravelWallet\Contracts\TransactionPreparer;
@@ -105,6 +106,7 @@ class ServiceProvider extends Provider
             $config['balance_state'] ?? BalanceStateModel::class
         );
         $this->app->bind(Transaction::class, $config['transaction']);
+        $this->app->bind(ShadowBalance::class, $config['shadow_balance']);
     }
 
     /**

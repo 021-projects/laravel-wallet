@@ -29,12 +29,14 @@ return [
         'balance' => \O21\LaravelWallet\Models\Balance::class,
         'balance_state' => \O21\LaravelWallet\Models\BalanceState::class,
         'transaction' => \O21\LaravelWallet\Models\Transaction::class,
+        'shadow_balance' => \O21\LaravelWallet\Models\ShadowBalance::class,
     ],
 
     'table_names' => [
         'balances' => 'balances',
         'balance_states' => 'balance_states',
         'transactions' => 'transactions',
+        'shadow_balances' => 'shadow_balances',
     ],
 
     'transactions' => [
