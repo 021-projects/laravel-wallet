@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property \Carbon\Carbon $created_at
  * @property-read \O21\LaravelWallet\Contracts\Balance $balance
  * @property-read \O21\LaravelWallet\Contracts\Transaction|null $tx
+ *
+ * @mixin \Illuminate\Database\Eloquent\Model
  */
 interface BalanceState
 {

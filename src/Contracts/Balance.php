@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property-read \O21\LaravelWallet\Numeric $received
  * @property-read \O21\LaravelWallet\Contracts\Payable $payable
  * @property string $currency
+ *
+ * @mixin \Illuminate\Database\Eloquent\Model
  */
 interface Balance
 {

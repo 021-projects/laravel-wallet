@@ -4,6 +4,9 @@ namespace O21\LaravelWallet\Contracts;
 
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
+/**
+ * @mixin \Illuminate\Database\Eloquent\Model
+ */
 interface Payable
 {
     public function balance(?string $currency = null): Balance;

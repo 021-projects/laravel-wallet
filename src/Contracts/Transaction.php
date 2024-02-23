@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property-read ?\O21\LaravelWallet\Contracts\Payable $from
  * @property-read ?\O21\LaravelWallet\Contracts\Payable $to
  * @property-read ?\O21\LaravelWallet\Contracts\TransactionProcessor $processor
+ *
+ * @mixin \Illuminate\Database\Eloquent\Model
  */
 interface Transaction
 {
