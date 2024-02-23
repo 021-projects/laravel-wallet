@@ -194,7 +194,7 @@ class TransactionTest extends TestCase
         $result = $transaction->toApi();
 
         $this->assertIsArray($result);
-        $this->assertArrayHasKey('id', $result);
+        $this->assertArrayHasKey('uuid', $result);
         $this->assertArrayHasKey('amount', $result);
         $this->assertArrayHasKey('currency', $result);
         $this->assertArrayHasKey('status', $result);
@@ -203,6 +203,9 @@ class TransactionTest extends TestCase
         $this->assertArrayHasKey('archived', $result);
         $this->assertArrayHasKey('meta', $result);
         $this->assertArrayHasKey('received', $result);
+
+        // check uuid format
+        $this->assertMatchesRegularExpression('/[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}/', $result['uuid']);
 
         $this->assertIsArray($result['meta']);
     }

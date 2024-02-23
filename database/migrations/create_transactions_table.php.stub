@@ -18,6 +18,7 @@ return new class extends Migration
     {
         Schema::create($this->assertTableName('transactions'), function (Blueprint $table) {
             $table->id();
+            $table->uuid()->unique();
             $table->nullableMorphs('from');
             $table->nullableMorphs('to');
             $table->unsignedDecimal('amount', 16, 8)->default(0)->index();

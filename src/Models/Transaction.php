@@ -4,6 +4,7 @@ namespace O21\LaravelWallet\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -21,6 +22,7 @@ use O21\LaravelWallet\Models\Concerns\HasMetaColumn;
  * O21\LaravelWallet\Models\Transaction
  *
  * @property int $id
+ * @property string $uuid
  * @property string $payable_type
  * @property int $payable_id
  * @property string $total Sum of amount + commission
@@ -78,7 +80,7 @@ use O21\LaravelWallet\Models\Concerns\HasMetaColumn;
  */
 class Transaction extends Model implements TransactionContract
 {
-    use HasMetaColumn;
+    use HasMetaColumn, HasUuids;
 
     public const UPDATED_AT = null;
 
@@ -108,7 +110,7 @@ class Transaction extends Model implements TransactionContract
     public function toApi(): array
     {
         $result = $this->only(
-            'id',
+            'uuid',
             'received',
             'amount',
             'commission',
@@ -263,5 +265,10 @@ class Transaction extends Model implements TransactionContract
         } else {
             $query->whereNotIn('status', TransactionStatus::accounting());
         }
+    }
+
+    public function uniqueIds(): array
+    {
+        return ['uuid'];
     }
 }
