@@ -3,7 +3,7 @@
 namespace O21\LaravelWallet\Concerns;
 
 use O21\LaravelWallet\Contracts\Transaction;
-use O21\LaravelWallet\Exception\ImplicitTransactionMergeAttemptException;
+use O21\LaravelWallet\Exception\ImplicitTxMergeAttemptException;
 
 trait Batchable
 {
@@ -31,7 +31,7 @@ trait Batchable
     {
         throw_if(
             ! $this->batchExists && app(Transaction::class)->where('batch', $batch)->exists(),
-            ImplicitTransactionMergeAttemptException::class,
+            ImplicitTxMergeAttemptException::class,
             $batch
         );
     }

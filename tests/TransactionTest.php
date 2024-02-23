@@ -8,7 +8,7 @@ use O21\LaravelWallet\Contracts\Transaction;
 use O21\LaravelWallet\Contracts\TransactionCreator;
 use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Exception\FromOrOverchargeRequired;
-use O21\LaravelWallet\Exception\ImplicitTransactionMergeAttemptException;
+use O21\LaravelWallet\Exception\ImplicitTxMergeAttemptException;
 use O21\LaravelWallet\Exception\InsufficientFundsException;
 use O21\LaravelWallet\Exception\InvalidTxProcessorException;
 use O21\LaravelWallet\Exception\UnknownTxProcessorException;
@@ -640,7 +640,7 @@ class TransactionTest extends TestCase
             $tx->batch
         );
 
-        $this->expectException(ImplicitTransactionMergeAttemptException::class);
+        $this->expectException(ImplicitTxMergeAttemptException::class);
 
         deposit(100, $currency)
             ->to($user)

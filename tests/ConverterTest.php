@@ -8,7 +8,7 @@ use O21\LaravelWallet\Contracts\Converter;
 use O21\LaravelWallet\Contracts\Transaction as ITransaction;
 use O21\LaravelWallet\Contracts\TransactionCreator;
 use O21\LaravelWallet\Enums\TransactionStatus;
-use O21\LaravelWallet\Exception\ImplicitTransactionMergeAttemptException;
+use O21\LaravelWallet\Exception\ImplicitTxMergeAttemptException;
 use O21\LaravelWallet\Exception\InsufficientFundsException;
 use O21\LaravelWallet\Tests\Concerns\BalanceSeed;
 use Workbench\Database\Factories\UserFactory;
@@ -256,7 +256,7 @@ class ConverterTest extends TestCase
             ->overcharge()
             ->commit();
 
-        $this->expectException(ImplicitTransactionMergeAttemptException::class);
+        $this->expectException(ImplicitTxMergeAttemptException::class);
 
         $this->btcConversion()
             ->batch(1)

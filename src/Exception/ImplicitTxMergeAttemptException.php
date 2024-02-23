@@ -2,7 +2,9 @@
 
 namespace O21\LaravelWallet\Exception;
 
-class ImplicitTransactionMergeAttemptException extends \RuntimeException
+use RuntimeException;
+
+class ImplicitTxMergeAttemptException extends RuntimeException
 {
     public function __construct(int $batchId)
     {
