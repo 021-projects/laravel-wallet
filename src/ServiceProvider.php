@@ -17,7 +17,6 @@ use O21\LaravelWallet\Contracts\TransactionCreator;
 use O21\LaravelWallet\Contracts\TransactionPreparer;
 use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Listeners\TransactionEventsSubscriber;
-use O21\LaravelWallet\Models\BalanceState as BalanceStateModel;
 use O21\LaravelWallet\Observers\TransactionObserver;
 use O21\LaravelWallet\Transaction\Converter;
 use O21\LaravelWallet\Transaction\Creator;
@@ -95,18 +94,23 @@ class ServiceProvider extends Provider
 
     protected function registerModelBindings(): void
     {
-        $config = $this->app->config['wallet.models'];
-        if (! $config) {
-            return;
-        }
-
-        $this->app->bind(Balance::class, $config['balance']);
+        $models = data_get($this->app->config, 'wallet.models');
+        $this->app->bind(
+            Balance::class,
+            data_get($models, 'balance', Models\Balance::class)
+        );
         $this->app->bind(
             BalanceState::class,
-            $config['balance_state'] ?? BalanceStateModel::class
+            data_get($models, 'balance_state', Models\BalanceState::class)
         );
-        $this->app->bind(Transaction::class, $config['transaction']);
-        $this->app->bind(ShadowBalance::class, $config['shadow_balance']);
+        $this->app->bind(
+            Transaction::class,
+            data_get($models, 'transaction', Models\Transaction::class)
+        );
+        $this->app->bind(
+            ShadowBalance::class,
+            data_get($models, 'shadow_balance', Models\ShadowBalance::class)
+        );
     }
 
     /**
