@@ -114,9 +114,11 @@ class Creator implements TransactionCreator
 
     public function setDefaultStatus(): self
     {
-        if (! ($processor = $this->tx->processor)) {
-            return $this;
-        }
+        $processor = null;
+
+        try {
+            $processor = $this->tx->processor;
+        } catch (UnknownTxProcessorException $e) {}
 
         $initialSuccess = $processor instanceof InitialSuccess;
         $initialHolding = $processor instanceof InitialHolding;
