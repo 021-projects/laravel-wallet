@@ -69,7 +69,7 @@ use O21\LaravelWallet\Models\Concerns\HasMetaColumn;
  * @property string|null $to_type
  * @property int|null $to_id
  *
- * @method static \Illuminate\Database\Eloquent\Builder|Transaction accountable(bool $accountable)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transaction accountable(bool $accountable = true)
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereFromId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereFromType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereToId($value)
