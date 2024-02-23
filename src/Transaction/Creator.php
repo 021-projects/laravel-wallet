@@ -53,10 +53,13 @@ class Creator implements TransactionCreator
 
             app(TransactionPreparer::class)->prepare($tx);
 
-            $this->fire('before', [
+            $fireArgs = [
                 'creator' => $this,
                 'tx' => $tx,
-            ]);
+                'transaction' => $tx,
+            ];
+
+            $this->fire('before', $fireArgs);
 
             $this->setBatch();
 
@@ -70,10 +73,7 @@ class Creator implements TransactionCreator
 
             $tx->save();
 
-            $this->fire('after', [
-                'creator' => $this,
-                'tx' => $tx,
-            ]);
+            $this->fire('after', $fireArgs);
 
             return $tx;
         };
