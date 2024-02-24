@@ -93,7 +93,7 @@ if (! function_exists('transfer')) {
 }
 
 if (! function_exists('get_custodian')) {
-    function get_custodian(string $name, array $meta = []): Custodian
+    function get_custodian(?string $name = null, array $meta = []): Custodian
     {
         return app(Custodian::class)::of($name, $meta);
     }
