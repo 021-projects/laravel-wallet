@@ -28,15 +28,15 @@ return [
     'models' => [
         'balance' => \O21\LaravelWallet\Models\Balance::class,
         'balance_state' => \O21\LaravelWallet\Models\BalanceState::class,
+        'custodian' => \O21\LaravelWallet\Models\Custodian::class,
         'transaction' => \O21\LaravelWallet\Models\Transaction::class,
-        'shadow_balance' => \O21\LaravelWallet\Models\ShadowBalance::class,
     ],
 
     'table_names' => [
         'balances' => 'balances',
         'balance_states' => 'balance_states',
+        'custodians' => 'custodians',
         'transactions' => 'transactions',
-        'shadow_balances' => 'shadow_balances',
     ],
 
     'transactions' => [

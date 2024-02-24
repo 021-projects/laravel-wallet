@@ -11,7 +11,7 @@ use O21\LaravelWallet\Commands\Rebuild\TxBalanceStatesCommand;
 use O21\LaravelWallet\Contracts\Balance;
 use O21\LaravelWallet\Contracts\BalanceState;
 use O21\LaravelWallet\Contracts\Converter as IConverter;
-use O21\LaravelWallet\Contracts\ShadowBalance;
+use O21\LaravelWallet\Contracts\Custodian;
 use O21\LaravelWallet\Contracts\Transaction;
 use O21\LaravelWallet\Contracts\TransactionCreator;
 use O21\LaravelWallet\Contracts\TransactionPreparer;
@@ -69,8 +69,8 @@ class ServiceProvider extends Provider
                 'create_balance_states_table.php',
                 order: 1
             ),
-            __DIR__.'/../database/migrations/create_shadow_balances_table.php.stub' => $this->getMigrationFileName(
-                'create_shadow_balances_table.php',
+            __DIR__.'/../database/migrations/create_custodians_table.php.stub' => $this->getMigrationFileName(
+                'create_custodians_table.php',
                 order: 2
             ),
         ], 'wallet-migrations');
@@ -112,8 +112,8 @@ class ServiceProvider extends Provider
             data_get($models, 'transaction', Models\Transaction::class)
         );
         $this->app->bind(
-            ShadowBalance::class,
-            data_get($models, 'shadow_balance', Models\ShadowBalance::class)
+            Custodian::class,
+            data_get($models, 'custodian', Models\Custodian::class)
         );
     }
 

@@ -4,17 +4,17 @@ namespace O21\LaravelWallet\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
-use O21\LaravelWallet\Contracts\ShadowBalance as ShadowBalanceContract;
+use O21\LaravelWallet\Contracts\Custodian as CustodianContract;
 use O21\LaravelWallet\Models\Concerns\HasBalance;
 use O21\LaravelWallet\Models\Concerns\HasMetaColumn;
 
 /**
  * @property int $id
- * @property string $uuid
+ * @property string $name
  * @property array $meta
  * @property \Carbon\Carbon $created_at
  */
-class ShadowBalance extends Model implements ShadowBalanceContract
+class Custodian extends Model implements CustodianContract
 {
     use HasBalance;
     use HasMetaColumn;
@@ -23,7 +23,7 @@ class ShadowBalance extends Model implements ShadowBalanceContract
     public const UPDATED_AT = null;
 
     protected $fillable = [
-        'uuid',
+        'name',
         'meta',
     ];
 
@@ -35,16 +35,16 @@ class ShadowBalance extends Model implements ShadowBalanceContract
     {
         parent::__construct($attributes);
 
-        $this->setTable(config('wallet.table_names.shadow_balances', 'shadow_balances'));
+        $this->setTable(config('wallet.table_names.custodians', 'custodians'));
     }
 
-    public static function of(?string $uuid = null, array $meta = []): self
+    public static function of(?string $name = null, array $meta = []): self
     {
-        if ($uuid === null) {
+        if ($name === null) {
             return self::create(compact('meta'));
         }
 
-        $shadow = self::firstOrCreate(compact('uuid'), compact('meta'));
+        $shadow = self::firstOrCreate(compact('name'), compact('meta'));
 
         if (! empty($meta)) {
             $shadow->updateMeta($meta);
@@ -55,6 +55,6 @@ class ShadowBalance extends Model implements ShadowBalanceContract
 
     public function uniqueIds(): array
     {
-        return ['uuid'];
+        return ['name'];
     }
 }

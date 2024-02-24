@@ -2,45 +2,45 @@
 
 namespace O21\LaravelWallet\Tests;
 
-use O21\LaravelWallet\Contracts\ShadowBalance as ShadowBalanceContract;
-use O21\LaravelWallet\Models\ShadowBalance;
+use O21\LaravelWallet\Contracts\Custodian as CustodianContract;
+use O21\LaravelWallet\Models\Custodian;
 
-class ShadowBalanceTest extends TestCase
+class CustodianTest extends TestCase
 {
     private const MY_UUID = 'gg';
 
     public function test_interface(): void
     {
-        $shadow = ShadowBalance::of(self::MY_UUID);
+        $shadow = Custodian::of(self::MY_UUID);
 
-        $this->assertInstanceOf(ShadowBalanceContract::class, $shadow);
-        $this->assertEquals(self::MY_UUID, $shadow->uuid);
+        $this->assertInstanceOf(CustodianContract::class, $shadow);
+        $this->assertEquals(self::MY_UUID, $shadow->name);
         $this->assertModelExists($shadow);
 
-        $shadow = ShadowBalance::of();
+        $shadow = Custodian::of();
         $this->assertModelExists($shadow);
-        $this->assertMatchesRegularExpression('/[a-z0-9-]{36}/', $shadow->uuid);
+        $this->assertMatchesRegularExpression('/[a-z0-9-]{36}/', $shadow->name);
 
-        $shadow = ShadowBalance::of(self::MY_UUID, ['a' => 1]);
+        $shadow = Custodian::of(self::MY_UUID, ['a' => 1]);
 
         $this->assertEquals(1, $shadow->meta['a']);
 
-        $shadow = ShadowBalance::of('random_new', ['a' => 2]);
+        $shadow = Custodian::of('random_new', ['a' => 2]);
 
-        $this->assertEquals('random_new', $shadow->uuid);
+        $this->assertEquals('random_new', $shadow->name);
         $this->assertEquals(2, $shadow->meta['a']);
     }
 
     public function test_created_only_once(): void
     {
-        $shadow = ShadowBalance::of(self::MY_UUID);
-        $shadow2 = ShadowBalance::of(self::MY_UUID);
+        $shadow = Custodian::of(self::MY_UUID);
+        $shadow2 = Custodian::of(self::MY_UUID);
         $this->assertEquals($shadow->id, $shadow2->id);
     }
 
     public function test_deposit(): void
     {
-        $shadow = ShadowBalance::of(self::MY_UUID);
+        $shadow = Custodian::of(self::MY_UUID);
 
         $tx = deposit(100, 'USD')
             ->to($shadow)
@@ -54,8 +54,8 @@ class ShadowBalanceTest extends TestCase
 
     public function test_transfer(): void
     {
-        $shadow = ShadowBalance::of(self::MY_UUID);
-        $shadow2 = ShadowBalance::of();
+        $shadow = Custodian::of(self::MY_UUID);
+        $shadow2 = Custodian::of();
 
         $tx = deposit(100, 'USD')
             ->to($shadow)
@@ -78,6 +78,6 @@ class ShadowBalanceTest extends TestCase
 
     public function test_model_from_contract(): void
     {
-        $this->assertEquals(ShadowBalance::class, app(ShadowBalanceContract::class)::class);
+        $this->assertEquals(Custodian::class, app(CustodianContract::class)::class);
     }
 }

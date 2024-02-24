@@ -15,9 +15,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create($this->assertTableName('shadow_balances'), function (Blueprint $table) {
+        Schema::create($this->assertTableName('custodians'), function (Blueprint $table) {
             $table->id();
-            $table->uuid()->unique();
+            $table->uuid('name')->unique();
             $table->json('meta')->nullable();
             $table->timestamp('created_at')->useCurrent();
         });
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists($this->assertTableName('shadow_balances'));
+        Schema::dropIfExists($this->assertTableName('custodians'));
     }
 };
