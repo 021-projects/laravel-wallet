@@ -263,7 +263,7 @@ class Converter implements IConverter
     protected function getMeta(): array
     {
         return array_merge($this->meta, [
-            'rate' => $this->rateMultiplier,
+            'rate' => $this->rateMultiplier->get(),
         ]);
     }
 
