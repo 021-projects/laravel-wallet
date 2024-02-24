@@ -21,9 +21,10 @@ return new class extends Migration
             $table->uuid()->unique();
             $table->nullableMorphs('from');
             $table->nullableMorphs('to');
-            $table->unsignedDecimal('amount', 16, 8)->default(0)->index();
-            $table->unsignedDecimal('commission', 16, 8)->default(0);
-            $table->unsignedDecimal('received', 16, 8)
+            $table->decimal('amount', 16, 8)->unsigned()->default(0)->index();
+            $table->decimal('commission', 16, 8)->unsigned()->default(0);
+            $table->decimal('received', 16, 8)
+                ->unsigned()
                 ->default(0)
                 ->comment('received = amount - commission')
                 ->index();
@@ -34,7 +35,8 @@ return new class extends Migration
             $table->string('processor_id')->index();
             $table->json('meta')->nullable();
             $table->boolean('archived')->default(false)->index();
-            $table->unsignedInteger('batch')
+            $table->integer('batch')
+                ->unsigned()
                 ->index()
                 ->comment('batch id to track related transactions');
             $table->timestamp('created_at')->nullable()->index();
