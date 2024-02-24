@@ -1,6 +1,7 @@
 <?php
 
 use O21\LaravelWallet\Contracts\Converter;
+use O21\LaravelWallet\Contracts\Custodian;
 use O21\LaravelWallet\Contracts\TransactionCreator;
 use O21\LaravelWallet\Numeric;
 
@@ -88,5 +89,12 @@ if (! function_exists('transfer')) {
         ?string $currency = null
     ): TransactionCreator {
         return tx($amount, $currency)->processor('transfer');
+    }
+}
+
+if (! function_exists('get_custodian')) {
+    function get_custodian(string $name, array $meta = []): Custodian
+    {
+        return app(Custodian::class)::of($name, $meta);
     }
 }
