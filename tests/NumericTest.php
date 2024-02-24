@@ -92,4 +92,12 @@ class NumericTest extends TestCase
         $this->assertEquals($max, $num->max(0.00000024)->get());
         $this->assertEquals(1, $num->max(1)->get());
     }
+
+    public function test_scale_inherits(): void
+    {
+        $num = num(0.0000000000025, 18);
+        $num2 = num($num);
+
+        $this->assertEquals('0.0000000000025', $num2->get());
+    }
 }

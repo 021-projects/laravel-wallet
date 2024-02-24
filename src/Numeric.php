@@ -15,6 +15,9 @@ class Numeric
         string|float|int|Numeric $value,
         ?int $scale = null
     ) {
+        if (is_null($scale) && $value instanceof self) {
+            $scale = (int) $value->scale();
+        }
         $scale ??= config('wallet.balance.max_scale') ?? 8;
         $this->_dirtyValue = $value instanceof self
             ? (string) $value
@@ -161,8 +164,12 @@ class Numeric
             : $value;
     }
 
-    public function scale(int $scale): self
+    public function scale(?int $scale = null): self|int
     {
+        if (is_null($scale)) {
+            return $this->_scale;
+        }
+
         $this->_scale = $scale;
 
         return $this;
