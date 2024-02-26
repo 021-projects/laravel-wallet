@@ -18,13 +18,6 @@ return [
         'log_states' => false,
     ],
 
-    'currency_scaling' => [
-        'USD' => 2,
-        'EUR' => 2,
-        'BTC' => 8,
-        'ETH' => 8,
-    ],
-
     'models' => [
         'balance' => \O21\LaravelWallet\Models\Balance::class,
         'balance_state' => \O21\LaravelWallet\Models\BalanceState::class,
@@ -40,6 +33,13 @@ return [
     ],
 
     'transactions' => [
+        'currency_scaling' => [
+            'USD' => 2,
+            'EUR' => 2,
+            'BTC' => 8,
+            'ETH' => 8,
+        ],
+
         'route_key' => 'uuid',
     ],
 

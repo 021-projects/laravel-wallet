@@ -2,11 +2,6 @@
 
 namespace O21\LaravelWallet\ConfigHelpers;
 
-function currency_scale(string $currency): int
-{
-    return config("wallet.currency_scaling.{$currency}", balance_max_scale());
-}
-
 function balance_max_scale(): int
 {
     return config('wallet.balance.max_scale', 8) ?? 8;
@@ -47,6 +42,11 @@ function default_currency(): string
 function tx_accounting_statuses(): array
 {
     return config('wallet.balance.accounting_statuses', []);
+}
+
+function tx_currency_scaling(string $currency): int
+{
+    return config("wallet.transactions.currency_scaling.{$currency}", balance_max_scale());
 }
 
 function tx_route_key(): string

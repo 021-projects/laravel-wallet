@@ -695,7 +695,7 @@ class TransactionTest extends TestCase
     {
         [$user] = $this->createBalance();
 
-        config(['wallet.currency_scaling.USD' => 2]);
+        config(['wallet.transactions.currency_scaling.USD' => 2]);
 
         $tx = deposit(0.000001, 'USD')
             ->to($user)
@@ -707,7 +707,7 @@ class TransactionTest extends TestCase
             $tx->amount
         );
 
-        config(['wallet.currency_scaling.USD' => 8]);
+        config(['wallet.transactions.currency_scaling.USD' => 8]);
 
         $tx = deposit(0.00000001, 'USD')
             ->to($user)

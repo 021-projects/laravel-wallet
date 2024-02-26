@@ -14,7 +14,7 @@ use O21\LaravelWallet\Contracts\TransactionCreator;
 use O21\LaravelWallet\Numeric;
 use O21\SafelyTransaction;
 
-use function O21\LaravelWallet\ConfigHelpers\currency_scale;
+use function O21\LaravelWallet\ConfigHelpers\tx_currency_scaling;
 use function O21\LaravelWallet\ConfigHelpers\default_currency;
 
 class Converter implements IConverter
@@ -136,13 +136,13 @@ class Converter implements IConverter
         return num($this->conversionAmount)
             ->sub($this->srcCommission)
             ->mul($this->rateMultiplier)
-            ->scale(currency_scale($this->destCurrency));
+            ->scale(tx_currency_scaling($this->destCurrency));
     }
 
     protected function debitAmount(): Numeric
     {
         return num($this->conversionAmount)
-            ->scale(currency_scale($this->srcCurrency));
+            ->scale(tx_currency_scaling($this->srcCurrency));
     }
 
     protected function creditProcessor(): string
