@@ -14,13 +14,11 @@ use O21\LaravelWallet\Contracts\Converter as IConverter;
 use O21\LaravelWallet\Contracts\Custodian;
 use O21\LaravelWallet\Contracts\Transaction;
 use O21\LaravelWallet\Contracts\TransactionCreator;
-use O21\LaravelWallet\Contracts\TransactionPreparer;
 use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Listeners\TransactionEventsSubscriber;
 use O21\LaravelWallet\Observers\TransactionObserver;
 use O21\LaravelWallet\Transaction\Converter;
 use O21\LaravelWallet\Transaction\Creator;
-use O21\LaravelWallet\Transaction\Preparer;
 
 use function O21\LaravelWallet\ConfigHelpers\get_model_class;
 use function O21\LaravelWallet\ConfigHelpers\tx_accounting_statuses;
@@ -81,10 +79,6 @@ class ServiceProvider extends Provider
 
     protected function registerTransactionManipulators(): void
     {
-        $this->app->bind(TransactionPreparer::class, function () {
-            return new Preparer();
-        });
-
         $this->app->bind(TransactionCreator::class, function () {
             return new Creator();
         });

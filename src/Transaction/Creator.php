@@ -11,7 +11,6 @@ use O21\LaravelWallet\Concerns\Overchargable;
 use O21\LaravelWallet\Contracts\Payable;
 use O21\LaravelWallet\Contracts\Transaction;
 use O21\LaravelWallet\Contracts\TransactionCreator;
-use O21\LaravelWallet\Contracts\TransactionPreparer;
 use O21\LaravelWallet\Enums\CommissionStrategy;
 use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Exception\FromOrOverchargeRequiredException;
@@ -53,8 +52,6 @@ class Creator implements TransactionCreator
             $this->validate();
 
             $tx = $this->tx;
-
-            app(TransactionPreparer::class)->prepare($tx);
 
             $fireArgs = [
                 'creator' => $this,

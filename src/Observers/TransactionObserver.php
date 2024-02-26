@@ -3,7 +3,6 @@
 namespace O21\LaravelWallet\Observers;
 
 use O21\LaravelWallet\Contracts\Transaction;
-use O21\LaravelWallet\Contracts\TransactionPreparer;
 use O21\LaravelWallet\Events\TransactionCreated;
 use O21\LaravelWallet\Events\TransactionDeleted;
 use O21\LaravelWallet\Events\TransactionStatusChanged;
@@ -21,7 +20,7 @@ class TransactionObserver
         $scale = currency_scale($tx->currency);
         $tx->amount = num($tx->amount)->scale($scale)->get();
         $tx->commission = num($tx->commission)->scale($scale)->get();
-        $tx->received = num($tx->received)->scale($scale)->get();
+        $tx->received = num($tx->amount)->sub($tx->commission)->scale($scale)->get();
     }
 
     public function saved(Transaction $tx): void
@@ -42,12 +41,6 @@ class TransactionObserver
     public function updating(Transaction $tx): void
     {
         $this->callProcessorMethodIfExist($tx, 'updating');
-
-        if ($tx->isDirty('amount')) {
-            /** @var \O21\LaravelWallet\Transaction\Preparer $preparer */
-            $preparer = app(TransactionPreparer::class);
-            $preparer->prepare($tx);
-        }
     }
 
     public function updated(Transaction $tx): void
