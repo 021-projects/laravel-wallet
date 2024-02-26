@@ -3,7 +3,7 @@ import { defineConfig } from 'vitepress'
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   appearance: 'force-dark',
-  base: '/laravel-wallet/',
+  base: '/laravel-wallet/8.x/',
   title: "Laravel Wallet",
   description: "Documentation for 021/laravel-wallet package",
   head: [
@@ -13,7 +13,17 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     logo: '/logo.png',
 
-    nav: [],
+    nav: [
+      {
+        text: 'v8 (stable)',
+        items: [
+          {
+            text: 'v9 (during development)',
+            link: 'https://021-projects.github.io/laravel-wallet/9.x'
+          }
+        ]
+      }
+    ],
 
     search: {
       provider: 'local',
