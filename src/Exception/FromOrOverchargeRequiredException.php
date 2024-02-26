@@ -2,7 +2,9 @@
 
 namespace O21\LaravelWallet\Exception;
 
-class FromOrOverchargeRequired extends \RuntimeException
+use RuntimeException;
+
+class FromOrOverchargeRequiredException extends RuntimeException
 {
     public function __construct()
     {

@@ -14,7 +14,7 @@ use O21\LaravelWallet\Contracts\TransactionCreator;
 use O21\LaravelWallet\Contracts\TransactionPreparer;
 use O21\LaravelWallet\Enums\CommissionStrategy;
 use O21\LaravelWallet\Enums\TransactionStatus;
-use O21\LaravelWallet\Exception\FromOrOverchargeRequired;
+use O21\LaravelWallet\Exception\FromOrOverchargeRequiredException;
 use O21\LaravelWallet\Exception\UnknownTxProcessorException;
 use O21\LaravelWallet\Numeric;
 use O21\LaravelWallet\Transaction\Processors\Contracts\InitialHolding;
@@ -259,7 +259,7 @@ class Creator implements TransactionCreator
     {
         throw_if(
             ! $this->tx->from && ! $this->allowOvercharge,
-            FromOrOverchargeRequired::class
+            FromOrOverchargeRequiredException::class
         );
     }
 }

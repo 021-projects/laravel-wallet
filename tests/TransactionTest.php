@@ -8,7 +8,7 @@ use O21\LaravelWallet\Contracts\Transaction;
 use O21\LaravelWallet\Contracts\TransactionCreator;
 use O21\LaravelWallet\Enums\CommissionStrategy;
 use O21\LaravelWallet\Enums\TransactionStatus;
-use O21\LaravelWallet\Exception\FromOrOverchargeRequired;
+use O21\LaravelWallet\Exception\FromOrOverchargeRequiredException;
 use O21\LaravelWallet\Exception\ImplicitTxMergeAttemptException;
 use O21\LaravelWallet\Exception\InsufficientFundsException;
 use O21\LaravelWallet\Exception\InvalidTxProcessorException;
@@ -462,7 +462,7 @@ class TransactionTest extends TestCase
 
     public function test_from_or_overcharge_required(): void
     {
-        $this->expectException(FromOrOverchargeRequired::class);
+        $this->expectException(FromOrOverchargeRequiredException::class);
 
         deposit(100)->commit();
     }
