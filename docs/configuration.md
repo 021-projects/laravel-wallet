@@ -5,7 +5,7 @@
 ```php
 return [
     // ...
-    'balance' => [ // [!code focus]
+    'balance' => [
         // ...
         'accounting_statuses' => [ // [!code focus:4]
             \O21\LaravelWallet\Enums\TransactionStatus::SUCCESS,
@@ -16,7 +16,7 @@ return [
 ];
 ```
 
-## Scaling <Badge type="tip" text="8.1+" />
+## Scaling
 By default, all numbers in the package are limited to 99,999,999.99999999. This applies to balance values, transaction amounts, commissions, etc.
 If you want to increase this limit, first of all you need to edit the migrations.
 
@@ -53,15 +53,35 @@ Then you need to change the configuration:
 ```php
 return [
     // ...
-    'balance' => [ // [!code focus]
+    'balance' => [
         // ...
         'max_scale' => 18, // [!code focus]
         // ...
-    ], // [!code focus]
+    ],
 ];
 ```
 
 The [Numeric](interfaces.md#numeric) class will now round numbers to 18 decimal places.
+
+You can also limit decimal places for transactions in certain currencies:
+```php
+return [
+    // ...
+    'transactions' => [
+        // ...
+        'currency_scaling' => [ // [!code focus:6]
+            'USD' => 2,
+            'EUR' => 2,
+            'BTC' => 8,
+            'ETH' => 8,
+        ],
+        // ...
+    ],
+];
+```
+::: tip Note
+Only affects the transaction table. Balance values may have more decimals in accordance with `wallet.balance.max_scale`.
+:::
 
 ## Default Currency
 Laravel Wallet supports balances in multiple currencies, but also provides the ability to work conveniently when you only have one main currency.
@@ -80,9 +100,10 @@ You can extend any model from the package:
 ```php
 return [
     // ...
-    'models' => [ // [!code focus:5]
+    'models' => [ // [!code focus:6]
         'balance'       => \O21\LaravelWallet\Models\Balance::class,
         'balance_state' => \O21\LaravelWallet\Models\BalanceState::class,
+        'custodian'     => \O21\LaravelWallet\Models\Custodian::class,
         'transaction'   => \O21\LaravelWallet\Models\Transaction::class,
     ],
     // ...
@@ -97,6 +118,7 @@ return [
     'models' => [
         'balance'       => \O21\LaravelWallet\Models\Balance::class,
         'balance_state' => \O21\LaravelWallet\Models\BalanceState::class,
+        'custodian'     => \O21\LaravelWallet\Models\Custodian::class,
         'transaction'   => \App\Models\Transaction::class, // [!code focus]
     ],
     // ...
@@ -109,13 +131,7 @@ use O21\LaravelWallet\Models\Transaction as BaseTransaction;
 
 class Transaction extends BaseTransaction
 {
-    public function toApi(): array
-    {
-        $output = parent::toApi();
-        $output['from'] = $this->from?->toApi();
-        $output['to'] = $this->to?->toApi();
-        return $output;
-    }
+    // ...
 }
 ```
 :::
@@ -127,11 +143,12 @@ If you want to change the table names, do it before running wallet migrations ;)
 :::
 By default, the package will use the following table names:
 
-| Name             | Description                    |
-|------------------|--------------------------------|
-| `balances`       | For storing balances           |
-| `balance_states` | For storing balance state logs |
-| `transactions`   | For storing transactions       |
+| Name             | Description                                   |
+|------------------|-----------------------------------------------|
+| `balances`       | Model balance values                          |
+| `balance_states` | Snapshots of balance values for a transaction |
+| `custodians`     | Anonymous / Model-free fund holders           |
+| `transactions`   | Balance transactions                          |
 
 It can be changed in the `table_names` section:
 ```php
@@ -140,6 +157,7 @@ return [
     'table_names' => [ // [!code focus:5]
         'balances'       => 'balances',
         'balance_states' => 'balance_states',
+        'custodians'     => 'custodians',
         'transactions'   => 'transactions',
     ],
     // ...
@@ -152,13 +170,13 @@ After enabling these options, the `value_pending` and `value_on_hold` fields wil
 ```php
 return [
     // ...
-    'balance' => [ // [!code focus:5]
-        'extra_values' => [
+    'balance' => [
+        'extra_values' => [ // [!code focus:4]
             'pending' => true,
             'on_hold' => true,
         ],
         // ...
-    ], // [!code focus]
+    ],
 ];
 ```
 
@@ -173,10 +191,10 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+use function O21\LaravelWallet\ConfigHelpers\table_name;
+
 return new class extends Migration
 {
-    use \O21\LaravelWallet\Concerns\MigrationHelper;
-
     /**
      * Run the migrations.
      *
@@ -184,7 +202,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table($this->assertTableName('balances'), function (Blueprint $table) {
+        Schema::table(table_name('balances'), function (Blueprint $table) {
             $table->decimal('value_<status-name>', 16, 8)->default(0);
         });
     }
@@ -196,7 +214,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table($this->assertTableName('balances'), function (Blueprint $table) {
+        Schema::table(table_name('balances'), function (Blueprint $table) {
             $table->dropColumn('value_<status-name>');
         });
     }
@@ -206,7 +224,6 @@ return new class extends Migration
 
 And just add the status to the `balance.extra_values`:
 ```php
-
 return [
     // ...
     'balance' => [
@@ -222,15 +239,29 @@ return [
 ];
 ```
 
+## Transaction Route Key
+By default, the package uses the `uuid` field to identify transactions. If you want to use another field, you can specify it in the configuration:
+```php
+return [
+    // ...
+    'transactions' => [
+        // ...
+        'route_key' => 'id', // [!code focus]
+        // ...
+    ],
+    // ...
+];
+```
+
 ## Log Balance States
 You can enable logging of balance states at the time of transaction execution. 
 ```php
 return [
     // ...
-    'balance' => [ // [!code focus]
+    'balance' => [
         // ...
         'log_states' => true, // [!code focus]
         // ...
-    ], // [!code focus]
+    ], 
 ];
 ```
