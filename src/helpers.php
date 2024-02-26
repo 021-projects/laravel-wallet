@@ -34,18 +34,6 @@ if (! function_exists('tx')) {
     }
 }
 
-if (! function_exists('transaction')) {
-    /**
-     * @deprecated Use tx() instead
-     */
-    function transaction(
-        string|float|int|Numeric|null $amount = null,
-        ?string $currency = null
-    ): TransactionCreator {
-        return tx($amount, $currency);
-    }
-}
-
 if (! function_exists('deposit')) {
     function deposit(
         string|float|int|Numeric $amount,
