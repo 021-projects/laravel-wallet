@@ -8,6 +8,8 @@ use O21\LaravelWallet\Contracts\Custodian as CustodianContract;
 use O21\LaravelWallet\Models\Concerns\HasBalance;
 use O21\LaravelWallet\Models\Concerns\HasMetaColumn;
 
+use function O21\LaravelWallet\ConfigHelpers\table_name;
+
 /**
  * @property int $id
  * @property string $name
@@ -35,7 +37,7 @@ class Custodian extends Model implements CustodianContract
     {
         parent::__construct($attributes);
 
-        $this->setTable(config('wallet.table_names.custodians', 'custodians'));
+        $this->setTable(table_name('custodians'));
     }
 
     public static function of(?string $name = null, array $meta = []): self

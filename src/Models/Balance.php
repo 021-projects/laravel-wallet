@@ -10,6 +10,8 @@ use O21\LaravelWallet\Casts\TrimZero;
 use O21\LaravelWallet\Contracts\Balance as BalanceContract;
 use O21\LaravelWallet\Contracts\Transaction;
 
+use function O21\LaravelWallet\ConfigHelpers\table_name;
+
 /**
  * O21\LaravelWallet\Models\Balance
  *
@@ -64,7 +66,7 @@ class Balance extends Model implements BalanceContract
     {
         parent::__construct($attributes);
 
-        $this->setTable(config('wallet.table_names.balances', 'balances'));
+        $this->setTable(table_name('balances'));
     }
 
     public function recalculate(): bool

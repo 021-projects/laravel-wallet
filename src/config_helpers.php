@@ -11,3 +11,8 @@ function balance_max_scale(): int
 {
     return config('wallet.balance.max_scale', 8);
 }
+
+function table_name(string $key): string
+{
+    return config("wallet.table_names.$key", $key) ?? $key;
+}

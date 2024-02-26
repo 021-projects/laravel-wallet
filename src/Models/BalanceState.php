@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use O21\LaravelWallet\Casts\TrimZero;
 use O21\LaravelWallet\Contracts\BalanceState as BalanceStateContract;
 
+use function O21\LaravelWallet\ConfigHelpers\table_name;
+
 /**
  * O21\LaravelWallet\Models\BalanceState
  *
@@ -55,7 +57,7 @@ class BalanceState extends Model implements BalanceStateContract
     {
         parent::__construct($attributes);
 
-        $this->setTable(config('wallet.table_names.balance_states', 'balance_states'));
+        $this->setTable(table_name('balance_states'));
     }
 
     public function value(): Attribute

@@ -19,6 +19,8 @@ use O21\LaravelWallet\Exception\InvalidTxProcessorException;
 use O21\LaravelWallet\Exception\UnknownTxProcessorException;
 use O21\LaravelWallet\Models\Concerns\HasMetaColumn;
 
+use function O21\LaravelWallet\ConfigHelpers\table_name;
+
 /**
  * O21\LaravelWallet\Models\Transaction
  *
@@ -105,7 +107,7 @@ class Transaction extends Model implements TransactionContract
     {
         parent::__construct($attributes);
 
-        $this->setTable(config('wallet.table_names.transactions', 'transactions'));
+        $this->setTable(table_name('transactions'));
     }
 
     public function toApi(...$opts): array

@@ -4,10 +4,10 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+use function O21\LaravelWallet\ConfigHelpers\table_name;
+
 return new class extends Migration
 {
-    use \O21\LaravelWallet\Concerns\MigrationHelper;
-
     /**
      * Run the migrations.
      *
@@ -15,7 +15,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create($this->assertTableName('balances'), function (Blueprint $table) {
+        Schema::create(table_name('balances'), function (Blueprint $table) {
             $table->id();
             $table->morphs('payable');
             $table->decimal('value', 16, 8)->default(0);
@@ -33,6 +33,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists($this->assertTableName('balances'));
+        Schema::dropIfExists(table_name('balances'));
     }
 };
