@@ -1,12 +1,9 @@
 # Basic Usage
 
 ## Balances
-::: warning
-To ensure the integrity of balance data, all modifications must be performed via transactions. Direct adjustments to balance values are not persistent and will be overwritten upon the execution of any subsequent transaction.
-:::
-Models that implement the [`Payable`](./interfaces.md#payable) interface are capable of maintaining individual balances, alongside the transactions associated with them.
+Any Eloquent model that implements the [`Payable`](./interfaces.md#payable) interface can have own balance in multiple currencies.
+To quickly implement this interface in a model, use the `HasBalance` trait:
 
-##### Integrating balances into model
 ```php
 namespace App\Models;
 
@@ -20,26 +17,67 @@ class User extends Model implements Payable // [!code focus:4]
 }
 ```
 
-## Conducting Transactions
-::: tip
-A transaction represents a monetary transfer from a sender to a recipient. Transactions can only be created if the sender has adequate funds, except when the `overcharge` mode is activated, allowing for transactions beyond the available balance.
-:::
+## Transactions
 
-### Overcharge Mode
-When the `overcharge` mode is enabled, transactions can be conducted even without the sender or if the sender has insufficient funds.
-Use it if you want to allow negative balances or creating a deposit.
-
-##### Performing a Transfer
-```php
-transfer(100, 'USD')->from($sender)->to($recipient)->commit();
-```
-
-##### Making a Deposit
+### Deposit
 ```php
 deposit(100, 'USD')->to($recipient)->overcharge()->commit();
 ```
 
-##### Charge
+### Conversion
+```php
+conversion(1, 'USD')->to('EUR')->at(0.92)->performOn($payable);
+```
+
+::: tip
+For conversions at rates with a decimal fraction greater than the value set in wallet.balance.max_scale, pass a Numeric object with an explicit scale parameter:
+```php
+conversion(20, 'KZT')
+    ->to('BTC')
+    ->at(num(1, scale: 15)->div(500_120_962.21)) // 1 KZT = 0.000000001999516 BTC
+    ->performOn($payable);
+```
+:::
+
+### Charge
 ```php
 charge(100, 'USD')->from($sender)->commit();
+```
+
+### Transfer
+```php
+transfer(100, 'USD')->from($sender)->to($recipient)->commit();
+```
+
+### Overcharge Mode
+A transaction represents a funds transfer from a sender to a recipient.
+If the sender is missing or has insufficient funds, you will receive an exception when creating the transaction. 
+To prevent this, you need to enable the `overcharge` mode:
+```php
+transfer(100, 'USD')->from($sender)->to($recipient)->overcharge()->commit();
+```
+Use it if you want to allow negative balances or creating a deposit.
+
+Check the [deep dive](./transactions.md) section for more details.
+
+## Custodians
+Sometimes we need to have a balance for an abstraction that doesn't have its own model.
+In this case, we can use the `Custodian` model:
+```php
+deposit(100, 'USD')->to(get_custodian('subservice_name'))->commit();
+
+// or
+
+use O21\LaravelWallet\Models\Custodian;
+deposit(100, 'USD')->to(Custodian::of('subservice_name'))->commit();
+```
+
+You can also create anonymous custodians:
+```php
+get_custodian();
+
+// or 
+
+use O21\LaravelWallet\Models\Custodian;
+Custodian::of();
 ```
