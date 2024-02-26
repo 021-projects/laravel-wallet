@@ -229,6 +229,7 @@ class Transaction extends Model implements TransactionContract
 
         $processor = app($processorClass, [
             'transaction' => $this,
+            'tx' => $this,
         ]);
 
         throw_if(

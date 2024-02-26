@@ -8,7 +8,7 @@ trait BatchSync
 {
     public function statusChanged(string $status, string $oldStatus): void
     {
-        $this->transaction->neighbours->each(function (Transaction $tx) use ($status) {
+        $this->tx->neighbours->each(function (Transaction $tx) use ($status) {
             if ($tx->status === $status) {
                 return;
             }

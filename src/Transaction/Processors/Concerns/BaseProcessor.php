@@ -6,7 +6,7 @@ use O21\LaravelWallet\Contracts\Transaction;
 
 trait BaseProcessor
 {
-    public function __construct(protected Transaction $transaction)
+    public function __construct(protected Transaction $tx)
     {
     }
 
