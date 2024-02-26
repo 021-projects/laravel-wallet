@@ -14,8 +14,8 @@ use O21\LaravelWallet\Contracts\TransactionCreator;
 use O21\LaravelWallet\Numeric;
 use O21\SafelyTransaction;
 
-use function O21\LaravelWallet\ConfigHelpers\tx_currency_scaling;
 use function O21\LaravelWallet\ConfigHelpers\default_currency;
+use function O21\LaravelWallet\ConfigHelpers\tx_currency_scaling;
 
 class Converter implements IConverter
 {
