@@ -3,7 +3,7 @@ import { defineConfig } from 'vitepress'
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   appearance: 'force-dark',
-  base: '/laravel-wallet/9.x',
+  base: '/laravel-wallet/9.x/',
   title: "Laravel Wallet",
   description: "Documentation for 021/laravel-wallet package",
   head: [
