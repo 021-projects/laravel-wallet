@@ -21,6 +21,9 @@ use O21\LaravelWallet\Transaction\Processors\Contracts\InitialHolding;
 use O21\LaravelWallet\Transaction\Processors\Contracts\InitialSuccess;
 use O21\SafelyTransaction;
 
+use function O21\LaravelWallet\ConfigHelpers\default_currency;
+use function O21\LaravelWallet\ConfigHelpers\tx_processors;
+
 class Creator implements TransactionCreator
 {
     use Batchable, Eventable, Lockable, Overchargable;
@@ -41,7 +44,7 @@ class Creator implements TransactionCreator
         $this->commissionValue = num(0);
         $this->commissionMinimumThreshold = num(0);
 
-        $this->currency(config('wallet.default_currency'));
+        $this->currency(default_currency());
     }
 
     public function commit(): Transaction
@@ -178,17 +181,13 @@ class Creator implements TransactionCreator
     public function processor(string $processor): self
     {
         if (class_exists($processor)) {
-            $this->tx->processor_id = array_search(
-                $processor,
-                config('wallet.processors'),
-                true
-            );
+            $this->tx->processor_id = array_search($processor, tx_processors(), true);
 
             return $this;
         }
 
         throw_if(
-            ! array_key_exists($processor, config('wallet.processors')),
+            ! array_key_exists($processor, tx_processors()),
             UnknownTxProcessorException::class,
             $processor
         );

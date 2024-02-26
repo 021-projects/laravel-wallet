@@ -5,7 +5,9 @@ namespace O21\LaravelWallet\Models\Concerns;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use O21\LaravelWallet\Contracts\Balance;
 use O21\LaravelWallet\Exception\InsufficientFundsException;
-use O21\LaravelWallet\Models\BalanceState;
+
+use function O21\LaravelWallet\ConfigHelpers\default_currency;
+use function O21\LaravelWallet\ConfigHelpers\get_model_class;
 
 trait HasBalance
 {
@@ -13,7 +15,7 @@ trait HasBalance
 
     public function balance(?string $currency = null): Balance
     {
-        $currency ??= config('wallet.default_currency');
+        $currency ??= default_currency();
 
         if (! isset($this->_balances[$currency])) {
             $attributes = [
@@ -32,7 +34,7 @@ trait HasBalance
     public function balanceStates(): MorphMany
     {
         return $this->morphMany(
-            config('wallet.models.balance_state') ?? BalanceState::class,
+            get_model_class('balance_state'),
             'payable'
         );
     }

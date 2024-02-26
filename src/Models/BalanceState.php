@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use O21\LaravelWallet\Casts\TrimZero;
 use O21\LaravelWallet\Contracts\BalanceState as BalanceStateContract;
 
+use function O21\LaravelWallet\ConfigHelpers\get_model_class;
 use function O21\LaravelWallet\ConfigHelpers\table_name;
 
 /**
@@ -82,6 +83,6 @@ class BalanceState extends Model implements BalanceStateContract
 
     public function tx(): BelongsTo
     {
-        return $this->belongsTo(config('wallet.models.transaction'), 'transaction_id');
+        return $this->belongsTo(get_model_class('transaction'), 'transaction_id');
     }
 }

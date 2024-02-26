@@ -9,6 +9,8 @@ use O21\LaravelWallet\Events\TransactionStatusChanged;
 use O21\LaravelWallet\Events\TransactionUpdated;
 use O21\LaravelWallet\Transaction\Processors\Concerns\Events;
 
+use function O21\LaravelWallet\ConfigHelpers\log_balance_states_enabled;
+
 class TransactionEventsSubscriber
 {
     use Events;
@@ -18,7 +20,7 @@ class TransactionEventsSubscriber
         $tx = $event->transaction;
         $this->callProcessorMethodIfExist($tx, 'created');
 
-        if (config('wallet.balance.log_states')) {
+        if (log_balance_states_enabled()) {
             $tx->logStates();
         }
     }
@@ -41,7 +43,7 @@ class TransactionEventsSubscriber
             $event->oldStatus,
         ]);
 
-        if (config('wallet.balance.log_states')) {
+        if (log_balance_states_enabled()) {
             $tx->deleteStates();
             $tx->logStates();
         }

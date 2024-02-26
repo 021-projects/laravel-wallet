@@ -19,7 +19,10 @@ use O21\LaravelWallet\Exception\InvalidTxProcessorException;
 use O21\LaravelWallet\Exception\UnknownTxProcessorException;
 use O21\LaravelWallet\Models\Concerns\HasMetaColumn;
 
+use function O21\LaravelWallet\ConfigHelpers\get_model_class;
+use function O21\LaravelWallet\ConfigHelpers\get_tx_processor_class;
 use function O21\LaravelWallet\ConfigHelpers\table_name;
+use function O21\LaravelWallet\ConfigHelpers\tx_route_key;
 
 /**
  * O21\LaravelWallet\Models\Transaction
@@ -216,7 +219,7 @@ class Transaction extends Model implements TransactionContract
 
     private function resolveProcessor(): TransactionProcessor
     {
-        $processorClass = config("wallet.processors.{$this->processor_id}");
+        $processorClass = get_tx_processor_class($this->processor_id);
 
         throw_if(
             ! class_exists($processorClass),
@@ -254,7 +257,7 @@ class Transaction extends Model implements TransactionContract
 
     public function fromState(): HasOne
     {
-        return $this->hasOne(config('wallet.models.balance_state') ?? BalanceState::class)
+        return $this->hasOne(get_model_class('balance_state'))
             ->where([
                 ['payable_id', '=', $this->from_id],
                 ['payable_type', '=', $this->from_type],
@@ -263,7 +266,7 @@ class Transaction extends Model implements TransactionContract
 
     public function toState(): HasOne
     {
-        return $this->hasOne(config('wallet.models.balance_state') ?? BalanceState::class)
+        return $this->hasOne(get_model_class('balance_state'))
             ->where([
                 ['payable_id', '=', $this->to_id],
                 ['payable_type', '=', $this->to_type],
@@ -273,7 +276,7 @@ class Transaction extends Model implements TransactionContract
     public function neighbours(): HasMany
     {
         return $this->hasMany(
-            config('wallet.models.transaction') ?? self::class,
+            get_model_class('transaction'),
             'batch',
             'batch'
         )->where('id', '!=', $this->id);
@@ -307,6 +310,6 @@ class Transaction extends Model implements TransactionContract
 
     public function getRouteKeyName()
     {
-        return config('wallet.transactions.route_key', 'uuid') ?? 'uuid';
+        return tx_route_key();
     }
 }

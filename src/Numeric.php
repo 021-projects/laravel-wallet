@@ -2,6 +2,8 @@
 
 namespace O21\LaravelWallet;
 
+use function O21\LaravelWallet\ConfigHelpers\balance_max_scale;
+
 /**
  * Class for safe numeric operations
  */
@@ -18,7 +20,7 @@ class Numeric
         if (is_null($scale) && $value instanceof self) {
             $scale = (int) $value->scale();
         }
-        $scale ??= config('wallet.balance.max_scale') ?? 8;
+        $scale ??= balance_max_scale();
         $this->_dirtyValue = $value instanceof self
             ? (string) $value
             : $this->format(

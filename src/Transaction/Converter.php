@@ -15,6 +15,7 @@ use O21\LaravelWallet\Numeric;
 use O21\SafelyTransaction;
 
 use function O21\LaravelWallet\ConfigHelpers\currency_scale;
+use function O21\LaravelWallet\ConfigHelpers\default_currency;
 
 class Converter implements IConverter
 {
@@ -41,7 +42,7 @@ class Converter implements IConverter
     public function __construct()
     {
         $this->conversionAmount = num(0);
-        $this->srcCurrency = config('wallet.default_currency');
+        $this->srcCurrency = default_currency();
         $this->srcCommission = num(0);
         $this->destCommission = num(0);
         $this->rateMultiplier = num(0);

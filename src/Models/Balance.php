@@ -10,6 +10,7 @@ use O21\LaravelWallet\Casts\TrimZero;
 use O21\LaravelWallet\Contracts\Balance as BalanceContract;
 use O21\LaravelWallet\Contracts\Transaction;
 
+use function O21\LaravelWallet\ConfigHelpers\balance_extra_values;
 use function O21\LaravelWallet\ConfigHelpers\table_name;
 
 /**
@@ -75,7 +76,7 @@ class Balance extends Model implements BalanceContract
 
         $attributes = compact('value');
 
-        $extraValues = config('wallet.balance.extra_values', []);
+        $extraValues = balance_extra_values();
 
         foreach ($extraValues as $status => $active) {
             if (! $active) {

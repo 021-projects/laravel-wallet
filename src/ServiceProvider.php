@@ -22,6 +22,9 @@ use O21\LaravelWallet\Transaction\Converter;
 use O21\LaravelWallet\Transaction\Creator;
 use O21\LaravelWallet\Transaction\Preparer;
 
+use function O21\LaravelWallet\ConfigHelpers\get_model_class;
+use function O21\LaravelWallet\ConfigHelpers\tx_accounting_statuses;
+
 class ServiceProvider extends Provider
 {
     /**
@@ -93,27 +96,26 @@ class ServiceProvider extends Provider
 
     protected function registerTransactionAccountingStatuses(): void
     {
-        TransactionStatus::accounting(config('wallet.balance.accounting_statuses'));
+        TransactionStatus::accounting(tx_accounting_statuses());
     }
 
     protected function registerModelBindings(): void
     {
-        $models = data_get($this->app->config, 'wallet.models');
         $this->app->bind(
             Balance::class,
-            data_get($models, 'balance', Models\Balance::class)
+            get_model_class('balance') ?? Models\Balance::class
         );
         $this->app->bind(
             BalanceState::class,
-            data_get($models, 'balance_state', Models\BalanceState::class)
+            get_model_class('balance_state') ?? Models\BalanceState::class
         );
         $this->app->bind(
             Transaction::class,
-            data_get($models, 'transaction', Models\Transaction::class)
+            get_model_class('transaction') ?? Models\Transaction::class
         );
         $this->app->bind(
             Custodian::class,
-            data_get($models, 'custodian', Models\Custodian::class)
+            get_model_class('custodian') ?? Models\Custodian::class
         );
     }
 
