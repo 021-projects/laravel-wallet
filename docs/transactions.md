@@ -53,6 +53,6 @@ class WithdrawProcessor implements TransactionProcessor, InitialSuccess // [!cod
 
 <div class="tip custom-block" style="padding-top: 8px">
 
-Check for [good transaction processing practices](good-practices.md#withdrawal-example).
+Check the [best practices](best-practices.md) section for more examples.
 
 </div>
