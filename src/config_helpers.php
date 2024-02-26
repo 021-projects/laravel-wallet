@@ -35,6 +35,7 @@ function get_model_class(string $key): ?string
         'custodian' => \O21\LaravelWallet\Models\Custodian::class,
         'transaction' => \O21\LaravelWallet\Models\Transaction::class,
     ];
+
     return config("wallet.models.$key") ?? $defaultModelsMap[$key] ?? null;
 }
 
@@ -61,5 +62,6 @@ function tx_processors(): array
 function get_tx_processor_class($key): ?string
 {
     $key = (string) $key;
+
     return config("wallet.processors.$key");
 }
