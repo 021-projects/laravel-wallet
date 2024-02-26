@@ -329,6 +329,59 @@ class ConverterTest extends TestCase
         );
     }
 
+    public function test_large_scale_rate_invalid(): void
+    {
+        $user = UserFactory::new()->create();
+
+        deposit(20, 'KZT')->to($user)
+            ->overcharge()
+            ->commit();
+
+        $btcKztRate = 500_141_245.21;
+
+        // scale is 8, so 1 / $btcKztRate will be 0 (must be: 0.000000001999435)
+
+        $this->expectException(InvalidArgumentException::class);
+
+        conversion(20, 'KZT')
+            ->to('BTC')
+            ->at(1 / $btcKztRate)
+            ->performOn($user);
+    }
+
+    public function test_large_scale_rate(): void
+    {
+        $user = UserFactory::new()->create();
+
+        deposit(20, 'KZT')->to($user)
+            ->overcharge()
+            ->commit();
+
+        $btcKztRate = 500_141_245.21;
+
+        // scale is 15, so 1 / $btcKztRate will be 0.000000001999435
+
+        $txs = conversion(20, 'KZT')
+            ->to('BTC')
+            ->at(num(1, 15)->div($btcKztRate))
+            ->performOn($user);
+
+        $this->assertBalanceRefreshEquals(
+            $user->balance('KZT'),
+            0
+        );
+
+        $this->assertBalanceRefreshEquals(
+            $user->balance('BTC'),
+            0.00000003 // 0.000000001999435 * 20 with scale 8
+        );
+
+        $txs->each(function (ITransaction $tx) {
+            $this->assertModelExists($tx);
+            $this->assertTrue($tx->hasStatus(TransactionStatus::SUCCESS));
+        });
+    }
+
     protected function btcConversion(): Converter
     {
         return conversion(self::BTC_AMOUNT, 'BTC')
