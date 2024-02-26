@@ -21,18 +21,24 @@ export default defineConfig({
 
     sidebar: [
       {
+        text: 'Prologue',
+        items: [
+          { text: 'Reliability', link: '/reliability' },
+        ],
+        collapsed: true
+      },
+      {
         text: 'Introduction',
         items: [
           { text: 'Getting Started', link: '/getting-started' },
           { text: 'Basic Usage', link: '/basic-usage' },
-          { text: 'Configuration', link: '/configuration' },
-          { text: 'Reliability', link: '/reliability' },
         ],
         collapsed: false
       },
       {
-        text: 'Deep Dive',
+        text: 'The Basics',
         items: [
+          { text: 'Configuration', link: '/configuration' },
           { text: 'Transactions', link: '/transactions' },
           { text: 'Commands', link: '/commands' },
           { text: 'Interfaces', link: '/interfaces' },
@@ -41,11 +47,11 @@ export default defineConfig({
         collapsed: false
       },
       {
-        text: 'Good Practices',
+        text: 'Best Practices',
         items: [
           { text: 'Withdrawal Example', link: '/good-practices#withdrawal-example' },
         ],
-        collapsed: false
+        collapsed: false,
       },
     ],
 
