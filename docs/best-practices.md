@@ -1,4 +1,4 @@
-# Good Practices
+# Best Practices
 
 ## Withdrawal Example
 
@@ -14,6 +14,7 @@ use FundsAPI\Exceptions\BadRequestException;
 use FundsAPI\Payout;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
+use O21\LaravelWallet\Enums\CommissionStrategy;
 
 class WalletController extends Controller
 {
@@ -23,10 +24,14 @@ class WalletController extends Controller
         $destination = $request->get('destination');
 
         $fee = $this->getWithdrawFee();
-        $commission = num($amount)->mul($fee['percent'] / 100)->add($fee['fixed']);
 
         $tx = tx($amount)
-            ->commission($commission)
+            ->commission(
+                $fee['percent'],
+                strategy: CommissionStrategy::PERCENT_AND_FIXED,
+                fixed: $fee['fixed'], // fixed amount
+                minimum: $fee['minimum'] // minimum commission
+            )
             ->processor('withdraw')
             ->from(auth()->user())
             ->status('awaiting_approval')
@@ -35,15 +40,15 @@ class WalletController extends Controller
                  * Creating payout in after() closure allows you to avoid
                  * the situation when the transaction is created, but the payout is not.
                  */
-                function (Transaction $transaction)
-                use ($destination, $store, $btcPayConfig) {
+                function (Transaction $tx)
+                use ($destination, $store) {
                     $payout = $this->createPayout(
-                        $transaction->received, // received = amount - commission
+                        $tx->received, // received = amount - commission
                         $destination,
-                        $transaction
+                        $tx
                     );
 
-                    $transaction->updateMeta([
+                    $tx->updateMeta([
                         'payout' => [
                             'id'      => $payout->getId(),
                         ],

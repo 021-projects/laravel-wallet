@@ -49,7 +49,7 @@ export default defineConfig({
       {
         text: 'Best Practices',
         items: [
-          { text: 'Withdrawal Example', link: '/good-practices#withdrawal-example' },
+          { text: 'Withdrawal Example', link: '/best-practices#withdrawal-example' },
         ],
         collapsed: false,
       },
