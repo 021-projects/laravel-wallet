@@ -1,4 +1,4 @@
-<p align="center"><a href="https://021-projects.github.io/laravel-wallet/" target="_blank"><img src="https://raw.githubusercontent.com/021-projects/laravel-wallet/master/docs/public/code-hero.png" width="470" alt="Laravel Wallet Code Example"></a></p>
+<p align="center"><a href="https://021-projects.github.io/laravel-wallet/8.x" target="_blank"><img src="https://raw.githubusercontent.com/021-projects/laravel-wallet/master/docs/public/code-hero.png" width="470" alt="Laravel Wallet Code Example"></a></p>
 
 <p align="center">
 <a href="https://github.com/021-projects/laravel-wallet/actions/workflows/tests.yml"><img src="https://github.com/021-projects/laravel-wallet/actions/workflows/tests.yml/badge.svg?branch=master" alt="Tests"></a>
@@ -11,14 +11,14 @@
 [Laravel Wallet](https://github.com/021-projects/laravel-wallet) is a sophisticated PHP package designed to deliver a robust and flexible transaction engine, emulating the reliability found in traditional banking systems.
 
 ## Key Features
-- [Enhanced Reliability](https://021-projects.github.io/laravel-wallet/reliability.html)
-- [Intuitive Interaction](https://021-projects.github.io/laravel-wallet/helpers.html)
-- [Precision in Number Handling](https://021-projects.github.io/laravel-wallet/interfaces.html#numeric)
+- [Enhanced Reliability](https://021-projects.github.io/laravel-wallet/8.x/reliability.html)
+- [Intuitive Interaction](https://021-projects.github.io/laravel-wallet/8.x/helpers.html)
+- [Precision in Number Handling](https://021-projects.github.io/laravel-wallet/8.x/interfaces.html#numeric)
 
 # Documentation
-- [Getting Started](https://021-projects.github.io/laravel-wallet/getting-started.html)
-- [Configuration](https://021-projects.github.io/laravel-wallet/configuration.html)
-- [Basic Usage](https://021-projects.github.io/laravel-wallet/basic-usage.html)
+- [Getting Started](https://021-projects.github.io/laravel-wallet/8.x/getting-started.html)
+- [Configuration](https://021-projects.github.io/laravel-wallet/8.x/configuration.html)
+- [Basic Usage](https://021-projects.github.io/laravel-wallet/8.x/basic-usage.html)
 
 # Join Our Community
 - [Telegram](https://t.me/laravelwallet)
