@@ -67,6 +67,7 @@ use function O21\LaravelWallet\ConfigHelpers\tx_route_key;
  *
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction from(\O21\LaravelWallet\Contracts\Payable $from)
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction to(\O21\LaravelWallet\Contracts\Payable $to)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transaction relatedTo(\O21\LaravelWallet\Contracts\Payable $payable)
  *
  * @property string|null $from_type
  * @property int|null $from_id
@@ -293,6 +294,12 @@ class Transaction extends Model implements TransactionContract
     {
         $query->where('to_type', '=', $to->getMorphClass())
             ->where('to_id', '=', $to->getKey());
+    }
+
+    public function scopeRelatedTo(Builder $query, Payable $payable): void
+    {
+        $query->where(fn ($q) => $q->from($payable)
+            ->orWhere(fn ($q) => $q->to($payable)));
     }
 
     public function scopeAccountable(Builder $query, bool $accountable = true): void

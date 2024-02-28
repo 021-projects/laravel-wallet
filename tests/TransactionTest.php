@@ -905,4 +905,38 @@ class TransactionTest extends TestCase
 
         $this->assertEquals(50, $tx->commission);
     }
+
+    public function test_related_to_scope(): void
+    {
+        [$user] = $this->createBalance();
+        [$user2] = $this->createBalance();
+        $tx = deposit(100, 'USD')
+            ->to($user)
+            ->overcharge()
+            ->commit();
+
+        // tx not related to main user
+        deposit(100, 'USD')
+            ->to($user2)
+            ->overcharge()
+            ->commit();
+
+        $txs = app(Transaction::class)->relatedTo($user)->get();
+
+        $this->assertEquals(1, $txs->count());
+
+        $this->assertEquals($tx->id, $txs->first()->id);
+
+        $newTx = deposit(100, 'USD')
+            ->to($user)
+            ->overcharge()
+            ->commit();
+
+        $txs = app(Transaction::class)->relatedTo($user)->get();
+
+        $this->assertEquals(2, $txs->count());
+
+        $this->assertEquals($tx->id, $txs->first()->id);
+        $this->assertEquals($newTx->id, $txs->last()->id);
+    }
 }
