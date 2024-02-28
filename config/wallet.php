@@ -7,6 +7,8 @@ return [
         'accounting_statuses' => [
             \O21\LaravelWallet\Enums\TransactionStatus::SUCCESS,
             \O21\LaravelWallet\Enums\TransactionStatus::ON_HOLD,
+            \O21\LaravelWallet\Enums\TransactionStatus::IN_PROGRESS,
+            \O21\LaravelWallet\Enums\TransactionStatus::AWAITING_APPROVAL,
         ],
         'extra_values' => [
             // enable value_pending calculation
