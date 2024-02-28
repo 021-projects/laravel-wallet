@@ -18,6 +18,12 @@ class TransactionStatus
 
     public const EXPIRED = 'expired';
 
+    public const AWAITING_APPROVAL = 'awaiting_approval';
+
+    public const AWAITING_PAYMENT = 'awaiting_payment';
+
+    public const IN_PROGRESS = 'in_progress';
+
     private static array $accounting = [];
 
     private static array $known = [
@@ -28,6 +34,9 @@ class TransactionStatus
         self::FAILED,
         self::REFUNDED,
         self::EXPIRED,
+        self::AWAITING_APPROVAL,
+        self::AWAITING_PAYMENT,
+        self::IN_PROGRESS,
     ];
 
     public static function known(?array $statuses = null, bool $merge = false): array

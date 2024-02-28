@@ -3,6 +3,7 @@
 namespace O21\LaravelWallet\Tests;
 
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\WithFaker;
 use O21\LaravelWallet\Contracts\Transaction;
 use O21\LaravelWallet\Contracts\TransactionCreator;
@@ -503,6 +504,36 @@ class TransactionTest extends TestCase
         ], true);
 
         $this->assertContains('something', TransactionStatus::known());
+    }
+
+    public function test_transaction_statuses_known_is_valid(): void
+    {
+        [$user] = $this->createBalance();
+
+        $tx = deposit(100)
+            ->to($user)
+            ->overcharge()
+            ->commit();
+
+        $statuses = TransactionStatus::known();
+
+        foreach ($statuses as $status) {
+            $tx->updateStatus($status);
+            $this->assertTrue($tx->refresh()->hasStatus($status));
+        }
+    }
+
+    public function test_transaction_statuses_unknown_is_invalid(): void
+    {
+        [$user] = $this->createBalance();
+
+        $tx = deposit(100)
+            ->to($user)
+            ->overcharge()
+            ->commit();
+
+        $this->expectException(QueryException::class);
+        $tx->updateStatus('unknown');
     }
 
     public function test_balance_refresh_after_currency_change(): void
