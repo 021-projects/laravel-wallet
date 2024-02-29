@@ -59,8 +59,8 @@ use function O21\LaravelWallet\ConfigHelpers\tx_route_key;
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereTotal($value)
  *
- * @property-read \Illuminate\Database\Eloquent\Model|Payable $from
- * @property-read \Illuminate\Database\Eloquent\Model|Payable $to
+ * @property-read \Illuminate\Database\Eloquent\Model|Payable|null $from
+ * @property-read \Illuminate\Database\Eloquent\Model|Payable|null $to
  * @property-read \Illuminate\Database\Eloquent\Model|\O21\LaravelWallet\Contracts\BalanceState|null $fromState
  * @property-read \Illuminate\Database\Eloquent\Model|\O21\LaravelWallet\Contracts\BalanceState|null $toState
  * @property-read \Illuminate\Database\Eloquent\Collection|\O21\LaravelWallet\Models\Transaction[] $neighbours
