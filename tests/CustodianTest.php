@@ -83,12 +83,12 @@ class CustodianTest extends TestCase
 
     public function test_get_custodian_helper(): void
     {
-        $shadow = get_custodian(self::MY_UUID);
+        $shadow = custodian(self::MY_UUID);
         $this->assertInstanceOf(Custodian::class, $shadow);
         $this->assertEquals(self::MY_UUID, $shadow->name);
         $this->assertModelExists($shadow);
 
-        $shadow = get_custodian();
+        $shadow = custodian();
         $this->assertModelExists($shadow);
         $this->assertMatchesRegularExpression('/[a-z0-9-]{36}/', $shadow->name);
     }

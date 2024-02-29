@@ -63,8 +63,9 @@ Check the [deep dive](./transactions.md) section for more details.
 ## Custodians
 Sometimes we need to have a balance for an abstraction that doesn't have its own model.
 In this case, we can use the `Custodian` model:
+
 ```php
-deposit(100, 'USD')->to(get_custodian('subservice_name'))->commit();
+deposit(100, 'USD')->to(custodian('subservice_name'))->commit();
 
 // or
 
@@ -73,8 +74,9 @@ deposit(100, 'USD')->to(Custodian::of('subservice_name'))->commit();
 ```
 
 You can also create anonymous custodians:
+
 ```php
-get_custodian();
+custodian();
 
 // or 
 
