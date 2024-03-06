@@ -22,6 +22,7 @@ use O21\LaravelWallet\Models\Concerns\HasMetaColumn;
 use function O21\LaravelWallet\ConfigHelpers\get_model_class;
 use function O21\LaravelWallet\ConfigHelpers\get_tx_processor_class;
 use function O21\LaravelWallet\ConfigHelpers\table_name;
+use function O21\LaravelWallet\ConfigHelpers\tx_currency_scaling;
 use function O21\LaravelWallet\ConfigHelpers\tx_route_key;
 
 /**
@@ -179,6 +180,14 @@ class Transaction extends Model implements TransactionContract
 
         $this->from?->balance($this->currency)?->recalculate();
         $this->to?->balance($this->currency)?->recalculate();
+    }
+
+    public function normalizeNumbers(): void
+    {
+        $scale = tx_currency_scaling($this->currency);
+        $this->amount = num($this->amount)->scale($scale)->get();
+        $this->commission = num($this->commission)->scale($scale)->get();
+        $this->received = num($this->amount)->sub($this->commission)->scale($scale)->get();
     }
 
     public function logStates(): void

@@ -22,6 +22,8 @@ interface Transaction extends Metable
 
     public function recalculateBalances(): void;
 
+    public function normalizeNumbers(): void;
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo<\O21\LaravelWallet\Contracts\Payable>
      */

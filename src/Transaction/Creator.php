@@ -53,6 +53,8 @@ class Creator implements TransactionCreator
 
             $tx = $this->tx;
 
+            $tx->normalizeNumbers();
+
             $fireArgs = [
                 'creator' => $this,
                 'tx' => $tx,
