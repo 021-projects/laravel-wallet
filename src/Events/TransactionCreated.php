@@ -2,6 +2,8 @@
 
 namespace O21\LaravelWallet\Events;
 
-class TransactionCreated extends TransactionEvent
+use Illuminate\Contracts\Events\ShouldDispatchAfterCommit;
+
+class TransactionCreated extends TransactionEvent implements ShouldDispatchAfterCommit
 {
 }
