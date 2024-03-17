@@ -9,7 +9,6 @@ trait BalanceSeed
 {
     protected function createBalance(): array
     {
-        $this->refreshDatabase();
 
         /** @var \O21\LaravelWallet\Contracts\Payable $user */
         $user = User::factory()->create();
