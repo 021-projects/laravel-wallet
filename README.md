@@ -1,7 +1,7 @@
 <p align="center"><a href="https://021-projects.github.io/laravel-wallet/8.x" target="_blank"><img src="https://raw.githubusercontent.com/021-projects/laravel-wallet/master/docs/public/code-hero.png" width="470" alt="Laravel Wallet Code Example"></a></p>
 
 <p align="center">
-<a href="https://github.com/021-projects/laravel-wallet/actions/workflows/tests.yml"><img src="https://github.com/021-projects/laravel-wallet/actions/workflows/tests.yml/badge.svg?branch=master" alt="Tests"></a>
+<a href="https://github.com/021-projects/laravel-wallet/actions/workflows/tests-php-8.3.yml"><img src="https://github.com/021-projects/laravel-wallet/actions/workflows/tests-php-8.3.yml/badge.svg?branch=master" alt="Tests"></a>
 <a href="https://packagist.org/packages/021/laravel-wallet"><img src="https://img.shields.io/packagist/dt/021/laravel-wallet" alt="Total Downloads"></a>
 <a href="https://packagist.org/packages/021/laravel-wallet"><img src="https://img.shields.io/packagist/v/021/laravel-wallet" alt="Latest Stable Version"></a>
 <a href="https://packagist.org/packages/021/laravel-wallet"><img src="https://img.shields.io/packagist/l/021/laravel-wallet" alt="License"></a>
