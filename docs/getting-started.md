@@ -6,10 +6,10 @@ This version is during active development.
 
 ## Requirements
 
-| Package               | Version    |
-|-----------------------|------------|
-| PHP (with BCMath ext) | ^8.1\|^8.2 |
-| Laravel               | ^10.0      |
+| Package               | Version          |
+|-----------------------|------------------|
+| PHP (with BCMath ext) | ^8.1\|^8.2\|^8.3 |
+| Laravel               | ^10.0\|^11.0     |
 
 ## Installation
 
