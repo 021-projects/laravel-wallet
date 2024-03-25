@@ -219,6 +219,13 @@ class Creator implements TransactionCreator
         return $this;
     }
 
+    public function invisible(bool $invisible = true): self
+    {
+        $this->tx->invisible = $invisible;
+
+        return $this;
+    }
+
     protected function getLockRecord(): Model|Builder|null
     {
         $tx = $this->tx;

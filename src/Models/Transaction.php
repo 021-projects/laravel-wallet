@@ -40,6 +40,7 @@ use function O21\LaravelWallet\ConfigHelpers\tx_route_key;
  * @property string $processor_id
  * @property array|null $meta
  * @property bool $archived
+ * @property bool $invisible
  * @property int $batch
  * @property \Illuminate\Support\Carbon|null $created_at
  *
@@ -98,6 +99,7 @@ class Transaction extends Model implements TransactionContract
         'commission' => TrimZero::class,
         'meta' => 'array',
         'archived' => 'boolean',
+        'invisible' => 'boolean',
     ];
 
     protected $attributes = [
@@ -106,6 +108,7 @@ class Transaction extends Model implements TransactionContract
         'amount' => '0',
         'commission' => '0',
         'archived' => false,
+        'invisible' => false,
     ];
 
     public function __construct(array $attributes = [])
@@ -318,6 +321,11 @@ class Transaction extends Model implements TransactionContract
         } else {
             $query->whereNotIn('status', TransactionStatus::accounting());
         }
+    }
+
+    public function scopeSkipInvisible(Builder $query): void
+    {
+        $query->where('invisible', false);
     }
 
     public function uniqueIds(): array

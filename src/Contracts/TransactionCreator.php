@@ -30,6 +30,8 @@ interface TransactionCreator
 
     public function meta(array $meta): self;
 
+    public function invisible(bool $invisible = true): self;
+
     public function lockOnRecord(Model|Builder|bool $lockRecord): self;
 
     public function before(callable $callback): self;

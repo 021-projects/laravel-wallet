@@ -939,4 +939,17 @@ class TransactionTest extends TestCase
         $this->assertEquals($tx->id, $txs->first()->id);
         $this->assertEquals($newTx->id, $txs->last()->id);
     }
+
+    public function test_invisible(): void
+    {
+        [$user] = $this->createBalance();
+        $tx = deposit(100, 'USD')
+            ->to($user)
+            ->overcharge()
+            ->invisible()
+            ->commit();
+
+        $this->assertTrue($tx->invisible);
+        $this->assertCount(0, app(Transaction::class)->skipInvisible()->get());
+    }
 }

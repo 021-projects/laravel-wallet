@@ -35,6 +35,7 @@ return new class extends Migration
             $table->string('processor_id')->index();
             $table->json('meta')->nullable();
             $table->boolean('archived')->default(false)->index();
+            $table->boolean('invisible')->default(false)->index();
             $table->integer('batch')
                 ->unsigned()
                 ->index()
