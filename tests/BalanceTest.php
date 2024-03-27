@@ -5,7 +5,7 @@ namespace O21\LaravelWallet\Tests;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\WithFaker;
 use O21\LaravelWallet\Enums\TransactionStatus;
-use O21\LaravelWallet\Numeric;
+use O21\Numeric\Numeric;
 use O21\LaravelWallet\Tests\Concerns\BalanceSeed;
 
 class BalanceTest extends TestCase

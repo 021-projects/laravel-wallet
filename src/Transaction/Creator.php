@@ -15,13 +15,15 @@ use O21\LaravelWallet\Enums\CommissionStrategy;
 use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Exception\FromOrOverchargeRequiredException;
 use O21\LaravelWallet\Exception\UnknownTxProcessorException;
-use O21\LaravelWallet\Numeric;
+use O21\Numeric\Numeric;
 use O21\LaravelWallet\Transaction\Processors\Contracts\InitialHolding;
 use O21\LaravelWallet\Transaction\Processors\Contracts\InitialSuccess;
 use O21\SafelyTransaction;
 
 use function O21\LaravelWallet\ConfigHelpers\default_currency;
 use function O21\LaravelWallet\ConfigHelpers\tx_processors;
+use function O21\LaravelWallet\ConfigHelpers\num_rounding_mode;
+use function O21\Numeric\Helpers\num_max;
 
 class Creator implements TransactionCreator
 {
@@ -137,16 +139,16 @@ class Creator implements TransactionCreator
                 break;
             case CommissionStrategy::PERCENT:
                 $commission = num($this->tx->amount)
-                    ->mul(num($this->commissionValue)->div(100));
+                    ->mul(num($this->commissionValue)->div(100, roundingMode: num_rounding_mode()));
                 break;
             case CommissionStrategy::PERCENT_AND_FIXED:
                 $commission = num($this->tx->amount)
-                    ->mul(num($this->commissionValue)->div(100))
+                    ->mul(num($this->commissionValue)->div(100, roundingMode: num_rounding_mode()))
                     ->add($this->fixedCommissionValue);
                 break;
         }
 
-        $this->tx->commission = $commission->max($this->commissionMinimumThreshold);
+        $this->tx->commission = num_max($commission, $this->commissionMinimumThreshold);
     }
 
     public function status(string $status): self

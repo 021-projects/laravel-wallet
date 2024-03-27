@@ -11,11 +11,12 @@ use O21\LaravelWallet\Concerns\Overchargable;
 use O21\LaravelWallet\Contracts\Converter as IConverter;
 use O21\LaravelWallet\Contracts\Payable;
 use O21\LaravelWallet\Contracts\TransactionCreator;
-use O21\LaravelWallet\Numeric;
+use O21\Numeric\Numeric;
 use O21\SafelyTransaction;
 
 use function O21\LaravelWallet\ConfigHelpers\default_currency;
 use function O21\LaravelWallet\ConfigHelpers\tx_currency_scaling;
+use function O21\LaravelWallet\ConfigHelpers\num_rounding_mode;
 
 class Converter implements IConverter
 {
@@ -136,13 +137,13 @@ class Converter implements IConverter
         return num($this->conversionAmount)
             ->sub($this->srcCommission)
             ->mul($this->rateMultiplier)
-            ->scale(tx_currency_scaling($this->destCurrency));
+            ->scale(tx_currency_scaling($this->destCurrency), num_rounding_mode());
     }
 
     protected function debitAmount(): Numeric
     {
         return num($this->conversionAmount)
-            ->scale(tx_currency_scaling($this->srcCurrency));
+            ->scale(tx_currency_scaling($this->srcCurrency), num_rounding_mode());
     }
 
     protected function creditProcessor(): string

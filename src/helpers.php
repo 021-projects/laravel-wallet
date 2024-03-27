@@ -1,17 +1,22 @@
 <?php
 
+use Brick\Math\BigNumber;
 use O21\LaravelWallet\Contracts\Converter;
 use O21\LaravelWallet\Contracts\Custodian;
 use O21\LaravelWallet\Contracts\TransactionCreator;
-use O21\LaravelWallet\Numeric;
+use O21\Numeric\Numeric;
+
+use function O21\LaravelWallet\ConfigHelpers\num_precise_scale;
 
 if (! function_exists('num')) {
     /**
      * Create a new Numeric instance for safe calculations
      */
-    function num(string|float|int|Numeric $value, ?int $scale = null): Numeric
-    {
-        return new Numeric($value, $scale);
+    function num(
+        string|float|int|Numeric|BigNumber $value,
+        ?int $scale = null
+    ): Numeric {
+        return \O21\Numeric\Helpers\num($value, $scale ?? num_precise_scale());
     }
 }
 

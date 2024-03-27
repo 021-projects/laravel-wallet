@@ -3,7 +3,7 @@
 namespace O21\LaravelWallet\Concerns;
 
 use O21\LaravelWallet\Contracts\Payable;
-use O21\LaravelWallet\Numeric;
+use O21\Numeric\Numeric;
 
 trait Overchargable
 {

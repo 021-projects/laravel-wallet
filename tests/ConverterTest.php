@@ -13,6 +13,8 @@ use O21\LaravelWallet\Exception\InsufficientFundsException;
 use O21\LaravelWallet\Tests\Concerns\BalanceSeed;
 use Workbench\Database\Factories\UserFactory;
 
+use function O21\LaravelWallet\ConfigHelpers\num_rounding_mode;
+
 class ConverterTest extends TestCase
 {
     use BalanceSeed;
@@ -89,7 +91,7 @@ class ConverterTest extends TestCase
 
         deposit(self::BTC_AMOUNT, 'BTC')->to($user)->overcharge()->commit();
 
-        $newAmount = num(self::BTC_AMOUNT)->div(2);
+        $newAmount = num(self::BTC_AMOUNT)->div(2, roundingMode: num_rounding_mode());
         $newCommission = num($newAmount)->mul(0.01);
         $smallFee = 0.02;
 
@@ -329,7 +331,7 @@ class ConverterTest extends TestCase
         );
     }
 
-    public function test_large_scale_rate_invalid(): void
+    public function test_large_scale_rate_valid(): void
     {
         $user = UserFactory::new()->create();
 
@@ -341,12 +343,15 @@ class ConverterTest extends TestCase
 
         // scale is 8, so 1 / $btcKztRate will be 0 (must be: 0.000000001999435)
 
-        $this->expectException(InvalidArgumentException::class);
-
         conversion(20, 'KZT')
             ->to('BTC')
             ->at(1 / $btcKztRate)
             ->performOn($user);
+
+        $this->assertBalanceRefreshEquals(
+            $user->balance('KZT'),
+            0
+        );
     }
 
     public function test_large_scale_rate(): void
@@ -363,7 +368,7 @@ class ConverterTest extends TestCase
 
         $txs = conversion(20, 'KZT')
             ->to('BTC')
-            ->at(num(1, 15)->div($btcKztRate))
+            ->at(num(1)->scale(15)->div($btcKztRate, roundingMode: num_rounding_mode()))
             ->performOn($user);
 
         $this->assertBalanceRefreshEquals(

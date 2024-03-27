@@ -4,7 +4,7 @@ namespace O21\LaravelWallet\Contracts;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
-use O21\LaravelWallet\Numeric;
+use O21\Numeric\Numeric;
 
 interface TransactionCreator
 {

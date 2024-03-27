@@ -16,7 +16,6 @@ return [
             // enable value_on_hold calculation
             'on_hold' => false,
         ],
-        'max_scale' => 8,
         'log_states' => false,
     ],
 
@@ -52,4 +51,12 @@ return [
         'conversion_debit' => \O21\LaravelWallet\Transaction\Processors\ConversionDebitProcessor::class,
         'transfer' => \O21\LaravelWallet\Transaction\Processors\TransferProcessor::class,
     ],
+
+    'numeric' => [
+        // The scale for a numbers in the operations with precise calculations required
+        // (like division, multiplication, etc.)
+        'precise_scale' => 22,
+
+        'rounding_mode' => \Brick\Math\RoundingMode::DOWN,
+    ]
 ];

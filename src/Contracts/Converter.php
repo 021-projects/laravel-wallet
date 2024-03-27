@@ -5,7 +5,7 @@ namespace O21\LaravelWallet\Contracts;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
-use O21\LaravelWallet\Numeric;
+use O21\Numeric\Numeric;
 
 interface Converter
 {

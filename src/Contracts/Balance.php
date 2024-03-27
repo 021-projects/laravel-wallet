@@ -5,8 +5,8 @@ namespace O21\LaravelWallet\Contracts;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
- * @property-read \O21\LaravelWallet\Numeric $sent
- * @property-read \O21\LaravelWallet\Numeric $received
+ * @property-read \O21\Numeric\Numeric $sent
+ * @property-read \O21\Numeric\Numeric $received
  * @property-read \O21\LaravelWallet\Contracts\Payable $payable
  * @property string $currency
  *

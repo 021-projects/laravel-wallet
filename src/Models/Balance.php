@@ -19,13 +19,13 @@ use function O21\LaravelWallet\ConfigHelpers\table_name;
  * @property int $id
  * @property string $payable_type
  * @property int $payable_id
- * @property \O21\LaravelWallet\Numeric $value
+ * @property \O21\Numeric\Numeric $value
  * @property string $value_pending
  * @property string $value_on_hold
  * @property string $currency
  * @property-read \Illuminate\Database\Eloquent\Model|\O21\LaravelWallet\Contracts\Payable $payable
- * @property-read \O21\LaravelWallet\Numeric $sent
- * @property-read \O21\LaravelWallet\Numeric $received
+ * @property-read \O21\Numeric\Numeric $sent
+ * @property-read \O21\Numeric\Numeric $received
  *
  * @method static \Illuminate\Database\Eloquent\Builder|Balance newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Balance newQuery()

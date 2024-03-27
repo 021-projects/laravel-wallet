@@ -2,11 +2,6 @@
 
 namespace O21\LaravelWallet\ConfigHelpers;
 
-function balance_max_scale(): int
-{
-    return config('wallet.balance.max_scale', 8) ?? 8;
-}
-
 function balance_extra_values(): array
 {
     return config('wallet.balance.extra_values', []);
@@ -46,7 +41,7 @@ function tx_accounting_statuses(): array
 
 function tx_currency_scaling(string $currency): int
 {
-    return config("wallet.transactions.currency_scaling.{$currency}", balance_max_scale());
+    return config("wallet.transactions.currency_scaling.{$currency}", 8);
 }
 
 function tx_route_key(): string
@@ -64,4 +59,14 @@ function get_tx_processor_class($key): ?string
     $key = (string) $key;
 
     return config("wallet.processors.$key");
+}
+
+function num_precise_scale(): int
+{
+    return config('wallet.numeric.precise_scale', 22) ?? 22;
+}
+
+function num_rounding_mode(): int
+{
+    return config('wallet.numeric.rounding_mode', \Brick\Math\RoundingMode::DOWN);
 }
