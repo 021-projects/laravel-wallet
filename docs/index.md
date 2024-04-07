@@ -22,10 +22,10 @@ features:
 - icon: 🔢
   title: Unlimited Numbers
   details: In PHP, the int and float types struggle with very large or small numbers. The library adopts the Numeric class, leveraging the bcmath module, for precise calculations. This approach guarantees accurate handling of the extensive numerical ranges common in cryptocurrency operations.
-  link: /interfaces#numeric
+  link: https://github.com/021-projects/numeric
 - icon: 🍬
   title: Syntax Sugar
   details: Intuitive helpers and interfaces for easy, straightforward, and concise transaction management. The package syntax is inspired by the simplicity and convenience of Laravel and the Ethereum blockchain implementation.
-  link: /helpers
+  link: https://github.com/021-projects/laravel-wallet/blob/v9.x-dev/src/helpers.php
 ---
 
