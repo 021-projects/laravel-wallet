@@ -49,8 +49,8 @@ export default defineConfig({
         text: 'The Basics',
         items: [
           { text: 'Configuration', link: '/configuration' },
-          { text: 'Transactions', link: '/transactions' },
           { text: 'Commands', link: '/commands' },
+          { text: 'Transactions', link: '/transactions' },
           { text: 'Interfaces', link: '/interfaces' },
           { text: 'Helpers', link: '/helpers' },
         ],
