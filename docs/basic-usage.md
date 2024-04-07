@@ -66,20 +66,19 @@ In this case, we can use the `Custodian` model:
 
 ```php
 deposit(100, 'USD')->to(custodian('subservice_name'))->commit();
-
-// or
-
+```
+or
+```php
 use O21\LaravelWallet\Models\Custodian;
 deposit(100, 'USD')->to(Custodian::of('subservice_name'))->commit();
 ```
 
-You can also create anonymous custodians:
-
+#### Getting Anonymous Custodian
 ```php
-custodian();
-
-// or 
-
+$temp = custodian();
+```
+or 
+```php
 use O21\LaravelWallet\Models\Custodian;
 Custodian::of();
 ```
