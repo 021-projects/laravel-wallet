@@ -56,9 +56,9 @@ export default defineConfig({
         collapsed: false
       },
       {
-        text: 'Best Practices',
+        text: 'Examples',
         items: [
-          { text: 'Withdrawal Example', link: '/best-practices#withdrawal-example' },
+          { text: 'Withdraw', link: 'https://github.com/021-projects/laravel-wallet/tree/v9.x-dev/examples/withdraw' },
         ],
         collapsed: false,
       },

@@ -131,4 +131,4 @@ class WithdrawProcessor implements TransactionProcessor, InitialSuccess // [!cod
 
 ### Useful Links
 - [Batch Sync Trait](https://github.com/021-projects/laravel-wallet/blob/v9.x-dev/src/Transaction/Processors/Concerns/BatchSync.php) – allows you to synchronize transactions statuses with the batch.
-- [Withdrawal Use Case](./best-practices.md#withdrawal-example)
+- [Withdraw Example](https://github.com/021-projects/laravel-wallet/tree/v9.x-dev/examples/withdraw)
