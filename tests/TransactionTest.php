@@ -488,15 +488,6 @@ class TransactionTest extends TestCase
         );
     }
 
-    public function test_transaction_status_accounting_merge(): void
-    {
-        TransactionStatus::accounting([
-            'something',
-        ], true);
-
-        $this->assertContains('something', TransactionStatus::accounting());
-    }
-
     public function test_transaction_status_known_merge(): void
     {
         TransactionStatus::known([

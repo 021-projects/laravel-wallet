@@ -10,7 +10,7 @@ use O21\LaravelWallet\Casts\TrimZero;
 use O21\LaravelWallet\Contracts\Balance as BalanceContract;
 use O21\LaravelWallet\Contracts\Transaction;
 
-use function O21\LaravelWallet\ConfigHelpers\balance_extra_values;
+use function O21\LaravelWallet\ConfigHelpers\balance_tracking;
 use function O21\LaravelWallet\ConfigHelpers\table_name;
 
 /**
@@ -72,23 +72,15 @@ class Balance extends Model implements BalanceContract
 
     public function recalculate(): bool
     {
-        $value = $this->received->sub($this->sent)->get();
+        $attributes = [];
 
-        $attributes = compact('value');
-
-        $extraValues = balance_extra_values();
-
-        foreach ($extraValues as $status => $active) {
-            if (! $active) {
-                continue;
-            }
-
-            $attributeKey = "value_{$status}";
-
-            $sent = num($this->transactions()->from($this->payable)->whereStatus($status)->sum('amount'));
-            $received = num($this->transactions()->to($this->payable)->whereStatus($status)->sum('received'));
-
-            $attributes[$attributeKey] = $received->sub($sent)->get();
+        $tracking = array_filter(balance_tracking(), fn ($statuses) => ! empty($statuses));
+        foreach ($tracking as $key => $statuses) {
+            $sentQuery = $this->transactions()->from($this->payable)->whereIn('status', $statuses);
+            $receivedQuery = $this->transactions()->to($this->payable)->whereIn('status', $statuses);
+            $sent = num($sentQuery->sum('amount'));
+            $received = num($receivedQuery->sum('received'));
+            $attributes[$key] = $received->sub($sent)->get();
         }
 
         return $this->update($attributes);

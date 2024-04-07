@@ -24,8 +24,6 @@ class TransactionStatus
 
     public const IN_PROGRESS = 'in_progress';
 
-    private static array $accounting = [];
-
     private static array $known = [
         self::PENDING,
         self::SUCCESS,
@@ -54,22 +52,5 @@ class TransactionStatus
         self::$known = $statuses;
 
         return self::$known;
-    }
-
-    public static function accounting(?array $statuses = null, bool $merge = false): array
-    {
-        if ($statuses === null) {
-            return self::$accounting;
-        }
-
-        if ($merge) {
-            self::$accounting = array_merge(self::$accounting, $statuses);
-
-            return self::$accounting;
-        }
-
-        self::$accounting = $statuses;
-
-        return self::$accounting;
     }
 }

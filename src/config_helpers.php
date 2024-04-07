@@ -2,9 +2,18 @@
 
 namespace O21\LaravelWallet\ConfigHelpers;
 
-function balance_extra_values(): array
+function balance_tracking(?string $key = ''): array
 {
-    return config('wallet.balance.extra_values', []);
+    $tracking = config('wallet.balance.tracking', [
+        'value' => [
+            \O21\LaravelWallet\Enums\TransactionStatus::SUCCESS,
+            \O21\LaravelWallet\Enums\TransactionStatus::ON_HOLD,
+            \O21\LaravelWallet\Enums\TransactionStatus::IN_PROGRESS,
+            \O21\LaravelWallet\Enums\TransactionStatus::AWAITING_APPROVAL,
+        ],
+    ]);
+
+    return $key ? data_get($tracking, $key, []) : $tracking;
 }
 
 function log_balance_states_enabled(): bool
@@ -32,11 +41,6 @@ function get_model_class(string $key): ?string
 function default_currency(): string
 {
     return config('wallet.default_currency');
-}
-
-function tx_accounting_statuses(): array
-{
-    return config('wallet.balance.accounting_statuses', []);
 }
 
 function tx_currency_scaling(string $currency): int

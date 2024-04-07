@@ -4,17 +4,25 @@ return [
     'default_currency' => 'USD',
 
     'balance' => [
-        'accounting_statuses' => [
-            \O21\LaravelWallet\Enums\TransactionStatus::SUCCESS,
-            \O21\LaravelWallet\Enums\TransactionStatus::ON_HOLD,
-            \O21\LaravelWallet\Enums\TransactionStatus::IN_PROGRESS,
-            \O21\LaravelWallet\Enums\TransactionStatus::AWAITING_APPROVAL,
-        ],
-        'extra_values' => [
-            // enable value_pending calculation
-            'pending' => false,
-            // enable value_on_hold calculation
-            'on_hold' => false,
+        'tracking' => [
+            // The main value of the balance (aka confirmed/available)
+            // Transactions with following statuses will be included in the recalculation
+            'value' => [
+                \O21\LaravelWallet\Enums\TransactionStatus::SUCCESS,
+                \O21\LaravelWallet\Enums\TransactionStatus::ON_HOLD,
+                \O21\LaravelWallet\Enums\TransactionStatus::IN_PROGRESS,
+                \O21\LaravelWallet\Enums\TransactionStatus::AWAITING_APPROVAL,
+            ],
+            // The value of the balance that is pending
+            // If empty, value will not be tracking
+            'value_pending' => [
+                // \O21\LaravelWallet\Enums\TransactionStatus::PENDING,
+            ],
+            // The value of the balance that is holding
+            // If empty, value will not be tracking
+            'value_on_hold' => [
+                // \O21\LaravelWallet\Enums\TransactionStatus::ON_HOLD,
+            ],
         ],
         'log_states' => false,
     ],

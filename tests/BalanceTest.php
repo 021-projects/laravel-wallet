@@ -89,12 +89,14 @@ class BalanceTest extends TestCase
         $this->assertTrue($balance->equals(0));
     }
 
-    public function test_extra_values_enabled(): void
+    public function test_main_value_tracking(): void
     {
         config([
-            'wallet.balance.extra_values' => [
-                'pending' => true,
-                'on_hold' => true,
+            'wallet.balance.tracking' => [
+                'value' => [
+                    TransactionStatus::SUCCESS,
+                    TransactionStatus::ON_HOLD,
+                ],
             ],
         ]);
 
@@ -107,6 +109,11 @@ class BalanceTest extends TestCase
             ->overcharge()
             ->commit();
 
+        $this->assertBalanceRefreshEquals(
+            $balance,
+            0,
+        );
+
         charge(self::SMALL_VALUE, $currency)
             ->from($user)
             ->status(TransactionStatus::ON_HOLD)
@@ -118,95 +125,12 @@ class BalanceTest extends TestCase
             -self::SMALL_VALUE,
         );
 
-        $this->assertBalanceRefreshEquals(
-            $balance,
-            self::SMALL_VALUE,
-            'value_pending'
-        );
-
-        $this->assertBalanceRefreshEquals(
-            $balance,
-            -self::SMALL_VALUE,
-            'value_on_hold'
-        );
-    }
-
-    public function test_extra_values_disabled(): void
-    {
         config([
-            'wallet.balance.extra_values' => [
-                'pending' => false,
-                'on_hold' => false,
+            'wallet.balance.tracking' => [
+                'value' => [
+                    TransactionStatus::SUCCESS,
+                ],
             ],
-        ]);
-
-        /** @var \O21\LaravelWallet\Contracts\Balance $balance */
-        [$user, $currency, $balance] = $this->createBalance();
-
-        deposit(self::SMALL_VALUE, $currency)
-            ->to($user)
-            ->status(TransactionStatus::PENDING)
-            ->overcharge()
-            ->commit();
-
-        charge(self::SMALL_VALUE, $currency)
-            ->from($user)
-            ->status(TransactionStatus::ON_HOLD)
-            ->overcharge()
-            ->commit();
-
-        $this->assertBalanceRefreshEquals(
-            $balance,
-            -self::SMALL_VALUE,
-        );
-
-        $this->assertBalanceRefreshEquals(
-            $balance,
-            0,
-            'value_pending'
-        );
-
-        $this->assertBalanceRefreshEquals(
-            $balance,
-            0,
-            'value_on_hold'
-        );
-    }
-
-    public function test_accounting_statuses(): void
-    {
-        TransactionStatus::accounting([
-            TransactionStatus::SUCCESS,
-            TransactionStatus::ON_HOLD,
-        ]);
-
-        /** @var \O21\LaravelWallet\Contracts\Balance $balance */
-        [$user, $currency, $balance] = $this->createBalance();
-
-        deposit(self::SMALL_VALUE, $currency)
-            ->to($user)
-            ->status(TransactionStatus::PENDING)
-            ->overcharge()
-            ->commit();
-
-        $this->assertBalanceRefreshEquals(
-            $balance,
-            0,
-        );
-
-        charge(self::SMALL_VALUE, $currency)
-            ->from($user)
-            ->status(TransactionStatus::ON_HOLD)
-            ->overcharge()
-            ->commit();
-
-        $this->assertBalanceRefreshEquals(
-            $balance,
-            -self::SMALL_VALUE,
-        );
-
-        TransactionStatus::accounting([
-            TransactionStatus::SUCCESS,
         ]);
 
         $balance->recalculate();
@@ -214,6 +138,71 @@ class BalanceTest extends TestCase
         $this->assertBalanceRefreshEquals(
             $balance,
             0,
+        );
+    }
+
+    public function test_extra_values_tracking(): void
+    {
+        config([
+            'wallet.balance.tracking' => [
+                'value_pending' => [
+                    TransactionStatus::PENDING,
+                ],
+                'value_on_hold' => [
+                    TransactionStatus::ON_HOLD,
+                ],
+            ],
+        ]);
+
+        /** @var \O21\LaravelWallet\Contracts\Balance $balance */
+        [$user, $currency, $balance] = $this->createBalance();
+
+        deposit(self::SMALL_VALUE, $currency)
+            ->to($user)
+            ->status(TransactionStatus::PENDING)
+            ->overcharge()
+            ->commit();
+
+        $this->assertBalanceRefreshEquals(
+            $balance,
+            self::SMALL_VALUE,
+            'value_pending',
+        );
+
+        charge(self::SMALL_VALUE, $currency)
+            ->from($user)
+            ->status(TransactionStatus::ON_HOLD)
+            ->overcharge()
+            ->commit();
+
+        $this->assertBalanceRefreshEquals(
+            $balance,
+            -self::SMALL_VALUE,
+            'value_on_hold',
+        );
+    }
+
+    public function test_tracking_empty_statuses_filter(): void
+    {
+        config([
+            'wallet.balance.tracking' => [
+                'value_pending' => [],
+            ],
+        ]);
+
+        /** @var \O21\LaravelWallet\Contracts\Balance $balance */
+        [$user, $currency, $balance] = $this->createBalance();
+
+        deposit(self::SMALL_VALUE, $currency)
+            ->to($user)
+            ->status(TransactionStatus::PENDING)
+            ->overcharge()
+            ->commit();
+
+        $this->assertBalanceRefreshEquals(
+            $balance,
+            0,
+            'value_pending',
         );
     }
 }

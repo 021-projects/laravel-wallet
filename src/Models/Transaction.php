@@ -19,6 +19,7 @@ use O21\LaravelWallet\Exception\InvalidTxProcessorException;
 use O21\LaravelWallet\Exception\UnknownTxProcessorException;
 use O21\LaravelWallet\Models\Concerns\HasMetaColumn;
 
+use function O21\LaravelWallet\ConfigHelpers\balance_tracking;
 use function O21\LaravelWallet\ConfigHelpers\get_model_class;
 use function O21\LaravelWallet\ConfigHelpers\get_tx_processor_class;
 use function O21\LaravelWallet\ConfigHelpers\table_name;
@@ -323,12 +324,19 @@ class Transaction extends Model implements TransactionContract
             ->orWhere(fn ($q) => $q->to($payable)));
     }
 
+    /**
+     * Filter transactions that have an impact on the main balance (config.balance.tracking.value)
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  bool  $accountable
+     * @return void
+     */
     public function scopeAccountable(Builder $query, bool $accountable = true): void
     {
         if ($accountable) {
-            $query->whereIn('status', TransactionStatus::accounting());
+            $query->whereIn('status', balance_tracking('value'));
         } else {
-            $query->whereNotIn('status', TransactionStatus::accounting());
+            $query->whereNotIn('status', balance_tracking('value'));
         }
     }
 
