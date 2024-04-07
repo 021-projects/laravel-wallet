@@ -184,10 +184,10 @@ return [
 ```
 
 ## Scaling
-By default, all numbers in the package are limited to 99,999,999.99999999. This applies to balance values, transaction amounts, commissions, etc.
+By default, all numbers in the package are limited to `99,999,999.99999999`. This applies to balance values, transaction amounts, commissions, etc.
 If you want to increase this limit, first of all you need to edit the migrations.
 
-Let's increase the maximum values to 999,999,999.999999999999999999:
+Let's increase the maximum values to `999,999,999.999999999999999999`:
 ::: code-group
 ```php [database/migrations/create_balances_table.php]
 $table->decimal('value', 16, 8)->default(0); // [!code --:3]
@@ -216,21 +216,12 @@ $table->decimal('value', 16, 8)->default(0); // [!code --:3]
 $table->decimal('value', 27, 18)->default(0); // [!code ++:3]
 ```
 :::
-Then you need to change the configuration:
-```php
-return [
-    // ...
-    'balance' => [
-        // ...
-        'max_scale' => 18, // [!code focus]
-        // ...
-    ],
-];
-```
 
-The [Numeric](interfaces.md#numeric) class will now round numbers to 18 decimal places.
-
-You can also limit decimal places for transactions in certain currencies:
+### Currency Scaling
+::: tip Note
+Only affects the transaction table. Balance values still may have more decimals.
+:::
+With this option you can limit decimal places for transaction numbers (amount, commission, etc.) in certain currencies:
 ```php
 return [
     // ...
@@ -246,9 +237,6 @@ return [
     ],
 ];
 ```
-::: tip Note
-Only affects the transaction table. Balance values may have more decimals in accordance with `wallet.balance.max_scale`.
-:::
 
 ## Log Balance States
 You can enable logging of balance states at the time of transaction execution. 
