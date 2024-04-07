@@ -943,4 +943,35 @@ class TransactionTest extends TestCase
         $this->assertTrue($tx->invisible);
         $this->assertCount(0, app(Transaction::class)->skipInvisible()->get());
     }
+
+    public function test_nested_deposits(): void
+    {
+        [$user] = $this->createBalance();
+
+        $levels = 5;
+        $after = static function (Transaction $tx) use (&$after, &$levels) {
+            if ($levels > 0) {
+                $levels--;
+
+                deposit(100, 'USD')
+                    ->to($tx->to)
+                    ->overcharge()
+                    ->after($after)
+                    ->batch($tx->batch, exists: true)
+                    ->meta(['level' => $levels])
+                    ->commit();
+            }
+        };
+
+        $tx = deposit(100, 'USD')
+            ->to($user)
+            ->overcharge()
+            ->after($after)
+            ->commit();
+
+        $this->assertModelExists($tx);
+        $this->assertCount(5, $tx->neighbours);
+
+        $this->assertBalanceRefreshEquals($user->balance('USD'), 600);
+    }
 }
