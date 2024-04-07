@@ -19,7 +19,7 @@ export default defineConfig({
         items: [
           {
             text: 'v9 (during development)',
-            link: 'https://021-projects.github.io/laravel-wallet/9.x'
+            link: 'https://021-projects.github.io/laravel-wallet/9.x/getting-started.html'
           }
         ]
       }
