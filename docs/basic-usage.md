@@ -29,16 +29,6 @@ deposit(100, 'USD')->to($recipient)->overcharge()->commit();
 conversion(1, 'USD')->to('EUR')->at(0.92)->performOn($payable);
 ```
 
-::: tip
-For conversions at rates with a decimal fraction greater than the value set in wallet.balance.max_scale, pass a Numeric object with an explicit scale parameter:
-```php
-conversion(20, 'KZT')
-    ->to('BTC')
-    ->at(num(1, scale: 15)->div(500_120_962.21)) // 1 KZT = 0.000000001999516 BTC
-    ->performOn($payable);
-```
-:::
-
 ### Charge
 ```php
 charge(100, 'USD')->from($sender)->commit();
@@ -56,9 +46,12 @@ To prevent this, you need to enable the `overcharge` mode:
 ```php
 transfer(100, 'USD')->from($sender)->to($recipient)->overcharge()->commit();
 ```
+::: tip
 Use it if you want to allow negative balances or creating a deposit.
+:::
 
-Check the [deep dive](./transactions.md) section for more details.
+### Useful Links
+- [Transaction Basics](./transactions.md)
 
 ## Custodians
 Sometimes we need to have a balance for an abstraction that doesn't have its own model.
