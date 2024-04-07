@@ -159,7 +159,7 @@ It can be changed in the `table_names` section:
 ```php
 return [
     // ...
-    'table_names' => [ // [!code focus:5]
+    'table_names' => [ // [!code focus:6]
         'balances'       => 'balances',
         'balance_states' => 'balance_states',
         'custodians'     => 'custodians',
