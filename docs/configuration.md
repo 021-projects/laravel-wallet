@@ -1,87 +1,92 @@
 # Configuration
 **Path to config**: `config/wallet.php`
 
-## Accounting Transaction Statuses
+## Balance Tracking
+```php
+return [
+    // ...
+    'balance' => [ // [!code focus:21]
+        'tracking' => [
+            // The main value of the balance (aka confirmed/available)
+            // Transactions with following statuses will be included in the recalculation
+            'value' => [
+                \O21\LaravelWallet\Enums\TransactionStatus::SUCCESS,
+                \O21\LaravelWallet\Enums\TransactionStatus::ON_HOLD,
+                \O21\LaravelWallet\Enums\TransactionStatus::IN_PROGRESS,
+                \O21\LaravelWallet\Enums\TransactionStatus::AWAITING_APPROVAL,
+            ],
+            // The value of the balance that is pending
+            // If empty, value will not be tracking
+            'value_pending' => [
+                // \O21\LaravelWallet\Enums\TransactionStatus::PENDING,
+            ],
+            // The value of the balance that is holding
+            // If empty, value will not be tracking
+            'value_on_hold' => [
+                // \O21\LaravelWallet\Enums\TransactionStatus::ON_HOLD,
+            ],
+        ],
+        // ...
+    ], // [!code focus]
+];
+```
+
+### Track Custom Balances
+::: warning
+Replace `<status-name>` with the name of the status you want to track.
+:::
+1. Add a new field to the `balances` table:
+::: details Migration
+```php
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+use function O21\LaravelWallet\ConfigHelpers\table_name;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::table(table_name('balances'), function (Blueprint $table) {
+            $table->decimal('value_<status-name>', 16, 8)->default(0);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::table(table_name('balances'), function (Blueprint $table) {
+            $table->dropColumn('value_<status-name>');
+        });
+    }
+}
+```
+:::
+
+2. Add the status to the `balance.tracking.value_<status-name>`:
 ```php
 return [
     // ...
     'balance' => [
-        // ...
-        'accounting_statuses' => [ // [!code focus:4]
-            \O21\LaravelWallet\Enums\TransactionStatus::SUCCESS,
-            \O21\LaravelWallet\Enums\TransactionStatus::ON_HOLD
+        'tracking' => [
+            'value_<status-name>' => [ // [!code focus:3]
+                '<status-name>' 
+            ],
         ],
         // ...
     ],
 ];
 ```
-
-## Scaling
-By default, all numbers in the package are limited to 99,999,999.99999999. This applies to balance values, transaction amounts, commissions, etc.
-If you want to increase this limit, first of all you need to edit the migrations.
-
-Let's increase the maximum values to 999,999,999.999999999999999999:
-::: code-group
-```php [database/migrations/create_balances_table.php]
-$table->decimal('value', 16, 8)->default(0); // [!code --:3]
-$table->decimal('value_pending', 16, 8)->default(0);
-$table->decimal('value_on_hold', 16, 8)->default(0);
-$table->decimal('value', 27, 18)->default(0); // [!code ++:3]
-$table->decimal('value_pending', 27, 18)->default(0);
-$table->decimal('value_on_hold', 27, 18)->default(0);
-```
-```php [database/migrations/create_transactions_table.php]
-$table->unsignedDecimal('amount', 16, 8)->default(0)->index(); // [!code --:6]
-$table->unsignedDecimal('commission', 16, 8)->default(0);
-$table->unsignedDecimal('received', 16, 8)
-    ->default(0)
-    ->comment('received = amount - commission')
-    ->index();
-$table->unsignedDecimal('amount', 27, 18)->default(0)->index(); // [!code ++:6]
-$table->unsignedDecimal('commission', 27, 18)->default(0);
-$table->unsignedDecimal('received', 27, 18)
-    ->default(0)
-    ->comment('received = amount - commission')
-    ->index();
-```
-```php [database/migrations/create_balance_states_table.php]
-$table->decimal('value', 16, 8)->default(0); // [!code --:3]
-$table->decimal('value', 27, 18)->default(0); // [!code ++:3]
-```
-:::
-Then you need to change the configuration:
-```php
-return [
-    // ...
-    'balance' => [
-        // ...
-        'max_scale' => 18, // [!code focus]
-        // ...
-    ],
-];
-```
-
-The [Numeric](interfaces.md#numeric) class will now round numbers to 18 decimal places.
-
-You can also limit decimal places for transactions in certain currencies:
-```php
-return [
-    // ...
-    'transactions' => [
-        // ...
-        'currency_scaling' => [ // [!code focus:6]
-            'USD' => 2,
-            'EUR' => 2,
-            'BTC' => 8,
-            'ETH' => 8,
-        ],
-        // ...
-    ],
-];
-```
-::: tip Note
-Only affects the transaction table. Balance values may have more decimals in accordance with `wallet.balance.max_scale`.
-:::
 
 ## Default Currency
 Laravel Wallet supports balances in multiple currencies, but also provides the ability to work conveniently when you only have one main currency.
@@ -164,81 +169,6 @@ return [
 ];
 ```
 
-## Tracking Different Balance States
-You may also need to track balance state for transactions with other statuses. By default, you can enable balance tracking for transactions with the status `on_hold` and `pending`.
-After enabling these options, the `value_pending` and `value_on_hold` fields will be saved in the `balances` table.
-```php
-return [
-    // ...
-    'balance' => [
-        'extra_values' => [ // [!code focus:4]
-            'pending' => true,
-            'on_hold' => true,
-        ],
-        // ...
-    ],
-];
-```
-
-You can also track transactions of other statuses. 
-To do this, add a new field to the `balances` table:
-::: warning
-Replace `<status-name>` with the name of the status you want to track.
-:::
-::: details Migration
-```php
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-
-use function O21\LaravelWallet\ConfigHelpers\table_name;
-
-return new class extends Migration
-{
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up()
-    {
-        Schema::table(table_name('balances'), function (Blueprint $table) {
-            $table->decimal('value_<status-name>', 16, 8)->default(0);
-        });
-    }
-
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
-    {
-        Schema::table(table_name('balances'), function (Blueprint $table) {
-            $table->dropColumn('value_<status-name>');
-        });
-    }
-}
-```
-:::
-
-And just add the status to the `balance.extra_values`:
-```php
-return [
-    // ...
-    'balance' => [
-        'extra_values' => [
-            // enable value_pending calculation
-            'pending' => true,
-            // enable value_on_hold calculation
-            'on_hold' => true,
-            '<status-name>' => true, // [!code focus]
-        ],
-        // ...
-    ],
-];
-```
-
 ## Transaction Route Key
 By default, the package uses the `uuid` field to identify transactions. If you want to use another field, you can specify it in the configuration:
 ```php
@@ -252,6 +182,73 @@ return [
     // ...
 ];
 ```
+
+## Scaling
+By default, all numbers in the package are limited to 99,999,999.99999999. This applies to balance values, transaction amounts, commissions, etc.
+If you want to increase this limit, first of all you need to edit the migrations.
+
+Let's increase the maximum values to 999,999,999.999999999999999999:
+::: code-group
+```php [database/migrations/create_balances_table.php]
+$table->decimal('value', 16, 8)->default(0); // [!code --:3]
+$table->decimal('value_pending', 16, 8)->default(0);
+$table->decimal('value_on_hold', 16, 8)->default(0);
+$table->decimal('value', 27, 18)->default(0); // [!code ++:3]
+$table->decimal('value_pending', 27, 18)->default(0);
+$table->decimal('value_on_hold', 27, 18)->default(0);
+```
+```php [database/migrations/create_transactions_table.php]
+$table->unsignedDecimal('amount', 16, 8)->default(0)->index(); // [!code --:6]
+$table->unsignedDecimal('commission', 16, 8)->default(0);
+$table->unsignedDecimal('received', 16, 8)
+    ->default(0)
+    ->comment('received = amount - commission')
+    ->index();
+$table->unsignedDecimal('amount', 27, 18)->default(0)->index(); // [!code ++:6]
+$table->unsignedDecimal('commission', 27, 18)->default(0);
+$table->unsignedDecimal('received', 27, 18)
+    ->default(0)
+    ->comment('received = amount - commission')
+    ->index();
+```
+```php [database/migrations/create_balance_states_table.php]
+$table->decimal('value', 16, 8)->default(0); // [!code --:3]
+$table->decimal('value', 27, 18)->default(0); // [!code ++:3]
+```
+:::
+Then you need to change the configuration:
+```php
+return [
+    // ...
+    'balance' => [
+        // ...
+        'max_scale' => 18, // [!code focus]
+        // ...
+    ],
+];
+```
+
+The [Numeric](interfaces.md#numeric) class will now round numbers to 18 decimal places.
+
+You can also limit decimal places for transactions in certain currencies:
+```php
+return [
+    // ...
+    'transactions' => [
+        // ...
+        'currency_scaling' => [ // [!code focus:6]
+            'USD' => 2,
+            'EUR' => 2,
+            'BTC' => 8,
+            'ETH' => 8,
+        ],
+        // ...
+    ],
+];
+```
+::: tip Note
+Only affects the transaction table. Balance values may have more decimals in accordance with `wallet.balance.max_scale`.
+:::
 
 ## Log Balance States
 You can enable logging of balance states at the time of transaction execution. 
