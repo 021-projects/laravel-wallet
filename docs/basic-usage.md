@@ -1,17 +1,17 @@
 # Basic Usage
 
 ## Balances
-Any Eloquent model that implements the [`Payable`](./interfaces.md#payable) interface can have own balance in multiple currencies.
+Any Eloquent model that implements the `Payable` interface can have own balance in multiple currencies.
 To quickly implement this interface in a model, use the `HasBalance` trait:
 
 ```php
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use O21\LaravelWallet\Contracts\Payable;
+use O21\LaravelWallet\Contracts\Payable; // [!code focus:7]
 use O21\LaravelWallet\Models\Concerns\HasBalance;
 
-class User extends Model implements Payable // [!code focus:4]
+class User extends Model implements Payable
 {
     use HasBalance;
 }

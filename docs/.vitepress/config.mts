@@ -51,8 +51,7 @@ export default defineConfig({
           { text: 'Configuration', link: '/configuration' },
           { text: 'Commands', link: '/commands' },
           { text: 'Transactions', link: '/transactions' },
-          { text: 'Interfaces', link: '/interfaces' },
-          { text: 'Helpers', link: '/helpers' },
+          { text: 'Useful Links', link: '/useful-links' },
         ],
         collapsed: false
       },
