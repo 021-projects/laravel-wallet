@@ -30,7 +30,7 @@ class TransactionTest extends TestCase
         parent::setUp();
 
         // Reset the scaling for the currencies to prevent test failing with small values
-        config(['wallet.currency_scaling' => []]);
+        config(['wallet.transactions.currency_scaling' => []]);
     }
 
     public function test_deposit(): void
