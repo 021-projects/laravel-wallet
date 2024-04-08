@@ -17,6 +17,28 @@ class User extends Model implements Payable
 }
 ```
 
+### Getting Balance
+Method `balance` returns the balance model for the specified currency (or the default currency if not specified):
+```php
+/** @var \O21\LaravelWallet\Contracts\Balance $balance */
+$balance = $user->balance('USD');
+```
+To get the balance value, use the `value` property, which returns a [`Numeric`](https://github.com/021-projects/numeric) object:
+```php
+$formatted = $balance->value->get(); // '100.00'
+```
+You also able to access the `value_on_hold` and `value_pending` properties to get the amount of funds on hold or pending:
+```php
+$onHold = $balance->value_on_hold->get(); // '0.00'
+$pending = $balance->value_pending->get(); // '0.00'
+```
+
+::: tip
+These properties are not tracked by default.
+Check the balance tracking [documentation](./balance-tracking.md) for more details.
+:::
+
+
 ## Transactions
 
 ### Deposit
