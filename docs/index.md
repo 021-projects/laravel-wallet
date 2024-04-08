@@ -26,6 +26,6 @@ features:
 - icon: 🍬
   title: Syntax Sugar
   details: Intuitive helpers and interfaces for easy, straightforward, and concise transaction management. The package syntax is inspired by the simplicity and convenience of Laravel and the Ethereum blockchain implementation.
-  link: https://github.com/021-projects/laravel-wallet/blob/v9.x-dev/src/helpers.php
+  link: https://github.com/021-projects/laravel-wallet/blob/master/src/helpers.php
 ---
 

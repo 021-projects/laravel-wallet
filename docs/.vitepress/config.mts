@@ -60,7 +60,7 @@ export default defineConfig({
       {
         text: 'Examples',
         items: [
-          { text: 'Withdraw', link: 'https://github.com/021-projects/laravel-wallet/tree/v9.x-dev/examples/withdraw' },
+          { text: 'Withdraw', link: 'https://github.com/021-projects/laravel-wallet/tree/master/examples/withdraw' },
         ],
         collapsed: false,
       },
