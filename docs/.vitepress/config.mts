@@ -15,10 +15,10 @@ export default defineConfig({
 
     nav: [
       {
-        text: 'v9 (during development)',
+        text: 'v9',
         items: [
           {
-            text: 'v8 (stable)',
+            text: 'v8',
             link: 'https://021-projects.github.io/laravel-wallet/8.x'
           }
         ]

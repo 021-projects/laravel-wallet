@@ -1,9 +1,5 @@
 # Getting Started
 
-::: warning
-This version is during active development.
-:::
-
 ## Requirements
 
 | Package               | Version          |
@@ -15,7 +11,7 @@ This version is during active development.
 
 First, install the package via the Composer package manager:
 ```bash
-composer require 021/laravel-wallet:dev-v9.x-dev
+composer require 021/laravel-wallet
 ```
 
 After installing the package, you will need to publish the migrations and config:
