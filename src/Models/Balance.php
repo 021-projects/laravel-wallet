@@ -20,8 +20,8 @@ use function O21\LaravelWallet\ConfigHelpers\table_name;
  * @property string $payable_type
  * @property int $payable_id
  * @property \O21\Numeric\Numeric $value
- * @property string $value_pending
- * @property string $value_on_hold
+ * @property \O21\Numeric\Numeric $value_pending
+ * @property \O21\Numeric\Numeric $value_on_hold
  * @property string $currency
  * @property-read \Illuminate\Database\Eloquent\Model|\O21\LaravelWallet\Contracts\Payable $payable
  * @property-read \O21\Numeric\Numeric $sent
@@ -152,6 +152,22 @@ class Balance extends Model implements BalanceContract
     }
 
     public function value(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => num($value),
+            set: fn ($value) => num($value)->get()
+        )->withoutObjectCaching();
+    }
+
+    public function valuePending(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => num($value),
+            set: fn ($value) => num($value)->get()
+        )->withoutObjectCaching();
+    }
+
+    public function valueOnHold(): Attribute
     {
         return Attribute::make(
             get: fn ($value) => num($value),

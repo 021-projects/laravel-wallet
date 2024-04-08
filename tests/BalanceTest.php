@@ -51,6 +51,8 @@ class BalanceTest extends TestCase
         $balance->value = 100;
 
         $this->assertInstanceOf(Numeric::class, $balance->value);
+        $this->assertInstanceOf(Numeric::class, $balance->value_pending);
+        $this->assertInstanceOf(Numeric::class, $balance->value_on_hold);
         $this->assertInstanceOf(Numeric::class, $balance->sent);
         $this->assertInstanceOf(Numeric::class, $balance->received);
 
