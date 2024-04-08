@@ -34,6 +34,7 @@ export default defineConfig({
         text: 'Prologue',
         items: [
           { text: 'Reliability', link: '/reliability' },
+          { text: 'Upgrade Guide', link: '/upgrade-guide' },
         ],
         collapsed: true
       },
