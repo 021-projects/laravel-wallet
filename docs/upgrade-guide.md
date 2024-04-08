@@ -7,6 +7,7 @@
 - [Numeric Class Extracted](#numeric-class-extracted)
 
 ## Medium Impact Changes
+- [Balance Model Attributes Changed](#balance-model-attributes-changed)
 - [Conversation Processors Added](#conversation-processors-added)
 - [Custodian Model Added](#custodian-model-added)
 - [New Transaction Statuses](#new-transaction-statuses)
@@ -128,6 +129,13 @@ public function down()
     Schema::dropIfExists(table_name('custodians'));
 }
 ```
+
+## Balance Model Attributes Changed
+
+**Likelihood Of Impact: Medium**
+
+`value_pending` and `value_on_hold` now returns `O21\Numeric\Numeric` instance instead of a string.
+
 
 ## Migration Helper Trait Removed
 
