@@ -52,6 +52,7 @@ export default defineConfig({
           { text: 'Configuration', link: '/configuration' },
           { text: 'Commands', link: '/commands' },
           { text: 'Transactions', link: '/transactions' },
+          { text: 'Balances', link: '/balances' },
           { text: 'Useful Links', link: '/useful-links' },
         ],
         collapsed: false
