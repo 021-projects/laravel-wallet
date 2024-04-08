@@ -54,7 +54,7 @@ Use it if you want to allow negative balances or creating a deposit.
 :::
 
 ### Useful Links
-- [Transaction Basics](./transactions.md)
+- [The Basics: Transactions](./transactions.md)
 
 ## Custodians
 Sometimes we need to have a balance for an abstraction that doesn't have its own model.
