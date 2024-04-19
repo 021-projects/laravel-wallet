@@ -6,12 +6,24 @@ To get a transaction creator, use the `tx` function:
 $creator = tx(100, 'USD');
 ```
 
-### Handling Errors
+### Hooks
 If you are performing an operation during which an unexpected exception might occur and you need to secure the means, put them in `before` or `after` hooks:
 ```php
-// This code will roll back the transaction.
-$creator->after(function () {
-    throw new \Exception('Error');
+$creator->before(function (
+    // Just add the necessary parameters to the function signature
+    // and the container will automatically resolve them.
+    \O21\LaravelWallet\Contracts\TransactionCreator $creator,
+    \O21\LaravelWallet\Contracts\Transaction $tx,
+) {
+    // Code that will be executed before the transaction is created.
+});
+
+$creator->after(function (
+    \O21\LaravelWallet\Contracts\TransactionCreator $creator,
+    \O21\LaravelWallet\Contracts\Transaction $tx,
+) {
+    // Code that will be executed after the transaction is created.
+    // throw new \Exception('Do rollback');
 });
 ```
 
