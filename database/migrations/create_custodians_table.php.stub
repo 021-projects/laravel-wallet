@@ -17,7 +17,7 @@ return new class extends Migration
     {
         Schema::create(table_name('custodians'), function (Blueprint $table) {
             $table->id();
-            $table->uuid('name')->unique();
+            $table->string('name', 36)->unique();
             $table->json('meta')->nullable();
             $table->timestamp('created_at')->useCurrent();
         });
