@@ -4,6 +4,7 @@ namespace O21\LaravelWallet\Transaction;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Events\NullDispatcher;
 use O21\LaravelWallet\Concerns\Batchable;
 use O21\LaravelWallet\Concerns\Eventable;
 use O21\LaravelWallet\Concerns\Lockable;
@@ -14,6 +15,7 @@ use O21\LaravelWallet\Contracts\TransactionCreator;
 use O21\LaravelWallet\Enums\CommissionStrategy;
 use O21\LaravelWallet\Enums\TransactionStatus;
 use O21\LaravelWallet\Exception\FromOrOverchargeRequiredException;
+use O21\LaravelWallet\Exception\TxCreationRequireEventDispatcher;
 use O21\LaravelWallet\Exception\UnknownTxProcessorException;
 use O21\Numeric\Numeric;
 use O21\LaravelWallet\Transaction\Processors\Contracts\InitialHolding;
@@ -268,6 +270,12 @@ class Creator implements TransactionCreator
         throw_if(
             ! $this->tx->from && ! $this->allowOvercharge,
             FromOrOverchargeRequiredException::class
+        );
+
+        throw_if(
+            (($dispatcher = Model::getEventDispatcher()) instanceof NullDispatcher)
+            || is_null($dispatcher),
+            TxCreationRequireEventDispatcher::class,
         );
     }
 }

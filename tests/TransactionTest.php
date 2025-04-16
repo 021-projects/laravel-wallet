@@ -13,9 +13,11 @@ use O21\LaravelWallet\Exception\FromOrOverchargeRequiredException;
 use O21\LaravelWallet\Exception\ImplicitTxMergeAttemptException;
 use O21\LaravelWallet\Exception\InsufficientFundsException;
 use O21\LaravelWallet\Exception\InvalidTxProcessorException;
+use O21\LaravelWallet\Exception\TxCreationRequireEventDispatcher;
 use O21\LaravelWallet\Exception\UnknownTxProcessorException;
 use O21\LaravelWallet\Tests\Concerns\BalanceSeed;
 use O21\LaravelWallet\Transaction\Processors\DepositProcessor;
+use Workbench\App\Models\User;
 use Workbench\App\Transaction\Processors\InvalidProcessor;
 use Workbench\Database\Factories\APIUserFactory;
 use Workbench\Database\Factories\UserFactory;
@@ -62,6 +64,20 @@ class TransactionTest extends TestCase
             $balance,
             90
         );
+    }
+
+    public function test_throw_in_without_events_closure(): void
+    {
+        $this->expectException(TxCreationRequireEventDispatcher::class);
+
+        User::withoutEvents(function () {
+            $currency = $this->faker->currencyCode();
+            $user = User::factory()->create();
+            deposit(100, $currency)
+                ->to($user)
+                ->overcharge()
+                ->commit();
+        });
     }
 
     public function test_charge(): void
