@@ -2,6 +2,8 @@
 
 namespace O21\LaravelWallet\ConfigHelpers;
 
+use Brick\Math\RoundingMode;
+
 function balance_tracking(?string $key = ''): array
 {
     $tracking = config('wallet.balance.tracking', [
@@ -70,7 +72,7 @@ function num_precise_scale(): int
     return config('wallet.numeric.precise_scale', 22) ?? 22;
 }
 
-function num_rounding_mode(): int
+function num_rounding_mode(): int|RoundingMode
 {
-    return config('wallet.numeric.rounding_mode', \Brick\Math\RoundingMode::DOWN);
+    return config('wallet.numeric.rounding_mode', RoundingMode::DOWN);
 }
