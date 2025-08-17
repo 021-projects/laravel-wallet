@@ -25,7 +25,7 @@ trait HasBalance
             ];
 
             $balanceClass = app(Balance::class);
-            $this->cacheBalanceModel($balanceClass::firstOrCreate($attributes));
+            $this->cacheBalanceModel($balanceClass::firstOrNew($attributes));
         }
 
         return $this->_balances[$currency];
