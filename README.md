@@ -20,8 +20,10 @@
 - [Configuration](https://021-projects.github.io/laravel-wallet/9.x/configuration.html)
 - [Basic Usage](https://021-projects.github.io/laravel-wallet/9.x/basic-usage.html)
 
-# Join Our Community
-- [Telegram](https://t.me/laravelwallet)
+## Useful links
+- [Best XenForo Add-ons](https://gnz.is/products/xenforo/addons/)
+- [Custom Website Design & Development Services](https://studio.gnz.is/)
+- [Genesis Community](https://gnz.is/community/)
 
 ## Support Us
 - **Bitcoin**: 1G4U12A7VVVaUrmj4KmNt4C5SaDmCXuW49
