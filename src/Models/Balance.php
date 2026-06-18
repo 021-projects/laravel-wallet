@@ -83,7 +83,9 @@ class Balance extends Model implements BalanceContract
             $attributes[$key] = $received->sub($sent)->get();
         }
 
-        return $this->update($attributes);
+        $this->fill($attributes);
+
+        return $this->save();
     }
 
     public function logState(?Transaction $tx = null): void
